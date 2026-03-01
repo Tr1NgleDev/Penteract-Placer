@@ -206,5 +206,6 @@ namespace m5
 		operator Mat5() const;
 	};
 	
-	m5::Mat6 createCamera5D(const vec5& eye, const vec5& left, const vec5& up, const vec5& forward, const vec5& over, const vec5& beyond);
+	// yonder - at some distance in the direction indicated; over there
+	m5::Mat6 createCamera5D(const vec5& eye, const vec5& left, const vec5& up, const vec5& forward, const vec5& over, const vec5& yonder);
 }

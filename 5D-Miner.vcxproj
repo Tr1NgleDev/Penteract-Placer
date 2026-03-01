@@ -80,12 +80,17 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Math5D.cpp" />
+    <ClCompile Include="StateGame.cpp" />
+    <ClCompile Include="StateManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math5D.h" />
+    <ClInclude Include="State.h" />
+    <ClInclude Include="StateGame.h" />
+    <ClInclude Include="StateManager.h" />
     <ClInclude Include="vec5.h" />
     <ClInclude Include="vec6.h" />
   </ItemGroup>

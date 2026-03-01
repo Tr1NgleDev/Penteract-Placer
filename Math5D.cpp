@@ -966,9 +966,10 @@ Mat6::operator Mat5() const
 	};
 }
 
-Mat6 m5::createCamera5D(const vec5& eye, const vec5& left, const vec5& up, const vec5& forward, const vec5& over, const vec5& beyond)
+// yonder - at some distance in the direction indicated; over there
+Mat6 m5::createCamera5D(const vec5& eye, const vec5& left, const vec5& up, const vec5& forward, const vec5& over, const vec5& yonder)
 {
-	Mat6 cameraD{ -left, up, forward, over, beyond, {} };
+	Mat6 cameraD{ -left, up, forward, over, yonder, {} };
 	cameraD = Mat6::transpose(cameraD);
 
 	Mat6 cameraP{ {}, {}, {}, {}, {}, -eye };
