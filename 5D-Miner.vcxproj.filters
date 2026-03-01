@@ -18,8 +18,22 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Math5D.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Math5D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vec5.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vec6.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
