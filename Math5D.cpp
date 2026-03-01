@@ -786,7 +786,7 @@ Mat6& Mat6::operator=(Mat6&& other) noexcept
 
 Mat6 Mat6::operator*(const Mat6& other) const
 {
-	Mat5 result;
+	Mat6 result;
 
 	for (int col = 0; col < 6; ++col)
 	{
