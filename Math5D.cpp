@@ -234,21 +234,15 @@ float m5::dot(const BiVector4& a, const BiVector4& b)
 }
 glm::vec4 m5::cross(const glm::vec4& u, const glm::vec4& v, const glm::vec4& w)
 {
-	// intermediate values
-	float a = (v.x * w.y) - (v.y * w.x);
-	float b = (v.x * w.z) - (v.z * w.x);
-	float c = (v.x * w.w) - (v.w * w.x);
-	float d = (v.y * w.z) - (v.z * w.y);
-	float e = (v.y * w.w) - (v.w * w.y);
-	float f = (v.z * w.w) - (v.w * w.z);
+	BiVector4 b = wedge(v, w);
 
 	// result vector
 	glm::vec4 res;
 
-	res.x = (u.y * f) - (u.z * e) + (u.w * d);
-	res.y = -(u.x * f) + (u.z * c) - (u.w * b);
-	res.z = (u.x * e) - (u.y * c) + (u.w * a);
-	res.w = -(u.x * d) + (u.y * b) - (u.z * a);
+	res.x = (u.y * b.zw) - (u.z * b.yw) + (u.w * b.yz);
+	res.y = -(u.x * b.zw) + (u.z * b.xw) - (u.w * b.xz);
+	res.z = (u.x * b.yw) - (u.y * b.xw) + (u.w * b.xy);
+	res.w = -(u.x * b.yz) + (u.y * b.xz) - (u.z * b.xy);
 
 	return res;
 }
