@@ -278,9 +278,9 @@ float m5::length2(const BiVector4& v)
 	return dot(v, v);
 }
 
-Rotor::Rotor(float a, BiVector4 b, float xyzw)
+Rotor4D::Rotor4D(float a, BiVector4 b, float xyzw)
 	: a(a), b(b), xyzw(xyzw) {}
-Rotor::Rotor(const BiVector4& plane, float radians)
+Rotor4D::Rotor4D(const BiVector4& plane, float radians)
 {
 	float cosHalf = glm::cos(radians * 0.5f);
 	float sinHalf = glm::sin(radians * 0.5f);
@@ -290,7 +290,7 @@ Rotor::Rotor(const BiVector4& plane, float radians)
 	b = plane;
 	b *= sinHalf;
 }
-Rotor::Rotor(const glm::vec4& from, const glm::vec4& to)
+Rotor4D::Rotor4D(const glm::vec4& from, const glm::vec4& to)
 {
 	float dot = glm::max(-1.0f, glm::min(1.0f, glm::dot(from, to)));
 	if (dot >= 1.0f - glm::epsilon<float>())
@@ -309,7 +309,7 @@ Rotor::Rotor(const glm::vec4& from, const glm::vec4& to)
 	normalize();
 }
 
-Rotor::Rotor(const BiVector4& u, const BiVector4& v)
+Rotor4D::Rotor4D(const BiVector4& u, const BiVector4& v)
 {
 	a =
 		- u.xy * v.xy
@@ -338,16 +338,16 @@ Rotor::Rotor(const BiVector4& u, const BiVector4& v)
 		+ u.zw * v.xy;
 }
 
-Rotor::Rotor(const Rotor& other)
+Rotor4D::Rotor4D(const Rotor4D& other)
 	: a(other.a), b(other.b), xyzw(other.xyzw) {}
-Rotor::Rotor(Rotor&& other) noexcept
+Rotor4D::Rotor4D(Rotor4D&& other) noexcept
 	: a(other.a), b(other.b), xyzw(other.xyzw)
 {
 	other.a = 1.0f;
 	other.b = 0.0f;
 	other.xyzw = 0.0f;
 }
-Rotor& Rotor::operator=(const Rotor& other)
+Rotor4D& Rotor4D::operator=(const Rotor4D& other)
 {
 	this->a = other.a;
 	this->b = other.b;
@@ -355,7 +355,7 @@ Rotor& Rotor::operator=(const Rotor& other)
 
 	return *this;
 }
-Rotor& Rotor::operator=(Rotor&& other) noexcept
+Rotor4D& Rotor4D::operator=(Rotor4D&& other) noexcept
 {
 	if (this != &other)
 	{
@@ -370,9 +370,9 @@ Rotor& Rotor::operator=(Rotor&& other) noexcept
 	return *this;
 }
 
-Rotor Rotor::operator*(const Rotor& r) const
+Rotor4D Rotor4D::operator*(const Rotor4D& r) const
 {
-	Rotor result{ this->b, r.b };
+	Rotor4D result{ this->b, r.b };
 
 	result.a +=
 		r.a * this->a +
@@ -404,11 +404,11 @@ Rotor Rotor::operator*(const Rotor& r) const
 
 	return result;
 }
-Rotor& Rotor::operator*=(const Rotor& r)
+Rotor4D& Rotor4D::operator*=(const Rotor4D& r)
 {
 	return *this = *this * r;
 }
-glm::vec4 Rotor::rotate(const glm::vec4& v) const
+glm::vec4 Rotor4D::rotate(const glm::vec4& v) const
 {
 	float xyz = b.xy * v.z - b.xz * v.y + b.yz * v.x + xyzw * v.w;
 	float xyw = -b.xw * v.y + b.xy * v.w + b.yw * v.x + -xyzw * v.z;
@@ -429,22 +429,22 @@ glm::vec4 Rotor::rotate(const glm::vec4& v) const
 	};
 }
 
-Rotor Rotor::operator-() const
+Rotor4D Rotor4D::operator-() const
 {
-	return Rotor{ a, -b, xyzw };
+	return Rotor4D{ a, -b, xyzw };
 }
-bool Rotor::operator==(const Rotor& other) const
+bool Rotor4D::operator==(const Rotor4D& other) const
 {
 	return this->a == other.a && this->b == other.b && this->xyzw == other.xyzw;
 }
 
-Rotor Rotor::normalized() const
+Rotor4D Rotor4D::normalized() const
 {
-	Rotor v = *this;
+	Rotor4D v = *this;
 	v.normalize();
 	return v;
 }
-Rotor& Rotor::normalize()
+Rotor4D& Rotor4D::normalize()
 {
 	float len = length2(*this);
 	if (len <= glm::epsilon<float>() * glm::epsilon<float>())
@@ -459,7 +459,7 @@ Rotor& Rotor::normalize()
 	return *this;
 }
 
-Rotor::operator glm::mat4() const
+Rotor4D::operator glm::mat4() const
 {
 	return glm::mat4
 	{
@@ -470,15 +470,15 @@ Rotor::operator glm::mat4() const
 	};
 }
 
-Rotor m5::normalize(const Rotor& v)
+Rotor4D m5::normalize(const Rotor4D& v)
 {
 	return v.normalized();
 }
-float m5::length(const Rotor& v)
+float m5::length(const Rotor4D& v)
 {
 	return glm::sqrt(length2(v));
 }
-float m5::length2(const Rotor& v)
+float m5::length2(const Rotor4D& v)
 {
 	return v.a * v.a + length2(v.b) + v.xyzw * v.xyzw;
 }

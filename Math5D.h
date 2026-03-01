@@ -67,39 +67,39 @@ namespace m5
 	float length2(const BiVector4& v);
 
 	struct Mat5;
-	struct Rotor
+	struct Rotor4D
 	{
 		float a = 1.0f;
 		BiVector4 b = 0.0f;
 		float xyzw = 0.0f;
 
-		Rotor() {}
-		Rotor(float a, BiVector4 b, float xyzw);
-		Rotor(const BiVector4& plane, float radians);
-		Rotor(const glm::vec4& from, const glm::vec4& to);
-		Rotor(const BiVector4& u, const BiVector4& v);
+		Rotor4D() {}
+		Rotor4D(float a, BiVector4 b, float xyzw);
+		Rotor4D(const BiVector4& plane, float radians);
+		Rotor4D(const glm::vec4& from, const glm::vec4& to);
+		Rotor4D(const BiVector4& u, const BiVector4& v);
 
-		Rotor(const Rotor& other);
-		Rotor(Rotor&& other) noexcept;
-		Rotor& operator=(const Rotor& other);
-		Rotor& operator=(Rotor&& other) noexcept;
+		Rotor4D(const Rotor4D& other);
+		Rotor4D(Rotor4D&& other) noexcept;
+		Rotor4D& operator=(const Rotor4D& other);
+		Rotor4D& operator=(Rotor4D&& other) noexcept;
 
-		Rotor operator*(const Rotor& r) const;
-		Rotor& operator*=(const Rotor& r);
+		Rotor4D operator*(const Rotor4D& r) const;
+		Rotor4D& operator*=(const Rotor4D& r);
 		glm::vec4 rotate(const glm::vec4& v) const;
 
-		Rotor operator-() const;
-		bool operator==(const Rotor& other) const;
+		Rotor4D operator-() const;
+		bool operator==(const Rotor4D& other) const;
 
-		Rotor normalized() const;
-		Rotor& normalize();
+		Rotor4D normalized() const;
+		Rotor4D& normalize();
 
 		operator glm::mat4() const;
 	};
 
-	Rotor normalize(const Rotor& v);
-	float length(const Rotor& v);
-	float length2(const Rotor& v);
+	Rotor4D normalize(const Rotor4D& v);
+	float length(const Rotor4D& v);
+	float length2(const Rotor4D& v);
 
 	struct Mat5
 	{
@@ -114,7 +114,7 @@ namespace m5
 
 		Mat5(float x = 0.0f);
 		Mat5(const glm::mat4& m);
-		Mat5(const m5::Rotor& r)
+		Mat5(const m5::Rotor4D& r)
 			: Mat5((glm::mat4)r) {
 		}
 		Mat5(const std::array<vec5, 5>& value);
