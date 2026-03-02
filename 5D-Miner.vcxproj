@@ -57,7 +57,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>libs\ndtf\libs\ndtf-debug.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libs\ndtf\libs\ndtf-debug.lib;libs\ndtf\libs\deflatestatic.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -74,23 +74,41 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>libs\ndtf\libs\ndtf.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libs\ndtf\libs\ndtf.lib;libs\ndtf\libs\deflatestatic.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Directory.cpp" />
+    <ClCompile Include="File.cpp" />
+    <ClCompile Include="Framebuffer.cpp" />
+    <ClCompile Include="GPUBuffer.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Math5D.cpp" />
+    <ClCompile Include="QuadRenderer.cpp" />
+    <ClCompile Include="Shader.cpp" />
     <ClCompile Include="StateGame.cpp" />
     <ClCompile Include="StateManager.cpp" />
+    <ClCompile Include="TexRenderer.cpp" />
+    <ClCompile Include="Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Directory.h" />
+    <ClInclude Include="File.h" />
+    <ClInclude Include="Framebuffer.h" />
+    <ClInclude Include="GPUBuffer.h" />
     <ClInclude Include="Math5D.h" />
+    <ClInclude Include="QuadRenderer.h" />
+    <ClInclude Include="Shader.h" />
     <ClInclude Include="State.h" />
     <ClInclude Include="StateGame.h" />
     <ClInclude Include="StateManager.h" />
+    <ClInclude Include="stb_image.h" />
+    <ClInclude Include="TexRenderer.h" />
+    <ClInclude Include="Texture.h" />
+    <ClInclude Include="tuple_hash.h" />
     <ClInclude Include="vec5.h" />
     <ClInclude Include="vec6.h" />
   </ItemGroup>

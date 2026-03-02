@@ -66,7 +66,6 @@ namespace m5
 	float length(const BiVector4& v);
 	float length2(const BiVector4& v);
 
-	struct Mat5;
 	struct Rotor4D
 	{
 		float a = 1.0f;
@@ -162,6 +161,98 @@ namespace m5
 
 	m5::Mat5 createCamera4D(const glm::vec4& eye, const glm::vec4& left, const glm::vec4& up, const glm::vec4& forward, const glm::vec4& over);
 
+	struct BiVector5
+	{
+		float xy = 0, xz = 0, xw = 0, xv = 0, yz = 0, yw = 0, yv = 0, zw = 0, zv = 0, wv = 0;
+
+		BiVector5() {}
+		BiVector5(float v);
+		BiVector5(float xy, float xz, float xw, float xv, float yz, float yw, float yv, float zw, float zv, float wv);
+
+		BiVector5(const BiVector5& other);
+		BiVector5(BiVector5&& other) noexcept;
+		BiVector5& operator=(const BiVector5& other);
+		BiVector5& operator=(BiVector5&& other) noexcept;
+
+		float& operator[](size_t i);
+		const float& operator[](size_t i) const;
+
+		BiVector5 operator+(const BiVector5& other) const;
+		BiVector5 operator+(float v) const;
+		BiVector5 operator-(const BiVector5& other) const;
+		BiVector5 operator-(float v) const;
+		BiVector5 operator-() const;
+		BiVector5 operator*(const BiVector5& other) const;
+		BiVector5 operator*(float v) const;
+		BiVector5 operator/(const BiVector5& other) const;
+		BiVector5 operator/(float v) const;
+
+		BiVector5& operator+=(const BiVector5& other);
+		BiVector5& operator+=(float v);
+		BiVector5& operator-=(const BiVector5& other);
+		BiVector5& operator-=(float v);
+		BiVector5& operator*=(const BiVector5& other);
+		BiVector5& operator*=(float v);
+		BiVector5& operator/=(const BiVector5& other);
+		BiVector5& operator/=(float v);
+
+		bool operator==(const BiVector5& other) const;
+
+		BiVector5 normalized() const;
+		BiVector5& normalize();
+
+		inline static BiVector5 XY() { return BiVector5{ 1,0,0,0,0,0,0,0,0,0 }; }
+		inline static BiVector5 XZ() { return BiVector5{ 0,1,0,0,0,0,0,0,0,0 }; }
+		inline static BiVector5 XW() { return BiVector5{ 0,0,1,0,0,0,0,0,0,0 }; }
+		inline static BiVector5 XV() { return BiVector5{ 0,0,0,1,0,0,0,0,0,0 }; }
+		inline static BiVector5 YZ() { return BiVector5{ 0,0,0,0,1,0,0,0,0,0 }; }
+		inline static BiVector5 YW() { return BiVector5{ 0,0,0,0,0,1,0,0,0,0 }; }
+		inline static BiVector5 YV() { return BiVector5{ 0,0,0,0,0,0,1,0,0,0 }; }
+		inline static BiVector5 ZW() { return BiVector5{ 0,0,0,0,0,0,0,1,0,0 }; }
+		inline static BiVector5 ZV() { return BiVector5{ 0,0,0,0,0,0,0,0,1,0 }; }
+		inline static BiVector5 WV() { return BiVector5{ 0,0,0,0,0,0,0,0,0,1 }; }
+	};
+
+	float dot(const BiVector5& a, const BiVector5& b);
+	vec5 cross(const vec5& u, const vec5& v, const vec5& w, const vec5& z);
+	BiVector5 wedge(const vec5& u, const vec5& v);
+	BiVector5 normalize(const BiVector5& v);
+	float length(const BiVector5& v);
+	float length2(const BiVector5& v);
+
+	struct Rotor5D
+	{
+		float a = 1.0f;
+		BiVector5 b = 0.0f;
+		vec5 q = {}; // quadvec5 (xyzw, xyzv, xyvw, xvzw, vyzw)
+
+		Rotor5D() {}
+		Rotor5D(float a, BiVector5 b, const vec5& q);
+		Rotor5D(const BiVector5& plane, float radians);
+		Rotor5D(const vec5& from, const vec5& to);
+
+		Rotor5D(const Rotor5D& other);
+		Rotor5D(Rotor5D&& other) noexcept;
+		Rotor5D& operator=(const Rotor5D& other);
+		Rotor5D& operator=(Rotor5D&& other) noexcept;
+
+		Rotor5D operator*(const Rotor5D& r) const;
+		Rotor5D& operator*=(const Rotor5D& r);
+		vec5 rotate(const vec5& v) const;
+
+		Rotor5D operator-() const;
+		bool operator==(const Rotor5D& other) const;
+
+		Rotor5D normalized() const;
+		Rotor5D& normalize();
+
+		operator Mat5() const;
+	};
+
+	Rotor5D normalize(const Rotor5D& v);
+	float length(const Rotor5D& v);
+	float length2(const Rotor5D& v);
+
 	struct Mat6
 	{
 		std::array<vec6, 6> value
@@ -199,6 +290,17 @@ namespace m5
 		void scale(const vec5& s);
 		void scale(float x, float y, float z, float w, float v);
 		void scale(float s);
+		void rotate(const BiVector5& planes, float radians);
+		void rotateXY(float radians);
+		void rotateXZ(float radians);
+		void rotateXW(float radians);
+		void rotateXV(float radians);
+		void rotateYZ(float radians);
+		void rotateYW(float radians);
+		void rotateYV(float radians);
+		void rotateZW(float radians);
+		void rotateZV(float radians);
+		void rotateWV(float radians);
 
 		static Mat6 transpose(const Mat6& m);
 		static Mat6 inverse(const Mat6& m);

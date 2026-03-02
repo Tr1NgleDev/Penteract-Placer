@@ -10,6 +10,8 @@ namespace m5
 	template<typename T = float>
 	struct Tvec5
 	{
+		inline static constexpr size_t size = 5;
+
 		T x{}, y{}, z{}, w{}, v{};
 
 		Tvec5() {}
@@ -62,13 +64,13 @@ namespace m5
 
 		T& operator[](size_t i)
 		{
-			if (i >= 5) throw std::out_of_range("m5::vec5::operator[]: index out of range.");
+			if (i >= size) throw std::out_of_range("m5::vec5::operator[]: index out of range.");
 
 			return (&x)[i];
 		}
 		const T& operator[](size_t i) const
 		{
-			if (i >= 5) throw std::out_of_range("m5::vec5::operator[]: index out of range.");
+			if (i >= size) throw std::out_of_range("m5::vec5::operator[]: index out of range.");
 
 			return (&x)[i];
 		}
