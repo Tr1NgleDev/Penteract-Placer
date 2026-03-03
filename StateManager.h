@@ -4,6 +4,7 @@
 #include <GLFW/glfw3.h>
 #include "State.h"
 #include <vector>
+#include "Math5D.h"
 
 class StateManager
 {
@@ -38,4 +39,5 @@ public:
 	void changeState(State* newState);
 
 	bool shouldClose() const;
+	void getSize(int* width, int* height) const;
 };

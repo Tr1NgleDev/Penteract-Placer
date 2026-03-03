@@ -12,6 +12,10 @@
 
 #include "StateGame.h"
 
+#include "QuadRenderer.h"
+#include "Texture.h"
+#include "Shader.h"
+
 #ifdef _WIN32
 extern "C"
 {
@@ -159,7 +163,13 @@ int main()
 	glClearColor(0, 0, 0, 0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	QuadRenderer::init();
+
 	stateManager.changeState(&StateGame::instanceObj);
+
+	int wW, wH;
+	stateManager.getSize(&wW, &wH);
+	stateManager.windowResize(wW, wH);
 
 	double frameTime = 0.0;
 	double lastTime = glfwGetTime();
@@ -185,6 +195,10 @@ int main()
 
 		stateManager.render();
 	}
+
+	Texture::destroy();
+	Shader::destroy();
+	QuadRenderer::destroy();
 
 	glfwDestroyWindow(window);
 	glfwTerminate();

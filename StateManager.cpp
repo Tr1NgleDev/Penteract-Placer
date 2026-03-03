@@ -89,6 +89,9 @@ void StateManager::keyInput(int key, int scancode, int action, int mods)
 }
 void StateManager::windowResize(int width, int height)
 {
+	width = glm::max(width, 1);
+	height = glm::max(height, 1);
+
 	for (auto& state : states)
 	{
 		state->windowResize(*this, width, height);
@@ -142,4 +145,9 @@ void StateManager::changeState(State* newState)
 {
 	popState();
 	pushState(newState);
+}
+
+void StateManager::getSize(int* width, int* height) const
+{
+	glfwGetFramebufferSize(window, width, height);
 }

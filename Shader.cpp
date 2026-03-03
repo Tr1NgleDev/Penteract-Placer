@@ -206,7 +206,10 @@ int Shader::getUniformLocation(const std::string& name) const
 	{
 		int location = glGetUniformLocation(ID, name.c_str());
 		if (location != -1)
-			uniforms[name] = location;
+		{
+			uniforms.insert(std::make_pair(name, location));
+		}
+		return location;
 	}
 
 	return uniforms.at(name);
