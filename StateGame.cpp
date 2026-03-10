@@ -14,17 +14,18 @@ void StateGame::init(StateManager& s)
 	cameraBuf.use(0);
 
 	cam.pos = { 0, 0, 0, 0, 0 };
-	cam.left = { 1, 0, 0, 0, 0 };
-	cam.up = { 0, 1, 0, 0, 0 };
-	cam.forward = { 0, 0, 1, 0, 0 };
-	cam.over = { 0, 0, 0, 1, 0 };
-	cam.yonder = { 0, 0, 0, 0, 1 };
+	cam.up			= { 1, 0, 0, 0, 0 };
+	cam.forward		= { 0, 1, 0, 0, 0 };
+	cam.left		= { 0, 0, 1, 0, 0 };
+	cam.over		= { 0, 0, 0, 1, 0 };
+	cam.yonder		= { 0, 0, 0, 0, 1 };
 	cam.vFov = glm::radians(90.0f);
 
 	lastMousePos = glm::vec2{ 0 };
 	glfwSetCursorPos(s.window, lastMousePos.x, lastMousePos.y);
 	glfwSetInputMode(s.window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 }
+
 void StateGame::update(StateManager& s, double dt)
 {
 	if (s.shouldClose())
@@ -50,6 +51,7 @@ void StateGame::update(StateManager& s, double dt)
 
 	cam.pos += moveDir * 4.0f * dt;
 }
+
 void StateGame::render(StateManager& s)
 {
 	glClearColor(0, 0, 0, 0);
@@ -60,6 +62,7 @@ void StateGame::render(StateManager& s)
 	rendererShader->use();
 	QuadRenderer::render();
 }
+
 void StateGame::mouseInput(StateManager& s, double xpos, double ypos)
 {
 	float dX = -(xpos - lastMousePos.x) * 2;
@@ -71,15 +74,15 @@ void StateGame::mouseInput(StateManager& s, double xpos, double ypos)
 	float vAngleDelta = dY / 1000.0f * glm::pi<float>();
 
 	// a vector pointing outwards from the front of the player
-	m5::vec5 pd = -m5::normalize(m5::cross(cam.left, { 0, 1, 0, 0, 0 }, cam.over, cam.yonder));
+	m5::vec5 pd = -m5::normalize(m5::cross(cam.left, { 1, 0, 0, 0, 0 }, cam.over, cam.yonder));
 
 	if (!keys.mmb)
 	{
-		float v = glm::asin(glm::clamp(-cam.forward.y, -1.0f, 1.0f));
+		float v = glm::asin(glm::clamp(-cam.forward.a, -1.0f, 1.0f));
 		vAngleDelta = glm::clamp(vAngleDelta + v, -glm::half_pi<float>() + 0.001f, glm::half_pi<float>() - 0.001f) - v;
 
-		m5::Rotor5D rotH{ m5::wedge(pd, cam.left), hAngleDelta }; // XZ
-		m5::Rotor5D rotV{ m5::wedge({ 0, 1, 0, 0, 0 }, pd), vAngleDelta }; // YZ
+		m5::Rotor5 rotH{ m5::wedge(pd, cam.left), hAngleDelta }; // BC
+		m5::Rotor5 rotV{ m5::wedge({ 1, 0, 0, 0, 0 }, pd), vAngleDelta }; // AB
 
 		orientation = rotH * rotV * orientation;
 	}
@@ -87,59 +90,63 @@ void StateGame::mouseInput(StateManager& s, double xpos, double ypos)
 	{
 		if (!keys.shift)
 		{
-			m5::Rotor5D rotH{ m5::wedge(cam.over, cam.left), hAngleDelta }; // XW
-			m5::Rotor5D rotV{ m5::wedge(pd, cam.over), vAngleDelta }; // ZW
+			m5::Rotor5 rotH{ m5::wedge(cam.over, cam.left), hAngleDelta }; // CD
+			m5::Rotor5 rotV{ m5::wedge(pd, cam.over), vAngleDelta }; // BD
 
 			orientation = rotH * rotV * orientation;
 		}
 		else
 		{
-			m5::Rotor5D rotH{ m5::wedge(cam.yonder, cam.left), hAngleDelta }; // XV
-			m5::Rotor5D rotV{ m5::wedge(pd, cam.yonder), vAngleDelta }; // ZV
+			m5::Rotor5 rotH{ m5::wedge(cam.yonder, cam.left), hAngleDelta }; // XV
+			m5::Rotor5 rotV{ m5::wedge(pd, cam.yonder), vAngleDelta }; // ZV
 
 			orientation = rotH * rotV * orientation;
 		}
 	}
 
-	cam.left = m5::normalize(orientation.rotate({ 1, 0, 0, 0, 0 }));
-	cam.up = m5::normalize(orientation.rotate({ 0, 1, 0, 0, 0 }));
-	cam.forward = m5::normalize(orientation.rotate({ 0, 0, 1, 0, 0 }));
-	cam.over = m5::normalize(orientation.rotate({ 0, 0, 0, 1, 0 }));
-	cam.yonder = m5::normalize(orientation.rotate({ 0, 0, 0, 0, 1 }));
+	cam.up		= m5::normalize(orientation.rotate({ 1, 0, 0, 0, 0 }));
+	cam.forward	= m5::normalize(orientation.rotate({ 0, 1, 0, 0, 0 }));
+	cam.left	= m5::normalize(orientation.rotate({ 0, 0, 1, 0, 0 }));
+	cam.over	= m5::normalize(orientation.rotate({ 0, 0, 0, 1, 0 }));
+	cam.yonder	= m5::normalize(orientation.rotate({ 0, 0, 0, 0, 1 }));
 }
+
 void StateGame::scrollInput(StateManager& s, double xoff, double yoff)
 {
 
 }
+
 void StateGame::mouseButtonInput(StateManager& s, int button, int action, int mods)
 {
 	if (action == GLFW_REPEAT) return;
 
 	switch (button)
 	{
-	case GLFW_MOUSE_BUTTON_LEFT: keys.lmb = action == GLFW_PRESS; break;
-	case GLFW_MOUSE_BUTTON_MIDDLE: keys.mmb = action == GLFW_PRESS; break;
-	case GLFW_MOUSE_BUTTON_RIGHT: keys.rmb = action == GLFW_PRESS; break;
+	case GLFW_MOUSE_BUTTON_LEFT: keys.lmb = (action == GLFW_PRESS); break;
+	case GLFW_MOUSE_BUTTON_MIDDLE: keys.mmb = (action == GLFW_PRESS); break;
+	case GLFW_MOUSE_BUTTON_RIGHT: keys.rmb = (action == GLFW_PRESS); break;
 	}
 }
+
 void StateGame::keyInput(StateManager&, int key, int scancode, int action, int mods)
 {
 	if (action == GLFW_REPEAT) return;
 
 	switch (key)
 	{
-	case GLFW_KEY_W: keys.w = action == GLFW_PRESS; break;
-	case GLFW_KEY_S: keys.s = action == GLFW_PRESS; break;
-	case GLFW_KEY_A: keys.a = action == GLFW_PRESS; break;
-	case GLFW_KEY_D: keys.d = action == GLFW_PRESS; break;
-	case GLFW_KEY_Q: keys.q = action == GLFW_PRESS; break;
-	case GLFW_KEY_E: keys.e = action == GLFW_PRESS; break;
-	case GLFW_KEY_R: keys.r = action == GLFW_PRESS; break;
-	case GLFW_KEY_F: keys.f = action == GLFW_PRESS; break;
-	case GLFW_KEY_SPACE: keys.space = action == GLFW_PRESS; break;
-	case GLFW_KEY_LEFT_SHIFT: keys.shift = action == GLFW_PRESS; break;
+	case GLFW_KEY_W: keys.w = (action == GLFW_PRESS); break;
+	case GLFW_KEY_S: keys.s = (action == GLFW_PRESS); break;
+	case GLFW_KEY_A: keys.a = (action == GLFW_PRESS); break;
+	case GLFW_KEY_D: keys.d = (action == GLFW_PRESS); break;
+	case GLFW_KEY_Q: keys.q = (action == GLFW_PRESS); break;
+	case GLFW_KEY_E: keys.e = (action == GLFW_PRESS); break;
+	case GLFW_KEY_R: keys.r = (action == GLFW_PRESS); break;
+	case GLFW_KEY_F: keys.f = (action == GLFW_PRESS); break;
+	case GLFW_KEY_SPACE: keys.space = (action == GLFW_PRESS); break;
+	case GLFW_KEY_LEFT_SHIFT: keys.shift = (action == GLFW_PRESS); break;
 	}
 }
+
 void StateGame::windowResize(StateManager&, int width, int height)
 {
 	glViewport(0, 0, width, height);

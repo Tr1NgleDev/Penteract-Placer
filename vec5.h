@@ -12,34 +12,34 @@ namespace m5
 	{
 		inline static constexpr size_t size = 5;
 
-		T x{}, y{}, z{}, w{}, v{};
+		T a{}, b{}, c{}, d{}, e{};
 
 		Tvec5() {}
-		Tvec5(T v)
-			: x(v), y(v), z(v), w(v), v(v) {}
-		Tvec5(T x, T y, T z, T w, T v)
-			: x(x), y(y), z(z), w(w), v(v) {}
-		Tvec5(const glm::vec<4, T>& xyzw, T v = {})
-			: x(xyzw.x), y(xyzw.y), z(xyzw.z), w(xyzw.w), v(v) {}
+		Tvec5(T e)
+			: a(e), b(e), c(e), d(e), e(e) {}
+		Tvec5(T a, T b, T c, T d, T e)
+			: a(a), b(b), c(c), d(d), e(e) {}
+		Tvec5(const glm::vec<4, T>& abcd, T e = {})
+			: a(abcd.x), b(abcd.y), c(abcd.z), d(abcd.w), e(e) {}
 
 		Tvec5(const Tvec5<T>& other)
-			: x(other.x), y(other.y), z(other.z), w(other.w), v(other.v) {}
+			: a(other.a), b(other.b), c(other.c), d(other.d), e(other.e) {}
 		Tvec5(Tvec5<T>&& other) noexcept
-			: x(other.x), y(other.y), z(other.z), w(other.w), v(other.v)
+			: a(other.a), b(other.b), c(other.c), d(other.d), e(other.e)
 		{
-			other.x = {};
-			other.y = {};
-			other.z = {};
-			other.w = {};
-			other.v = {};
+			other.a = {};
+			other.b = {};
+			other.c = {};
+			other.d = {};
+			other.e = {};
 		}
 		Tvec5<T>& operator=(const Tvec5<T>& other)
 		{
-			this->x = other.x;
-			this->y = other.y;
-			this->z = other.z;
-			this->w = other.w;
-			this->v = other.v;
+			this->a = other.a;
+			this->b = other.b;
+			this->c = other.c;
+			this->d = other.d;
+			this->e = other.e;
 
 			return *this;
 		}
@@ -47,16 +47,16 @@ namespace m5
 		{
 			if (this != &other)
 			{
-				this->x = other.x;
-				this->y = other.y;
-				this->z = other.z;
-				this->w = other.w;
-				this->v = other.v;
-				other.x = {};
-				other.y = {};
-				other.z = {};
-				other.w = {};
-				other.v = {};
+				this->a = other.a;
+				this->b = other.b;
+				this->c = other.c;
+				this->d = other.d;
+				this->e = other.e;
+				other.a = {};
+				other.b = {};
+				other.c = {};
+				other.d = {};
+				other.e = {};
 			}
 
 			return *this;
@@ -66,101 +66,101 @@ namespace m5
 		{
 			if (i >= size) throw std::out_of_range("m5::vec5::operator[]: index out of range.");
 
-			return (&x)[i];
+			return (&a)[i];
 		}
 		const T& operator[](size_t i) const
 		{
 			if (i >= size) throw std::out_of_range("m5::vec5::operator[]: index out of range.");
 
-			return (&x)[i];
+			return (&a)[i];
 		}
 
 		Tvec5<T> operator+(const Tvec5<T>& other) const
 		{
 			return Tvec5<T>
 			{
-				this->x + other.x,
-				this->y + other.y,
-				this->z + other.z,
-				this->w + other.w,
-				this->v + other.v
+				this->a + other.a,
+				this->b + other.b,
+				this->c + other.c,
+				this->d + other.d,
+				this->e + other.e,
 			};
 		}
 		Tvec5<T> operator+(T v) const
 		{
 			return Tvec5<T>
 			{
-				this->x + v,
-				this->y + v,
-				this->z + v,
-				this->w + v,
-				this->v + v
+				this->a + v,
+				this->b + v,
+				this->c + v,
+				this->d + v,
+				this->e + v,
 			};
 		}
 		Tvec5<T> operator-(const Tvec5<T>& other) const
 		{
 			return Tvec5<T>
 			{
-				this->x - other.x,
-				this->y - other.y,
-				this->z - other.z,
-				this->w - other.w,
-				this->v - other.v
+				this->a - other.a,
+				this->b - other.b,
+				this->c - other.c,
+				this->d - other.d,
+				this->e - other.e,
 			};
 		}
 		Tvec5<T> operator-(T v) const
 		{
 			return Tvec5<T>
 			{
-				this->x - v,
-				this->y - v,
-				this->z - v,
-				this->w - v,
-				this->v - v
+				this->a - v,
+				this->b - v,
+				this->c - v,
+				this->d - v,
+				this->e - v,
 			};
 		}
 		Tvec5<T> operator-() const
 		{
 			return Tvec5<T>
 			{
-				-this->x,
-				-this->y,
-				-this->z,
-				-this->w,
-				-this->v
+				-this->a,
+				-this->b,
+				-this->c,
+				-this->d,
+				-this->e,
 			};
 		}
 		Tvec5<T> operator*(const Tvec5<T>& other) const
 		{
 			return Tvec5<T>
 			{
-				this->x * other.x,
-				this->y * other.y,
-				this->z * other.z,
-				this->w * other.w,
-				this->v * other.v
+				this->a * other.a,
+				this->b * other.b,
+				this->c * other.c,
+				this->d * other.d,
+				this->e * other.e,
 			};
 		}
 		Tvec5<T> operator*(T v) const
 		{
 			return Tvec5<T>
 			{
-				this->x * v,
-				this->y * v,
-				this->z * v,
-				this->w * v,
-				this->v * v
+				this->a * v,
+				this->b * v,
+				this->c * v,
+				this->d * v,
+				this->e * v,
 			};
 		}
 		Tvec5<T> operator/(const Tvec5<T>& other) const
 		{
 			return Tvec5<T>
 			{
-				this->x / other.x,
-				this->y / other.y,
-				this->z / other.z,
-				this->w / other.w,
-				this->v / other.v
+				this->a / other.a,
+				this->b / other.b,
+				this->c / other.c,
+				this->d / other.d,
+				this->e / other.e,
 			};
 		}
 		Tvec5<T> operator/(T v) const
@@ -168,11 +168,11 @@ namespace m5
 			float invV = 1.0f / v;
 			return Tvec5<T>
 			{
-				this->x * invV,
-				this->y * invV,
-				this->z * invV,
-				this->w * invV,
-				this->v * invV
+				this->a * invV,
+				this->b * invV,
+				this->c * invV,
+				this->d * invV,
+				this->e * invV,
 			};
 		}
 
@@ -211,12 +211,12 @@ namespace m5
 
 		bool operator==(const Tvec5<T>& other) const
 		{
-			return this->x == other.x && this->y == other.y && this->z == other.z && this->w == other.w && this->v == other.v;
+			return this->a == other.a && this->b == other.b && this->c == other.c && this->d == other.d && this->e == other.e;
 		}
 
 		T dot(const Tvec5<T>& other) const
 		{
-			return x * other.x + y * other.y + z * other.z + w * other.w + v * other.v;
+			return a * other.a + b * other.b + c * other.c + d * other.d + e * other.e;
 		}
 		T length2() const
 		{
@@ -244,11 +244,11 @@ namespace m5
 
 		glm::vec<4, T>& xyzw()
 		{
-			return *(glm::vec<4, T>*)&x;
+			return *(glm::vec<4, T>*)&a;
 		}
 		const glm::vec<4, T>& xyzw() const
 		{
-			return *(const glm::vec<4, T>*)&x;
+			return *(const glm::vec<4, T>*)&a;
 		}
 	};
 
@@ -265,9 +265,9 @@ namespace m5
 	using u64vec5 = Tvec5<uint64_t>;
 
 	inline float dot(const vec5& a, const vec5& b) { return a.dot(b); }
-	inline vec5 normalize(const vec5& v) { return v.normalized(); }
-	inline float length(const vec5& v) { return v.length(); }
-	inline float length2(const vec5& v) { return v.length2(); }
+	inline vec5 normalize(const vec5& e) { return e.normalized(); }
+	inline float length(const vec5& e) { return e.length(); }
+	inline float length2(const vec5& e) { return e.length2(); }
 	inline float distance(const vec5& a, const vec5& b) { return (b - a).length(); }
 	inline float distance2(const vec5& a, const vec5& b) { return (b - a).length2(); }
 }

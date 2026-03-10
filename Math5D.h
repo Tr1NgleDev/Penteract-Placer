@@ -1,313 +1,219 @@
 #pragma once
-
-#include <array>
-#include <cstdint>
-#include <cstdlib>
-#include <glm/glm.hpp>
-#include <glm/ext/matrix_clip_space.hpp>
+#include <glm/vec4.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include "vec5.h"
 #include "vec6.h"
+#include "json.hpp"
 
 namespace m5
 {
-	struct BiVector4
+	//template<typename T = float>
+	//Tvec5<T> cross(const Tvec5<T>& a, const Tvec5<T>& b, const Tvec5<T>& c, const Tvec5<T>& d)
+	//{
+	//}
+
+	vec5 cross(const vec5& a, const vec5& b, const vec5& c, const vec5& d);
+
+	//float dot(const vec5& a, const vec5& b);
+
+	struct Bivector5
 	{
-		float xy = 0, xz = 0, xw = 0, yz = 0, yw = 0, zw = 0;
+		static constexpr size_t SIZE = 10;
 
-		BiVector4() {}
-		BiVector4(float v);
-		BiVector4(float xy, float xz, float xw, float yz, float yw, float zw);
+		Bivector5(float ab = 0, float ac = 0, float ad = 0, float ae = 0, float bc = 0, float bd = 0, float be = 0, float cd = 0, float ce = 0, float de = 0)
+			: ab{ ab }, ac{ ac }, ad{ ad }, ae{ ae }, bc{ bc }, bd{ bd }, be{ be }, cd{ cd }, ce{ ce }, de{ de } {}
 
-		BiVector4(const BiVector4& other);
-		BiVector4(BiVector4&& other) noexcept;
-		BiVector4& operator=(const BiVector4& other);
-		BiVector4& operator=(BiVector4&& other) noexcept;
+		Bivector5(const nlohmann::json& j);
+		nlohmann::json toJson() const;
 
-		float& operator[](size_t i);
-		const float& operator[](size_t i) const;
+		float ab;
+		float ac;
+		float ad;
+		float ae;
+		float bc;
+		float bd;
+		float be;
+		float cd;
+		float ce;
+		float de;
 
-		BiVector4 operator+(const BiVector4& other) const;
-		BiVector4 operator+(float v) const;
-		BiVector4 operator-(const BiVector4& other) const;
-		BiVector4 operator-(float v) const;
-		BiVector4 operator-() const;
-		BiVector4 operator*(const BiVector4& other) const;
-		BiVector4 operator*(float v) const;
-		BiVector4 operator/(const BiVector4& other) const;
-		BiVector4 operator/(float v) const;
-
-		BiVector4& operator+=(const BiVector4& other);
-		BiVector4& operator+=(float v);
-		BiVector4& operator-=(const BiVector4& other);
-		BiVector4& operator-=(float v);
-		BiVector4& operator*=(const BiVector4& other);
-		BiVector4& operator*=(float v);
-		BiVector4& operator/=(const BiVector4& other);
-		BiVector4& operator/=(float v);
-
-		bool operator==(const BiVector4& other) const;
-
-		BiVector4 normalized() const;
-		BiVector4& normalize();
-
-		inline static BiVector4 XY() { return BiVector4{ 1,0,0,0,0,0 }; }
-		inline static BiVector4 XZ() { return BiVector4{ 0,1,0,0,0,0 }; }
-		inline static BiVector4 XW() { return BiVector4{ 0,0,1,0,0,0 }; }
-		inline static BiVector4 YZ() { return BiVector4{ 0,0,0,1,0,0 }; }
-		inline static BiVector4 YW() { return BiVector4{ 0,0,0,0,1,0 }; }
-		inline static BiVector4 ZW() { return BiVector4{ 0,0,0,0,0,1 }; }
-	};
-
-	float dot(const BiVector4& a, const BiVector4& b);
-	glm::vec4 cross(const glm::vec4& u, const glm::vec4& v, const glm::vec4& w);
-	BiVector4 wedge(const glm::vec4& u, const glm::vec4& v);
-	BiVector4 normalize(const BiVector4& v);
-	float length(const BiVector4& v);
-	float length2(const BiVector4& v);
-
-	struct Rotor4D
-	{
-		float a = 1.0f;
-		BiVector4 b = 0.0f;
-		float xyzw = 0.0f;
-
-		Rotor4D() {}
-		Rotor4D(float a, BiVector4 b, float xyzw);
-		Rotor4D(const BiVector4& plane, float radians);
-		Rotor4D(const glm::vec4& from, const glm::vec4& to);
-		Rotor4D(const BiVector4& u, const BiVector4& v);
-
-		Rotor4D(const Rotor4D& other);
-		Rotor4D(Rotor4D&& other) noexcept;
-		Rotor4D& operator=(const Rotor4D& other);
-		Rotor4D& operator=(Rotor4D&& other) noexcept;
-
-		Rotor4D operator*(const Rotor4D& r) const;
-		Rotor4D& operator*=(const Rotor4D& r);
-		glm::vec4 rotate(const glm::vec4& v) const;
-
-		Rotor4D operator-() const;
-		bool operator==(const Rotor4D& other) const;
-
-		Rotor4D normalized() const;
-		Rotor4D& normalize();
-
-		operator glm::mat4() const;
-	};
-
-	Rotor4D normalize(const Rotor4D& v);
-	float length(const Rotor4D& v);
-	float length2(const Rotor4D& v);
-
-	struct Mat5
-	{
-		std::array<vec5, 5> value
+		float& operator[](size_t i)
 		{
-			vec5{ 0.0f, 0.0f, 0.0f, 0.0f, 0.0f },
-			vec5{ 0.0f, 0.0f, 0.0f, 0.0f, 0.0f },
-			vec5{ 0.0f, 0.0f, 0.0f, 0.0f, 0.0f },
-			vec5{ 0.0f, 0.0f, 0.0f, 0.0f, 0.0f },
-			vec5{ 0.0f, 0.0f, 0.0f, 0.0f, 0.0f }
-		};
-
-		Mat5(float x = 0.0f);
-		Mat5(const glm::mat4& m);
-		Mat5(const m5::Rotor4D& r)
-			: Mat5((glm::mat4)r) {
+			assert(i < SIZE);
+			return (&ab)[i];
 		}
-		Mat5(const std::array<vec5, 5>& value);
-		Mat5(const vec5& m0, const vec5& m1, const vec5& m2, const vec5& m3, const vec5& m4);
 
-		Mat5(const Mat5& other);
-		Mat5(Mat5&& other) noexcept;
-		Mat5& operator=(const Mat5& other);
-		Mat5& operator=(Mat5&& other) noexcept;
-
-		Mat5 operator*(const Mat5& other) const;
-		Mat5& operator*=(const Mat5& other);
-
-		vec5 multiply(const vec5& v) const;
-		glm::vec4 multiply(const glm::vec4& v, float finalComp = 1.0f) const;
-		vec5 operator*(const vec5& v) const;
-		glm::vec4 operator*(const glm::vec4& v) const;
-
-		vec5& operator[](size_t i);
-		const vec5& operator[](size_t i) const;
-
-		void translate(const glm::vec4& v);
-		void translate(float x, float y, float z, float w);
-		void translate(float a);
-		void scale(const glm::vec4& s);
-		void scale(float x, float y, float z, float w);
-		void scale(float s);
-
-		static Mat5 transpose(const Mat5& m);
-		static Mat5 inverse(const Mat5& m);
-
-		operator glm::mat4() const;
-	};
-
-	template<glm::length_t L, typename T>
-	inline glm::vec<L, T> safeNormalize(const glm::vec<L, T>& v)
-	{
-		T len = glm::dot(v, v);
-		if (len <= glm::epsilon<T>() * glm::epsilon<T>())
+		const float& operator[](size_t i) const
 		{
-			return glm::vec<L, T>{};
+			assert(i < SIZE);
+			return (&ab)[i];
 		}
-		return v / glm::sqrt(len);
-	}
 
-	m5::Mat5 createCamera4D(const glm::vec4& eye, const glm::vec4& left, const glm::vec4& up, const glm::vec4& forward, const glm::vec4& over);
+		float lengthSquared() const;
+		float length() const;
 
-	struct BiVector5
-	{
-		float xy = 0, xz = 0, xw = 0, xv = 0, yz = 0, yw = 0, yv = 0, zw = 0, zv = 0, wv = 0;
-
-		BiVector5() {}
-		BiVector5(float v);
-		BiVector5(float xy, float xz, float xw, float xv, float yz, float yw, float yv, float zw, float zv, float wv);
-
-		BiVector5(const BiVector5& other);
-		BiVector5(BiVector5&& other) noexcept;
-		BiVector5& operator=(const BiVector5& other);
-		BiVector5& operator=(BiVector5&& other) noexcept;
-
-		float& operator[](size_t i);
-		const float& operator[](size_t i) const;
-
-		BiVector5 operator+(const BiVector5& other) const;
-		BiVector5 operator+(float v) const;
-		BiVector5 operator-(const BiVector5& other) const;
-		BiVector5 operator-(float v) const;
-		BiVector5 operator-() const;
-		BiVector5 operator*(const BiVector5& other) const;
-		BiVector5 operator*(float v) const;
-		BiVector5 operator/(const BiVector5& other) const;
-		BiVector5 operator/(float v) const;
-
-		BiVector5& operator+=(const BiVector5& other);
-		BiVector5& operator+=(float v);
-		BiVector5& operator-=(const BiVector5& other);
-		BiVector5& operator-=(float v);
-		BiVector5& operator*=(const BiVector5& other);
-		BiVector5& operator*=(float v);
-		BiVector5& operator/=(const BiVector5& other);
-		BiVector5& operator/=(float v);
-
-		bool operator==(const BiVector5& other) const;
-
-		BiVector5 normalized() const;
-		BiVector5& normalize();
-
-		inline static BiVector5 XY() { return BiVector5{ 1,0,0,0,0,0,0,0,0,0 }; }
-		inline static BiVector5 XZ() { return BiVector5{ 0,1,0,0,0,0,0,0,0,0 }; }
-		inline static BiVector5 XW() { return BiVector5{ 0,0,1,0,0,0,0,0,0,0 }; }
-		inline static BiVector5 XV() { return BiVector5{ 0,0,0,1,0,0,0,0,0,0 }; }
-		inline static BiVector5 YZ() { return BiVector5{ 0,0,0,0,1,0,0,0,0,0 }; }
-		inline static BiVector5 YW() { return BiVector5{ 0,0,0,0,0,1,0,0,0,0 }; }
-		inline static BiVector5 YV() { return BiVector5{ 0,0,0,0,0,0,1,0,0,0 }; }
-		inline static BiVector5 ZW() { return BiVector5{ 0,0,0,0,0,0,0,1,0,0 }; }
-		inline static BiVector5 ZV() { return BiVector5{ 0,0,0,0,0,0,0,0,1,0 }; }
-		inline static BiVector5 WV() { return BiVector5{ 0,0,0,0,0,0,0,0,0,1 }; }
+		void normalize();
+		Bivector5 normalized() const;
 	};
 
-	float dot(const BiVector5& a, const BiVector5& b);
-	vec5 cross(const vec5& u, const vec5& v, const vec5& w, const vec5& z);
-	BiVector5 wedge(const vec5& u, const vec5& v);
-	BiVector5 normalize(const BiVector5& v);
-	float length(const BiVector5& v);
-	float length2(const BiVector5& v);
+	Bivector5 wedge(const vec5& a, const vec5& b);
 
-	struct Rotor5D
+	struct Quadrivector5
 	{
-		float a = 1.0f;
-		BiVector5 b = 0.0f;
-		vec5 q = {}; // quadvec5 (xyzw, xyzv, xyvw, xvzw, vyzw)
+		static constexpr size_t SIZE = 5;
 
-		Rotor5D() {}
-		Rotor5D(float a, BiVector5 b, const vec5& q);
-		Rotor5D(const BiVector5& plane, float radians);
-		Rotor5D(const vec5& from, const vec5& to);
+		Quadrivector5(float abcd = 0, float abce = 0, float abde = 0, float acde = 0, float bcde = 0)
+			: abcd{ abcd }, abce{ abce }, abde{ abde }, acde{ acde }, bcde{ bcde } {}
 
-		Rotor5D(const Rotor5D& other);
-		Rotor5D(Rotor5D&& other) noexcept;
-		Rotor5D& operator=(const Rotor5D& other);
-		Rotor5D& operator=(Rotor5D&& other) noexcept;
+		Quadrivector5(const nlohmann::json& j);
+		nlohmann::json toJson() const;
 
-		Rotor5D operator*(const Rotor5D& r) const;
-		Rotor5D& operator*=(const Rotor5D& r);
+		float abcd;
+		float abce;
+		float abde;
+		float acde;
+		float bcde;
+
+		float operator[](size_t i)
+		{
+			assert(i < SIZE);
+			return (&abcd)[i];
+		}
+
+		float lengthSquared() const;
+		float length() const;
+	};
+
+	class Rotor5
+	{
+	public:
+
+		// scalar
+		float s;
+		// bivector
+		Bivector5 b;
+		// quadrivector
+		Quadrivector5 q;
+
+		// default constructor
+		Rotor5() : s{ 1 }, b{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, q{ 0, 0, 0, 0, 0 } {}
+		Rotor5(float s, const Bivector5& b, Quadrivector5 q) : s{ s }, b{ b }, q{ q } {}
+		// rotate one vector to another
+		Rotor5(const vec5& from, const vec5& to);
+		// rotate by angle on a given plane ("plane" must be normailzed)
+		Rotor5(const Bivector5& plane, float radians);
+		// interpolate between two rotors
+		Rotor5(const Rotor5& from, const Rotor5& to, float a);
+
+		Rotor5(const nlohmann::json& j);
+		nlohmann::json toJson() const;
+
+		// multiply
+		Rotor5 operator*(const Rotor5& r) const;
+		Rotor5 operator*=(const Rotor5& r);
+		Rotor5 rotate(const Rotor5& r) const;
+
+		// reverse
+		Rotor5 reverse() const;
+		Rotor5 operator~() const;
+
+		// rotate a vector by the rotor
 		vec5 rotate(const vec5& v) const;
 
-		Rotor5D operator-() const;
-		bool operator==(const Rotor5D& other) const;
-
-		Rotor5D normalized() const;
-		Rotor5D& normalize();
-
-		operator Mat5() const;
+		float lengthSquared() const;
+		float length() const;
+		void normalize();
+		Rotor5 normalized() const;
 	};
 
-	Rotor5D normalize(const Rotor5D& v);
-	float length(const Rotor5D& v);
-	float length2(const Rotor5D& v);
-
-	struct Mat6
+	class Mat5
 	{
-		std::array<vec6, 6> value
+	public:
+
+		struct Column
 		{
-			vec6{ 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f },
-			vec6{ 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f },
-			vec6{ 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f },
-			vec6{ 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f },
-			vec6{ 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f },
-			vec6{ 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f }
+			float value[5];
+			constexpr float& operator[](std::size_t index) { return value[index]; }
+			constexpr const float& operator[](std::size_t index) const { return value[index]; }
 		};
 
-		Mat6(float x = 0.0f);
-		Mat6(const Mat5& m);
-		Mat6(const std::array<vec6, 6>& value);
-		Mat6(const vec6& m0, const vec6& m1, const vec6& m2, const vec6& m3, const vec6& m4, const vec6& m5);
+		Column value[5]{};
 
-		Mat6(const Mat6& other);
-		Mat6(Mat6&& other) noexcept;
-		Mat6& operator=(const Mat6& other);
-		Mat6& operator=(Mat6&& other) noexcept;
+		Mat5(float x);
+		Mat5(const Rotor5& r);
+		constexpr Mat5(
+			const Column& c0 = {},
+			const Column& c1 = {},
+			const Column& c2 = {},
+			const Column& c3 = {},
+			const Column& c4 = {}
+		) : value{ c0, c1, c2, c3, c4 } {}
 
-		Mat6 operator*(const Mat6& other) const;
-		Mat6& operator*=(const Mat6& other);
+		Mat5(const nlohmann::json& j);
+		nlohmann::json toJson() const;
 
-		vec6 multiply(const vec6& v) const;
-		vec6 operator*(const vec6& v) const;
+		Mat5 operator*(const Mat5& other) const;
+		Mat5 operator*=(const Mat5& other);
 
-		vec6& operator[](size_t i);
-		const vec6& operator[](size_t i) const;
+		glm::vec4 multiply(const glm::vec4& v, float finalComp) const;
+		glm::vec4 operator*(const glm::vec4& v) const;
 
-		void translate(const vec5& v);
-		void translate(float x, float y, float z, float w, float v);
-		void translate(float a);
-		void scale(const vec5& s);
-		void scale(float x, float y, float z, float w, float v);
-		void scale(float s);
-		void rotate(const BiVector5& planes, float radians);
-		void rotateXY(float radians);
-		void rotateXZ(float radians);
-		void rotateXW(float radians);
-		void rotateXV(float radians);
-		void rotateYZ(float radians);
-		void rotateYW(float radians);
-		void rotateYV(float radians);
-		void rotateZW(float radians);
-		void rotateZV(float radians);
-		void rotateWV(float radians);
+		// implemented here for inlining
+		Column& operator[](int index)
+		{
+			return value[index];
+		}
+		const Column& operator[](int index) const
+		{
+			return value[index];
+		}
 
-		static Mat6 transpose(const Mat6& m);
-		static Mat6 inverse(const Mat6& m);
-
-		operator Mat5() const;
+		void translate(const glm::vec4& translation);
+		void scale(const glm::vec4& scale);
 	};
-	
-	// yonder - at some distance in the direction indicated; over there
-	m5::Mat6 createCamera5D(const vec5& eye, const vec5& left, const vec5& up, const vec5& forward, const vec5& over, const vec5& yonder);
+
+	// json conversion functions
+	template <typename T = float>
+	glm::vec<2, T> vec2FromJson(const nlohmann::json& j)
+	{
+		return { j.at(0).get<T>(), j.at(1).get<T>() };
+	}
+	template <typename T = float>
+	nlohmann::json vec2ToJson(const glm::vec<2, T>& vec)
+	{
+		return { vec.x, vec.y };
+	}
+
+	template <typename T = float>
+	glm::vec<3, T> vec3FromJson(const nlohmann::json& j)
+	{
+		return { j.at(0).get<T>(), j.at(1).get<T>(), j.at(2).get<T>() };
+	}
+	template <typename T = float>
+	nlohmann::json vec3ToJson(const glm::vec<3, T>& vec)
+	{
+		return { vec.x, vec.y, vec.z };
+	}
+
+	template <typename T = float>
+	glm::vec<4, T> vec4FromJson(const nlohmann::json& j)
+	{
+		return { j.at(0).get<T>(), j.at(1).get<T>(), j.at(2).get<T>(), j.at(3).get<T>() };
+	}
+	template <typename T = float>
+	nlohmann::json vec4ToJson(const glm::vec<4, T>& vec)
+	{
+		return { vec.x, vec.y, vec.z, vec.w };
+	}
+
+	template <typename T = float>
+	glm::qua<T> quatFromJson(const nlohmann::json& j)
+	{
+		return { j.at(0).get<T>(), j.at(1).get<T>(), j.at(2).get<T>(), j.at(3).get<T>() };
+	}
+	template <typename T = float>
+	nlohmann::json quatToJson(const glm::qua<T>& quat)
+	{
+		return { quat.w, quat.x, quat.y, quat.z };
+	}
 }

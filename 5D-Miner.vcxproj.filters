@@ -9,6 +9,9 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
+    <Filter Include="Shader FIles">
+      <UniqueIdentifier>{1bd8a0d1-a813-4927-b40b-b0efc9ab4dc9}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Resource Files">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
@@ -57,6 +60,15 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="assets\shaders\quad.vert">
+      <Filter>Shader FIles</Filter>
+    </None>
+    <None Include="assets\shaders\renderer.frag">
+      <Filter>Shader FIles</Filter>
+    </None>
+    <None Include="assets\shaders\renderer.vert">
+      <Filter>Shader FIles</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math5D.h">
@@ -108,6 +120,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="TextureBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="json.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

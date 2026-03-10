@@ -484,15 +484,15 @@ void Shader::setUniform(int loc, const m5::Mat5& v) const
 {
 	setUniform(loc, 5 * 5, &v[0][0]);
 }
-void Shader::setUniform(int loc, const m5::BiVector4& v) const
-{
-	setUniform(loc, 6, &v[0]);
-}
-void Shader::setUniform(int loc, const m5::Mat6& v) const
-{
-	setUniform(loc, 6 * 6, &v[0][0]);
-}
-void Shader::setUniform(int loc, const m5::BiVector5& v) const
+//void Shader::setUniform(int loc, const m5::Bivector4& v) const
+//{
+//	setUniform(loc, 6, &v[0]);
+//}
+//void Shader::setUniform(int loc, const m5::Mat6& v) const
+//{
+//	setUniform(loc, 6 * 6, &v[0][0]);
+//}
+void Shader::setUniform(int loc, const m5::Bivector5& v) const
 {
 	setUniform(loc, 10, &v[0]);
 }

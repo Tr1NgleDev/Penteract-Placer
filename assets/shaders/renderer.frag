@@ -2,22 +2,22 @@
 
 struct vec5
 {
-	vec4 xyzw;
-	float v;
+	vec4 abcd;
+	float e;
 };
-vec5 add(in vec5 a, in vec5 b) { return vec5(a.xyzw + b.xyzw, a.v + b.v); }
-vec5 sub(in vec5 a, in vec5 b) { return vec5(a.xyzw - b.xyzw, a.v - b.v); }
-vec5 mul(in vec5 a, in vec5 b) { return vec5(a.xyzw * b.xyzw, a.v * b.v); }
-vec5 div(in vec5 a, in vec5 b) { return vec5(a.xyzw / b.xyzw, a.v / b.v); }
-vec5 add(in vec5 a, in float b) { return vec5(a.xyzw + vec4(b), a.v + b); }
-vec5 sub(in vec5 a, in float b) { return vec5(a.xyzw - vec4(b), a.v - b); }
-vec5 mul(in vec5 a, in float b) { return vec5(a.xyzw * vec4(b), a.v * b); }
-vec5 div(in vec5 a, in float b) { return vec5(a.xyzw / vec4(b), a.v / b); }
-float dot5(in vec5 a, in vec5 b) { return dot(a.xyzw, b.xyzw) + dot(a.v, b.v); }
+vec5 add(in vec5 a, in vec5 b) { return vec5(a.abcd + b.abcd, a.e + b.e); }
+vec5 sub(in vec5 a, in vec5 b) { return vec5(a.abcd - b.abcd, a.e - b.e); }
+vec5 mul(in vec5 a, in vec5 b) { return vec5(a.abcd * b.abcd, a.e * b.e); }
+vec5 div(in vec5 a, in vec5 b) { return vec5(a.abcd / b.abcd, a.e / b.e); }
+vec5 add(in vec5 a, in float b) { return vec5(a.abcd + vec4(b), a.e + b); }
+vec5 sub(in vec5 a, in float b) { return vec5(a.abcd - vec4(b), a.e - b); }
+vec5 mul(in vec5 a, in float b) { return vec5(a.abcd * vec4(b), a.e * b); }
+vec5 div(in vec5 a, in float b) { return vec5(a.abcd / vec4(b), a.e / b); }
+float dot5(in vec5 a, in vec5 b) { return dot(a.abcd, b.abcd) + dot(a.e, b.e); }
 float length5(in vec5 v) { return sqrt(dot5(v, v)); }
 vec5 normalize5(in vec5 v) { return div(v, sqrt(dot5(v, v))); }
-vec4 xyzw(in vec5 v) { return v.xyzw; }
-vec4 xzwv(in vec5 v) { return vec4(v.xyzw.xzw, v.v); }
+vec4 abcd(in vec5 v) { return v.abcd; }
+vec4 bcde(in vec5 v) { return vec4(v.abcd.yzw, v.e); }
 
 out vec4 color;
 
@@ -27,9 +27,9 @@ uniform float time;
 struct Camera
 {
 	vec5 pos;
-	vec5 left;
 	vec5 up;
 	vec5 forward;
+	vec5 left;
 	vec5 over;
 	vec5 yonder;
 	float vFov;
@@ -42,7 +42,7 @@ uniform vec5 lightDir;
 
 vec3 sky5D(in vec5 rd)
 {
-	float y = rd.xyzw.y;
+	float y = rd.abcd.x;
 	float ay = abs(y);
 
 	if (ay < 1e-6)
@@ -54,7 +54,7 @@ vec3 sky5D(in vec5 rd)
 
 	vec5 p5 = mul(rd, t);
 
-	vec4 p = xzwv(p5);
+	vec4 p = bcde(p5);
 
 	const float cellSize   = 1.0;
 	const float lineWidth  = 0.025;
@@ -94,10 +94,10 @@ void main()
 		add(
 			add(cam.forward, mul(cam.left, -px)),
 			mul(cam.up, -py)
-			)
-		);
+		)
+	);
 
-	color = vec4(rd.xyzw.xyz, 1.0);
+	color = vec4(rd.abcd.xyz, 1.0); // ???
 	//color = vec4(uv, 0.0, 1.0);
 	color = vec4(sky5D(rd), 1.0);
 }
