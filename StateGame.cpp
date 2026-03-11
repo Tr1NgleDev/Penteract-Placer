@@ -74,15 +74,15 @@ void StateGame::mouseInput(StateManager& s, double xpos, double ypos)
 	float vAngleDelta = dY / 1000.0f * glm::pi<float>();
 
 	// a vector pointing outwards from the front of the player
-	m5::vec5 pd = -m5::normalize(m5::cross(cam.left, { 1, 0, 0, 0, 0 }, cam.over, cam.yonder));
+	m5::vec5 pd = m5::normalize(m5::cross(cam.left, m5::vec5::up(), cam.over, cam.yonder));
 
 	if (!keys.mmb)
 	{
 		float v = glm::asin(glm::clamp(-cam.forward.a, -1.0f, 1.0f));
 		vAngleDelta = glm::clamp(vAngleDelta + v, -glm::half_pi<float>() + 0.001f, glm::half_pi<float>() - 0.001f) - v;
 
-		m5::Rotor5 rotH{ m5::wedge(pd, cam.left), hAngleDelta }; // BC
-		m5::Rotor5 rotV{ m5::wedge({ 1, 0, 0, 0, 0 }, pd), vAngleDelta }; // AB
+		m5::rotor5 rotH{ m5::wedge(pd, cam.left), hAngleDelta }; // BC
+		m5::rotor5 rotV{ m5::wedge({ 1, 0, 0, 0, 0 }, pd), vAngleDelta }; // AB
 
 		orientation = rotH * rotV * orientation;
 	}
@@ -90,25 +90,25 @@ void StateGame::mouseInput(StateManager& s, double xpos, double ypos)
 	{
 		if (!keys.shift)
 		{
-			m5::Rotor5 rotH{ m5::wedge(cam.over, cam.left), hAngleDelta }; // CD
-			m5::Rotor5 rotV{ m5::wedge(pd, cam.over), vAngleDelta }; // BD
+			m5::rotor5 rotH{ m5::wedge(cam.over, cam.left), hAngleDelta }; // CD
+			m5::rotor5 rotV{ m5::wedge(pd, cam.over), vAngleDelta }; // BD
 
 			orientation = rotH * rotV * orientation;
 		}
 		else
 		{
-			m5::Rotor5 rotH{ m5::wedge(cam.yonder, cam.left), hAngleDelta }; // XV
-			m5::Rotor5 rotV{ m5::wedge(pd, cam.yonder), vAngleDelta }; // ZV
+			m5::rotor5 rotH{ m5::wedge(cam.yonder, cam.left), hAngleDelta }; // XV
+			m5::rotor5 rotV{ m5::wedge(pd, cam.yonder), vAngleDelta }; // ZV
 
 			orientation = rotH * rotV * orientation;
 		}
 	}
 
-	cam.up		= m5::normalize(orientation.rotate({ 1, 0, 0, 0, 0 }));
-	cam.forward	= m5::normalize(orientation.rotate({ 0, 1, 0, 0, 0 }));
-	cam.left	= m5::normalize(orientation.rotate({ 0, 0, 1, 0, 0 }));
-	cam.over	= m5::normalize(orientation.rotate({ 0, 0, 0, 1, 0 }));
-	cam.yonder	= m5::normalize(orientation.rotate({ 0, 0, 0, 0, 1 }));
+	cam.up		= m5::normalize(orientation.rotate(m5::vec5::up()));
+	cam.forward	= m5::normalize(orientation.rotate(m5::vec5::forward()));
+	cam.left	= m5::normalize(orientation.rotate(m5::vec5::left()));
+	cam.over	= m5::normalize(orientation.rotate(m5::vec5::over()));
+	cam.yonder	= m5::normalize(orientation.rotate(m5::vec5::yonder()));
 }
 
 void StateGame::scrollInput(StateManager& s, double xoff, double yoff)

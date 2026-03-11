@@ -24,7 +24,7 @@ public:
 		uint32_t _pad6[3]{ 0 };
 	};
 
-	m5::Rotor5 orientation;
+	m5::rotor5 orientation;
 	Camera cam;
 	GPUBuffer cameraBuf;
 	Shader* rendererShader;

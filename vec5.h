@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <glm/glm.hpp>
+#include "json.hpp"
 
 namespace m5
 {
@@ -12,7 +13,11 @@ namespace m5
 	{
 		inline static constexpr size_t size = 5;
 
-		T a{}, b{}, c{}, d{}, e{};
+		union { T a{}; T x; T abcd; };
+		union { T b{}; T y; T abce; };
+		union { T c{}; T z; T abde; };
+		union { T d{}; T w; T acde; };
+		union { T e{}; T v; T bcde; };
 
 		Tvec5() {}
 		Tvec5(T e)
@@ -64,14 +69,12 @@ namespace m5
 
 		T& operator[](size_t i)
 		{
-			if (i >= size) throw std::out_of_range("m5::vec5::operator[]: index out of range.");
-
+			assert(i < size);
 			return (&a)[i];
 		}
 		const T& operator[](size_t i) const
 		{
-			if (i >= size) throw std::out_of_range("m5::vec5::operator[]: index out of range.");
-
+			assert(i < size);
 			return (&a)[i];
 		}
 
@@ -250,6 +253,19 @@ namespace m5
 		{
 			return *(const glm::vec<4, T>*)&a;
 		}
+
+		Tvec5(const nlohmann::json& j)
+			: Tvec5(j.at(0).get<T>(), j.at(1).get<T>(), j.at(2).get<T>(), j.at(3).get<T>(), j.at(4).get<T>()) {}
+		nlohmann::json toJson() const
+		{
+			return { a, b, c, d, e };
+		}
+
+		inline static Tvec5<T> up(){ return Tvec5<T>{ 1, 0, 0, 0, 0 }; }
+		inline static Tvec5<T> forward(){ return Tvec5<T>{ 0, 1, 0, 0, 0 }; }
+		inline static Tvec5<T> left(){ return Tvec5<T>{ 0, 0, 1, 0, 0 }; }
+		inline static Tvec5<T> over(){ return Tvec5<T>{ 0, 0, 0, 1, 0 }; }
+		inline static Tvec5<T> yonder() { return Tvec5<T>{ 0, 0, 0, 0, 1 }; }
 	};
 
 	using vec5 = Tvec5<float>;
@@ -263,11 +279,12 @@ namespace m5
 	using u32vec5 = Tvec5<uint32_t>;
 	using uvec5 = u32vec5;
 	using u64vec5 = Tvec5<uint64_t>;
+	using quadvec5 = vec5;
 
 	inline float dot(const vec5& a, const vec5& b) { return a.dot(b); }
-	inline vec5 normalize(const vec5& e) { return e.normalized(); }
-	inline float length(const vec5& e) { return e.length(); }
-	inline float length2(const vec5& e) { return e.length2(); }
+	inline vec5 normalize(const vec5& v) { return v.normalized(); }
+	inline float length(const vec5& v) { return v.length(); }
+	inline float length2(const vec5& v) { return v.length2(); }
 	inline float distance(const vec5& a, const vec5& b) { return (b - a).length(); }
 	inline float distance2(const vec5& a, const vec5& b) { return (b - a).length2(); }
 }

@@ -13,7 +13,12 @@ namespace m5
 	{
 		inline static constexpr size_t size = 6;
 
-		T x{}, y{}, z{}, w{}, v{}, u{};
+		union { T x{}; T a; };
+		union { T y{}; T b; };
+		union { T z{}; T c; };
+		union { T w{}; T d; };
+		union { T v{}; T e; };
+		union { T u{}; T f; };
 
 		Tvec6() {}
 		Tvec6(T v)
@@ -274,6 +279,13 @@ namespace m5
 		const Tvec5<T>& xyzwv() const
 		{
 			return *(const Tvec5<T>*)&x;
+		}
+
+		Tvec6(const nlohmann::json& j)
+			: Tvec6(j.at(0).get<T>(), j.at(1).get<T>(), j.at(2).get<T>(), j.at(3).get<T>(), j.at(4).get<T>(), j.at(5).get<T>()) {}
+		nlohmann::json toJson() const
+		{
+			return { a, b, c, d, e, f };
 		}
 	};
 

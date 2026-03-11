@@ -5,11 +5,6 @@
 
 namespace m5
 {
-	//float dot(const vec5& a, const vec5& b)
-	//{
-	//	return a.a * b.a + a.b * b.b + a.c * b.c + a.d * b.d + a.e * b.e;
-	//}
-
 	inline float det3(
 		float a00, float a01, float a02,
 		float a10, float a11, float a12,
@@ -51,7 +46,28 @@ namespace m5
 		return vec5{ ca, cb, cc, cd, ce };
 	}
 
-	Bivector5::Bivector5(const nlohmann::json& j)
+	glm::vec4 cross(const glm::vec4& u, const glm::vec4& v, const glm::vec4& w)
+	{
+		// intermediate values
+		float a = (v.x * w.y) - (v.y * w.x);
+		float b = (v.x * w.z) - (v.z * w.x);
+		float c = (v.x * w.w) - (v.w * w.x);
+		float d = (v.y * w.z) - (v.z * w.y);
+		float e = (v.y * w.w) - (v.w * w.y);
+		float f = (v.z * w.w) - (v.w * w.z);
+
+		// result vector
+		glm::vec4 res;
+
+		res.x = (u.y * f) - (u.z * e) + (u.w * d);
+		res.y = -(u.x * f) + (u.z * c) - (u.w * b);
+		res.z = (u.x * e) - (u.y * c) + (u.w * a);
+		res.w = -(u.x * d) + (u.y * b) - (u.z * a);
+
+		return res;
+	}
+
+	bivec5::bivec5(const nlohmann::json& j)
 	{
 		ab = j[0].get<float>();
 		ac = j[1].get<float>();
@@ -65,46 +81,273 @@ namespace m5
 		de = j[9].get<float>();
 	}
 
-	nlohmann::json Bivector5::toJson() const
+	nlohmann::json bivec5::toJson() const
 	{
 		return { ab, ac, ad, ae, bc, bd, be, cd, ce, de };
 	}
 
-	float Bivector5::lengthSquared() const
+	bivec5::bivec5(const bivec5& other)
+		: xy(other.xy), xz(other.xz), xw(other.xw), xv(other.xv), yz(other.yz), yw(other.yw), yv(other.yv), zw(other.zw), zv(other.zv), wv(other.wv) {
+	}
+	bivec5::bivec5(bivec5&& other) noexcept
+		: xy(other.xy), xz(other.xz), xw(other.xw), xv(other.xv), yz(other.yz), yw(other.yw), yv(other.yv), zw(other.zw), zv(other.zv), wv(other.wv)
 	{
-		return ab * ab + ac * ac + ad * ad + ae * ae + bc * bc + bd * bd + be * be + cd * cd + ce * ce + de * de;
+		other.xy = 0;
+		other.xz = 0;
+		other.xw = 0;
+		other.xv = 0;
+		other.yz = 0;
+		other.yw = 0;
+		other.yv = 0;
+		other.zw = 0;
+		other.zv = 0;
+		other.wv = 0;
+	}
+	bivec5& bivec5::operator=(const bivec5& other)
+	{
+		this->xy = other.xy;
+		this->xz = other.xz;
+		this->xw = other.xw;
+		this->xv = other.xv;
+		this->yz = other.yz;
+		this->yw = other.yw;
+		this->yv = other.yv;
+		this->zw = other.zw;
+		this->zv = other.zv;
+		this->wv = other.wv;
+
+		return *this;
+	}
+	bivec5& bivec5::operator=(bivec5&& other) noexcept
+	{
+		if (this != &other)
+		{
+			this->xy = other.xy;
+			this->xz = other.xz;
+			this->xw = other.xw;
+			this->xv = other.xv;
+			this->yz = other.yz;
+			this->yw = other.yw;
+			this->yv = other.yv;
+			this->zw = other.zw;
+			this->zv = other.zv;
+			this->wv = other.wv;
+
+			other.xy = 0;
+			other.xz = 0;
+			other.xw = 0;
+			other.xv = 0;
+			other.yz = 0;
+			other.yw = 0;
+			other.yv = 0;
+			other.zw = 0;
+			other.zv = 0;
+			other.wv = 0;
+		}
+
+		return *this;
 	}
 
-	float Bivector5::length() const
+	bivec5 bivec5::operator+(const bivec5& other) const
 	{
-		return glm::sqrt(lengthSquared());
+		return bivec5
+		{
+			this->xy + other.xy,
+			this->xz + other.xz,
+			this->xw + other.xw,
+			this->xv + other.xv,
+			this->yz + other.yz,
+			this->yw + other.yw,
+			this->yv + other.yv,
+			this->zw + other.zw,
+			this->zv + other.zv,
+			this->wv + other.wv
+		};
+	}
+	bivec5 bivec5::operator+(float v) const
+	{
+		return bivec5
+		{
+			this->xy + v,
+			this->xz + v,
+			this->xw + v,
+			this->xv + v,
+			this->yz + v,
+			this->yw + v,
+			this->yv + v,
+			this->zw + v,
+			this->zv + v,
+			this->wv + v
+		};
+	}
+	bivec5 bivec5::operator-(const bivec5& other) const
+	{
+		return bivec5
+		{
+			this->xy - other.xy,
+			this->xz - other.xz,
+			this->xw - other.xw,
+			this->xv - other.xv,
+			this->yz - other.yz,
+			this->yw - other.yw,
+			this->yv - other.yv,
+			this->zw - other.zw,
+			this->zv - other.zv,
+			this->wv - other.wv
+		};
+	}
+	bivec5 bivec5::operator-(float v) const
+	{
+		return bivec5
+		{
+			this->xy - v,
+			this->xz - v,
+			this->xw - v,
+			this->xv - v,
+			this->yz - v,
+			this->yw - v,
+			this->yv - v,
+			this->zw - v,
+			this->zv - v,
+			this->wv - v
+		};
+	}
+	bivec5 bivec5::operator-() const
+	{
+		return bivec5
+		{
+			-this->xy,
+			-this->xz,
+			-this->xw,
+			-this->xv,
+			-this->yz,
+			-this->yw,
+			-this->yv,
+			-this->zw,
+			-this->zv,
+			-this->wv
+		};
+	}
+	bivec5 bivec5::operator*(const bivec5& other) const
+	{
+		return bivec5
+		{
+			this->xy * other.xy,
+			this->xz * other.xz,
+			this->xw * other.xw,
+			this->xv * other.xv,
+			this->yz * other.yz,
+			this->yw * other.yw,
+			this->yv * other.yv,
+			this->zw * other.zw,
+			this->zv * other.zv,
+			this->wv * other.wv
+		};
+	}
+	bivec5 bivec5::operator*(float v) const
+	{
+		return bivec5
+		{
+			this->xy * v,
+			this->xz * v,
+			this->xw * v,
+			this->xv * v,
+			this->yz * v,
+			this->yw * v,
+			this->yv * v,
+			this->zw * v,
+			this->zv * v,
+			this->wv * v
+		};
+	}
+	bivec5 bivec5::operator/(const bivec5& other) const
+	{
+		return bivec5
+		{
+			this->xy / other.xy,
+			this->xz / other.xz,
+			this->xw / other.xw,
+			this->xv / other.xv,
+			this->yz / other.yz,
+			this->yw / other.yw,
+			this->yv / other.yv,
+			this->zw / other.zw,
+			this->zv / other.zv,
+			this->wv / other.wv
+		};
+	}
+	bivec5 bivec5::operator/(float v) const
+	{
+		float invV = 1.0f / v;
+		return bivec5
+		{
+			this->xy * invV,
+			this->xz * invV,
+			this->xw * invV,
+			this->xv * invV,
+			this->yz * invV,
+			this->yw * invV,
+			this->yv * invV,
+			this->zw * invV,
+			this->zv * invV,
+			this->wv * invV
+		};
 	}
 
-	void Bivector5::normalize()
+	bivec5& bivec5::operator+=(const bivec5& other) { return *this = *this + other; }
+	bivec5& bivec5::operator+=(float v) { return *this = *this + v; }
+	bivec5& bivec5::operator-=(const bivec5& other) { return *this = *this - other; }
+	bivec5& bivec5::operator-=(float v) { return *this = *this - v; }
+	bivec5& bivec5::operator*=(const bivec5& other) { return *this = *this * other; }
+	bivec5& bivec5::operator*=(float v) { return *this = *this * v; }
+	bivec5& bivec5::operator/=(const bivec5& other) { return *this = *this / other; }
+	bivec5& bivec5::operator/=(float v) { return *this = *this / v; }
+
+	bool bivec5::operator==(const bivec5& other) const
 	{
-		float len = length();
-		ab /= len;
-		ac /= len;
-		ad /= len;
-		ae /= len;
-		bc /= len;
-		bd /= len;
-		be /= len;
-		cd /= len;
-		ce /= len;
-		de /= len;
+		return this->xy == other.xy && this->xz == other.xz && this->xw == other.xw && this->xv == other.xv &&
+			this->yz == other.yz && this->yw == other.yw && this->yv == other.yv && this->zw == other.zw && this->zv == other.zv && this->wv == other.wv;
 	}
 
-	Bivector5 Bivector5::normalized() const
+	bivec5 bivec5::normalized() const
 	{
-		Bivector5 b = *this;
-		b.normalize();
-		return b;
+		bivec5 v = *this;
+		v.normalize();
+		return v;
+	}
+	bivec5& bivec5::normalize()
+	{
+		float len = length2(*this);
+		if (len <= glm::epsilon<float>() * glm::epsilon<float>())
+		{
+			return *this;
+		}
+		return *this /= glm::sqrt(len);
+	}
+	float dot(const bivec5& a, const bivec5& b)
+	{
+		return
+			a.xy * b.xy + a.xz * b.xz + a.xw * b.xw + a.xv * b.xv +
+			a.yz * b.yz + a.yw * b.yw + a.yv * b.yv +
+			a.zw * b.zw + a.zv * b.zv +
+			a.wv * b.wv;
+	}
+	bivec5 normalize(const bivec5& v)
+	{
+		return v.normalized();
+	}
+	float length(const bivec5& v)
+	{
+		return glm::sqrt(length2(v));
+	}
+	float length2(const bivec5& v)
+	{
+		return dot(v, v);
 	}
 
-	Bivector5 wedge(const vec5& a, const vec5& b)
+	bivec5 wedge(const vec5& a, const vec5& b)
 	{
-		return Bivector5{
+		return bivec5{
 			a.a * b.b - a.b * b.a,
 			a.a * b.c - a.c * b.a,
 			a.a * b.d - a.d * b.a,
@@ -118,31 +361,7 @@ namespace m5
 		}.normalized();
 	}
 
-	Quadrivector5::Quadrivector5(const nlohmann::json& j)
-	{
-		abcd = j[0].get<float>();
-		abce = j[1].get<float>();
-		abde = j[2].get<float>();
-		acde = j[3].get<float>();
-		bcde = j[4].get<float>();
-	}
-
-	nlohmann::json Quadrivector5::toJson() const
-	{
-		return { abcd, abce, abde, acde, bcde };
-	}
-
-	float Quadrivector5::lengthSquared() const
-	{
-		return abcd * abcd + abce * abce + abde * abde + acde * acde + bcde * bcde;
-	}
-
-	float Quadrivector5::length() const
-	{
-		return glm::sqrt(lengthSquared());
-	}
-
-	Rotor5::Rotor5(const vec5& from, const vec5& to)
+	rotor5::rotor5(const vec5& from, const vec5& to)
 	{
 		q = {};
 
@@ -173,7 +392,7 @@ namespace m5
 		normalize();
 	}
 
-	Rotor5::Rotor5(const Bivector5& plane, float radians)
+	rotor5::rotor5(const bivec5& plane, float radians)
 	{
 		float sina = glm::sin(radians / 2.0f);
 		s = glm::cos(radians / 2.0f);
@@ -190,7 +409,7 @@ namespace m5
 		q = {};
 	}
 
-	Rotor5::Rotor5(const Rotor5& from, const Rotor5& to, float t)
+	rotor5::rotor5(const rotor5& from, const rotor5& to, float t)
 	{
 		// dot product
 		float d =
@@ -212,7 +431,7 @@ namespace m5
 			from.q.bcde * to.q.bcde;
 
 		// flip dst if "dot" is negative
-		Rotor5 dst = to;
+		rotor5 dst = to;
 		if (d < 0.0f)
 		{
 			dst.s *= -1.0f;
@@ -284,7 +503,42 @@ namespace m5
 		q.bcde = fromFactor * from.q.bcde + toFactor * dst.q.bcde;
 	}
 
-	Rotor5::Rotor5(const nlohmann::json& j)
+	rotor5::rotor5(const rotor5& other)
+		: s(other.s), b(other.b), q(other.q) {
+	}
+
+	rotor5::rotor5(rotor5&& other) noexcept
+		: s(other.s), b(other.b), q(other.q)
+	{
+		other.s = 1.0f;
+		other.b = 0.0f;
+		other.q = {};
+	}
+
+	rotor5& rotor5::operator=(const rotor5& other)
+	{
+		this->s = other.s;
+		this->b = other.b;
+		this->q = other.q;
+		return *this;
+	}
+
+	rotor5& rotor5::operator=(rotor5&& other) noexcept
+	{
+		if (this != &other)
+		{
+			this->s = other.s;
+			this->b = other.b;
+			this->q = other.q;
+
+			other.s = 1.0f;
+			other.b = 0.0f;
+			other.q = {};
+		}
+		return *this;
+	}
+
+	rotor5::rotor5(const nlohmann::json& j)
 	{
 		s = j[0].get<float>();
 		b.ab = j[1].get<float>();
@@ -304,17 +558,17 @@ namespace m5
 		q.bcde = j[15].get<float>();
 	}
 
-	nlohmann::json Rotor5::toJson() const
+	nlohmann::json rotor5::toJson() const
 	{
 		return { s, b.ab, b.ac, b.ad, b.ae, b.bc, b.bd, b.be, b.cd, b.ce, b.de, q.abcd, q.abce, q.abde, q.acde, q.bcde };
 	}
 
-	Rotor5 Rotor5::operator*(const Rotor5& r) const
+	rotor5 rotor5::operator*(const rotor5& r) const
 	{
 		return
 		{
 			-b.ab * r.b.ab - b.ac * r.b.ac - b.ad * r.b.ad - b.ae * r.b.ae - b.bc * r.b.bc - b.bd * r.b.bd - b.be * r.b.be - b.cd * r.b.cd - b.ce * r.b.ce - b.de * r.b.de + q.abcd * r.q.abcd + q.abce * r.q.abce + q.abde * r.q.abde + q.acde * r.q.acde + q.bcde * r.q.bcde + s * r.s,
-			Bivector5{
+			bivec5{
 				b.ab * r.s - b.ac * r.b.bc - b.ad * r.b.bd - b.ae * r.b.be + b.bc * r.b.ac + b.bd * r.b.ad + b.be * r.b.ae - b.cd * r.q.abcd - b.ce * r.q.abce - b.de * r.q.abde - q.abcd * r.b.cd - q.abce * r.b.ce - q.abde * r.b.de + q.acde * r.q.bcde - q.bcde * r.q.acde + s * r.b.ab,
 				b.ab * r.b.bc + b.ac * r.s - b.ad * r.b.cd - b.ae * r.b.ce - b.bc * r.b.ab + b.bd * r.q.abcd + b.be * r.q.abce + b.cd * r.b.ad + b.ce * r.b.ae - b.de * r.q.acde + q.abcd * r.b.bd + q.abce * r.b.be - q.abde * r.q.bcde - q.acde * r.b.de + q.bcde * r.q.abde + s * r.b.ac,
 				b.ab * r.b.bd + b.ac * r.b.cd + b.ad * r.s - b.ae * r.b.de - b.bc * r.q.abcd - b.bd * r.b.ab + b.be * r.q.abde - b.cd * r.b.ac + b.ce * r.q.acde + b.de * r.b.ae - q.abcd * r.b.bc + q.abce * r.q.bcde + q.abde * r.b.be + q.acde * r.b.ce - q.bcde * r.q.abce + s * r.b.ad,
@@ -326,7 +580,7 @@ namespace m5
 				-b.ab * r.q.abce - b.ac * r.b.ae + b.ad * r.q.acde + b.ae * r.b.ac - b.bc * r.b.be + b.bd * r.q.bcde + b.be * r.b.bc + b.cd * r.b.de + b.ce * r.s - b.de * r.b.cd - q.abcd * r.q.abde - q.abce * r.b.ab + q.abde * r.q.abcd + q.acde * r.b.ad + q.bcde * r.b.bd + s * r.b.ce,
 				-b.ab * r.q.abde - b.ac * r.q.acde - b.ad * r.b.ae + b.ae * r.b.ad - b.bc * r.q.bcde - b.bd * r.b.be + b.be * r.b.bd - b.cd * r.b.ce + b.ce * r.b.cd + b.de * r.s + q.abcd * r.q.abce - q.abce * r.q.abcd - q.abde * r.b.ab - q.acde * r.b.ac - q.bcde * r.b.bc + s * r.b.de,
 			},
-			Quadrivector5{
+			quadvec5{
 				b.ab * r.b.cd - b.ac * r.b.bd + b.ad * r.b.bc - b.ae * r.q.bcde + b.bc * r.b.ad - b.bd * r.b.ac + b.be * r.q.acde + b.cd * r.b.ab - b.ce * r.q.abde + b.de * r.q.abce + q.abcd * r.s - q.abce * r.b.de + q.abde * r.b.ce - q.acde * r.b.be + q.bcde * r.b.ae + s * r.q.abcd,
 				b.ab * r.b.ce - b.ac * r.b.be + b.ad * r.q.bcde + b.ae * r.b.bc + b.bc * r.b.ae - b.bd * r.q.acde - b.be * r.b.ac + b.cd * r.q.abde + b.ce * r.b.ab - b.de * r.q.abcd + q.abcd * r.b.de + q.abce * r.s - q.abde * r.b.cd + q.acde * r.b.bd - q.bcde * r.b.ad + s * r.q.abce,
 				b.ab * r.b.de - b.ac * r.q.bcde - b.ad * r.b.be + b.ae * r.b.bd + b.bc * r.q.acde + b.bd * r.b.ae - b.be * r.b.ad - b.cd * r.q.abce + b.ce * r.q.abcd + b.de * r.b.ab - q.abcd * r.b.ce + q.abce * r.b.cd + q.abde * r.s - q.acde * r.b.bc + q.bcde * r.b.ac + s * r.q.abde,
@@ -336,20 +590,25 @@ namespace m5
 		};
 	}
 
-	Rotor5 Rotor5::operator*=(const Rotor5& r)
+	rotor5 rotor5::operator*=(const rotor5& r)
 	{
 		*this = *this * r;
 		return *this;
 	}
 
-	Rotor5 Rotor5::rotate(const Rotor5& r) const
+	bool rotor5::operator==(const rotor5& other) const
 	{
-		Rotor5 l = *this;
+		return this->s == other.s && this->b == other.b && this->q == other.q;
+	}
+
+	rotor5 rotor5::rotate(const rotor5& r) const
+	{
+		rotor5 l = *this;
 		l *= r;
 		return l;
 	}
 
-	vec5 Rotor5::rotate(const vec5& v) const
+	vec5 rotor5::rotate(const vec5& v) const
 	{
 		// TODO: optimize?
 		return
@@ -364,121 +623,106 @@ namespace m5
 		//-2 * b.ab * b.cd * v.e + 2 * b.ab * b.ce * v.d - 2 * b.ab * b.de * v.c + 2 * b.ab * q.acde * v.a + 2 * b.ab * q.bcde * v.b + 2 * b.ac * b.bd * v.e - 2 * b.ac * b.be * v.d + 2 * b.ac * b.de * v.b - 2 * b.ac * q.abde * v.a + 2 * b.ac * q.bcde * v.c - 2 * b.ad * b.bc * v.e + 2 * b.ad * b.be * v.c - 2 * b.ad * b.ce * v.b + 2 * b.ad * q.abce * v.a + 2 * b.ad * q.bcde * v.d + 2 * b.ae * b.bc * v.d - 2 * b.ae * b.bd * v.c + 2 * b.ae * b.cd * v.b - 2 * b.ae * q.abcd * v.a + 2 * b.ae * q.bcde * v.e - 2 * b.bc * b.de * v.a - 2 * b.bc * q.abde * v.b - 2 * b.bc * q.acde * v.c + 2 * b.bd * b.ce * v.a + 2 * b.bd * q.abce * v.b - 2 * b.bd * q.acde * v.d - 2 * b.be * b.cd * v.a - 2 * b.be * q.abcd * v.b - 2 * b.be * q.acde * v.e + 2 * b.cd * q.abce * v.c + 2 * b.cd * q.abde * v.d - 2 * b.ce * q.abcd * v.c + 2 * b.ce * q.abde * v.e - 2 * b.de * q.abcd * v.d - 2 * b.de * q.abce * v.e + 2 * q.abcd * s * v.e - 2 * q.abce * s * v.d + 2 * q.abde * s * v.c - 2 * q.acde * s * v.b + 2 * q.bcde * s * v.a;
 	}
 
-	float Rotor5::lengthSquared() const
+	rotor5 rotor5::normalized() const
 	{
-		return s * s + b.lengthSquared() + q.lengthSquared();
+		rotor5 v = *this;
+		v.normalize();
+		return v;
 	}
 
-	float Rotor5::length() const
+	rotor5& rotor5::normalize()
 	{
-		return glm::sqrt(lengthSquared());
-	}
-
-	void Rotor5::normalize()
-	{
-		float len = length();
-		s /= len;
-		b.ab /= len;
-		b.ac /= len;
-		b.ad /= len;
-		b.ae /= len;
-		b.bc /= len;
-		b.bd /= len;
-		b.be /= len;
-		b.cd /= len;
-		b.ce /= len;
-		b.de /= len;
-		q.abcd /= len;
-		q.abce /= len;
-		q.abde /= len;
-		q.acde /= len;
-		q.bcde /= len;
-	}
-
-	Rotor5 Rotor5::normalized() const
-	{
-		Rotor5 r = *this;
-		r.normalize();
-		return r;
-	}
-
-	Mat5::Mat5(float x)
-	{
-		value[0][0] = x;
-		value[1][1] = x;
-		value[2][2] = x;
-		value[3][3] = x;
-		value[4][4] = x;
-	}
-
-	Mat5::Mat5(const Rotor5& r)
-	{
-		value[0] = {
-			r.s * r.s - r.b.ab * r.b.ab - r.q.abcd * r.q.abcd - r.q.abce * r.q.abce - r.q.abde * r.q.abde - r.b.ac * r.b.ac - r.q.acde * r.q.acde - r.b.ad * r.b.ad - r.b.ae * r.b.ae + r.b.bc * r.b.bc + r.q.bcde * r.q.bcde + r.b.bd * r.b.bd + r.b.be * r.b.be + r.b.cd * r.b.cd + r.b.ce * r.b.ce + r.b.de * r.b.de,
-			-2.0f * r.s * r.b.ab - 2.0f * r.q.abcd * r.b.cd - 2.0f * r.q.abce * r.b.ce - 2.0f * r.q.abde * r.b.de - 2.0f * r.b.ac * r.b.bc - 2.0f * r.q.acde * r.q.bcde - 2.0f * r.b.ad * r.b.bd - 2.0f * r.b.ae * r.b.be,
-			-2.0f * r.s * r.b.ac + 2.0f * r.b.ab * r.b.bc + 2.0f * r.q.abcd * r.b.bd + 2.0f * r.q.abce * r.b.be + 2.0f * r.q.abde * r.q.bcde - 2.0f * r.q.acde * r.b.de - 2.0f * r.b.ad * r.b.cd - 2.0f * r.b.ae * r.b.ce,
-			-2.0f * r.s * r.b.ad + 2.0f * r.b.ab * r.b.bd - 2.0f * r.q.abcd * r.b.bc - 2.0f * r.q.abce * r.q.bcde + 2.0f * r.q.abde * r.b.be + 2.0f * r.b.ac * r.b.cd + 2.0f * r.q.acde * r.b.ce - 2.0f * r.b.ae * r.b.de,
-			-2.0f * r.s * r.b.ae + 2.0f * r.b.ab * r.b.be + 2.0f * r.q.abcd * r.q.bcde - 2.0f * r.q.abce * r.b.bc - 2.0f * r.q.abde * r.b.bd + 2.0f * r.b.ac * r.b.ce - 2.0f * r.q.acde * r.b.cd + 2.0f * r.b.ad * r.b.de,
-		};
-
-		value[1] = {
-			2.0f * r.s * r.b.ab + 2.0f * r.q.abcd * r.b.cd + 2.0f * r.q.abce * r.b.ce + 2.0f * r.q.abde * r.b.de - 2.0f * r.b.ac * r.b.bc - 2.0f * r.q.acde * r.q.bcde - 2.0f * r.b.ad * r.b.bd - 2.0f * r.b.ae * r.b.be,
-			r.s * r.s - r.b.ab * r.b.ab - r.q.abcd * r.q.abcd - r.q.abce * r.q.abce - r.q.abde * r.q.abde + r.b.ac * r.b.ac + r.q.acde * r.q.acde + r.b.ad * r.b.ad + r.b.ae * r.b.ae - r.b.bc * r.b.bc - r.q.bcde * r.q.bcde - r.b.bd * r.b.bd - r.b.be * r.b.be + r.b.cd * r.b.cd + r.b.ce * r.b.ce + r.b.de * r.b.de,
-			-2.0f * r.s * r.b.bc - 2.0f * r.b.ab * r.b.ac - 2.0f * r.q.abcd * r.b.ad - 2.0f * r.q.abce * r.b.ae - 2.0f * r.q.abde * r.q.acde - 2.0f * r.q.bcde * r.b.de - 2.0f * r.b.bd * r.b.cd - 2.0f * r.b.be * r.b.ce,
-			-2.0f * r.s * r.b.bd - 2.0f * r.b.ab * r.b.ad + 2.0f * r.q.abcd * r.b.ac + 2.0f * r.q.abce * r.q.acde - 2.0f * r.q.abde * r.b.ae + 2.0f * r.b.bc * r.b.cd + 2.0f * r.q.bcde * r.b.ce - 2.0f * r.b.be * r.b.de,
-			-2.0f * r.s * r.b.be - 2.0f * r.b.ab * r.b.ae - 2.0f * r.q.abcd * r.q.acde + 2.0f * r.q.abce * r.b.ac + 2.0f * r.q.abde * r.b.ad + 2.0f * r.b.bc * r.b.ce - 2.0f * r.q.bcde * r.b.cd + 2.0f * r.b.bd * r.b.de,
-		};
-
-		value[2] = {
-			2.0f * r.s * r.b.ac + 2.0f * r.b.ab * r.b.bc - 2.0f * r.q.abcd * r.b.bd - 2.0f * r.q.abce * r.b.be + 2.0f * r.q.abde * r.q.bcde + 2.0f * r.q.acde * r.b.de - 2.0f * r.b.ad * r.b.cd - 2.0f * r.b.ae * r.b.ce,
-			2.0f * r.s * r.b.bc - 2.0f * r.b.ab * r.b.ac + 2.0f * r.q.abcd * r.b.ad + 2.0f * r.q.abce * r.b.ae - 2.0f * r.q.abde * r.q.acde + 2.0f * r.q.bcde * r.b.de - 2.0f * r.b.bd * r.b.cd - 2.0f * r.b.be * r.b.ce,
-			r.s * r.s + r.b.ab * r.b.ab - r.q.abcd * r.q.abcd - r.q.abce * r.q.abce + r.q.abde * r.q.abde - r.b.ac * r.b.ac - r.q.acde * r.q.acde + r.b.ad * r.b.ad + r.b.ae * r.b.ae - r.b.bc * r.b.bc - r.q.bcde * r.q.bcde + r.b.bd * r.b.bd + r.b.be * r.b.be - r.b.cd * r.b.cd - r.b.ce * r.b.ce + r.b.de * r.b.de,
-			-2.0f * r.s * r.b.cd - 2.0f * r.b.ab * r.q.abcd - 2.0f * r.q.abce * r.q.abde - 2.0f * r.b.ac * r.b.ad - 2.0f * r.q.acde * r.b.ae - 2.0f * r.b.bc * r.b.bd - 2.0f * r.q.bcde * r.b.be - 2.0f * r.b.ce * r.b.de,
-			-2.0f * r.s * r.b.ce - 2.0f * r.b.ab * r.q.abce + 2.0f * r.q.abcd * r.q.abde - 2.0f * r.b.ac * r.b.ae + 2.0f * r.q.acde * r.b.ad - 2.0f * r.b.bc * r.b.be + 2.0f * r.q.bcde * r.b.bd + 2.0f * r.b.cd * r.b.de,
-		};
-
-		value[3] = {
-			2.0f * r.s * r.b.ad + 2.0f * r.b.ab * r.b.bd + 2.0f * r.q.abcd * r.b.bc - 2.0f * r.q.abce * r.q.bcde - 2.0f * r.q.abde * r.b.be + 2.0f * r.b.ac * r.b.cd - 2.0f * r.q.acde * r.b.ce - 2.0f * r.b.ae * r.b.de,
-			2.0f * r.s * r.b.bd - 2.0f * r.b.ab * r.b.ad - 2.0f * r.q.abcd * r.b.ac + 2.0f * r.q.abce * r.q.acde + 2.0f * r.q.abde * r.b.ae + 2.0f * r.b.bc * r.b.cd - 2.0f * r.q.bcde * r.b.ce - 2.0f * r.b.be * r.b.de,
-			2.0f * r.s * r.b.cd + 2.0f * r.b.ab * r.q.abcd - 2.0f * r.q.abce * r.q.abde - 2.0f * r.b.ac * r.b.ad + 2.0f * r.q.acde * r.b.ae - 2.0f * r.b.bc * r.b.bd + 2.0f * r.q.bcde * r.b.be - 2.0f * r.b.ce * r.b.de,
-			r.s * r.s + r.b.ab * r.b.ab - r.q.abcd * r.q.abcd + r.q.abce * r.q.abce - r.q.abde * r.q.abde + r.b.ac * r.b.ac - r.q.acde * r.q.acde - r.b.ad * r.b.ad + r.b.ae * r.b.ae + r.b.bc * r.b.bc - r.q.bcde * r.q.bcde - r.b.bd * r.b.bd + r.b.be * r.b.be - r.b.cd * r.b.cd + r.b.ce * r.b.ce - r.b.de * r.b.de,
-			-2.0f * r.s * r.b.de - 2.0f * r.b.ab * r.q.abde - 2.0f * r.q.abcd * r.q.abce - 2.0f * r.b.ac * r.q.acde - 2.0f * r.b.ad * r.b.ae - 2.0f * r.b.bc * r.q.bcde - 2.0f * r.b.bd * r.b.be - 2.0f * r.b.cd * r.b.ce,
-		};
-
-		value[4] = {
-			2.0f * r.s * r.b.ae + 2.0f * r.b.ab * r.b.be + 2.0f * r.q.abcd * r.q.bcde + 2.0f * r.q.abce * r.b.bc + 2.0f * r.q.abde * r.b.bd + 2.0f * r.b.ac * r.b.ce + 2.0f * r.q.acde * r.b.cd + 2.0f * r.b.ad * r.b.de,
-			2.0f * r.s * r.b.be - 2.0f * r.b.ab * r.b.ae - 2.0f * r.q.abcd * r.q.acde - 2.0f * r.q.abce * r.b.ac - 2.0f * r.q.abde * r.b.ad + 2.0f * r.b.bc * r.b.ce + 2.0f * r.q.bcde * r.b.cd + 2.0f * r.b.bd * r.b.de,
-			2.0f * r.s * r.b.ce + 2.0f * r.b.ab * r.q.abce + 2.0f * r.q.abcd * r.q.abde - 2.0f * r.b.ac * r.b.ae - 2.0f * r.q.acde * r.b.ad - 2.0f * r.b.bc * r.b.be - 2.0f * r.q.bcde * r.b.bd + 2.0f * r.b.cd * r.b.de,
-			2.0f * r.s * r.b.de + 2.0f * r.b.ab * r.q.abde - 2.0f * r.q.abcd * r.q.abce + 2.0f * r.b.ac * r.q.acde - 2.0f * r.b.ad * r.b.ae + 2.0f * r.b.bc * r.q.bcde - 2.0f * r.b.bd * r.b.be - 2.0f * r.b.cd * r.b.ce,
-			r.s * r.s + r.b.ab * r.b.ab + r.q.abcd * r.q.abcd - r.q.abce * r.q.abce - r.q.abde * r.q.abde + r.b.ac * r.b.ac - r.q.acde * r.q.acde + r.b.ad * r.b.ad - r.b.ae * r.b.ae + r.b.bc * r.b.bc - r.q.bcde * r.q.bcde + r.b.bd * r.b.bd - r.b.be * r.b.be + r.b.cd * r.b.cd - r.b.ce * r.b.ce - r.b.de * r.b.de,
-		};
-	}
-
-	Mat5::Mat5(const nlohmann::json& j)
-	{
-		for (int col = 0; col < 5; ++col)
+		float len = length2(*this);
+		if (len <= glm::epsilon<float>() * glm::epsilon<float>())
 		{
-			for (int row = 0; row < 5; ++row)
-			{
-				value[col][row] = j.at(col).at(row).get<float>();
-			}
+			return *this;
 		}
+		len = 1.0f / glm::sqrt(len);
+		this->s *= len;
+		this->b *= len;
+		this->q = this->q * len;
+		return *this;
 	}
 
-	nlohmann::json Mat5::toJson() const
+	rotor5::operator mat5() const
 	{
-		return {
-			{ value[0][0], value[0][1], value[0][2], value[0][3], value[0][4] },
-			{ value[1][0], value[1][1], value[1][2], value[1][3], value[1][4] },
-			{ value[2][0], value[2][1], value[2][2], value[2][3], value[2][4] },
-			{ value[3][0], value[3][1], value[3][2], value[3][3], value[3][4] },
-			{ value[4][0], value[4][1], value[4][2], value[4][3], value[4][4] },
+		return mat5
+		{
+			rotate({ 1, 0, 0, 0, 0 }),
+			rotate({ 0, 1, 0, 0, 0 }),
+			rotate({ 0, 0, 1, 0, 0 }),
+			rotate({ 0, 0, 0, 1, 0 }),
+			rotate({ 0, 0, 0, 0, 1 }),
 		};
 	}
 
-	Mat5 Mat5::operator*(const Mat5& other) const
+	rotor5 normalize(const rotor5& v)
 	{
-		Mat5 result;
+		return v.normalized();
+	}
+	float length(const rotor5& v)
+	{
+		return glm::sqrt(length2(v));
+	}
+	float length2(const rotor5& v)
+	{
+		return v.s * v.s + length2(v.b) + length2(v.q);
+	}
+
+	mat5::mat5(float x)
+	{
+		value[0][0] =
+			value[1][1] =
+			value[2][2] =
+			value[3][3] =
+			value[4][4] = x;
+	}
+	mat5::mat5(const glm::mat4& m)
+	{
+		value[0] = m[0];
+		value[1] = m[1];
+		value[2] = m[2];
+		value[3] = m[3];
+		value[4][4] = 1.0f;
+	}
+
+	mat5::mat5(const std::array<vec5, 5>& value)
+		: value(value)
+	{
+	}
+	mat5::mat5(const vec5& m0, const vec5& m1, const vec5& m2, const vec5& m3, const vec5& m4)
+	{
+		value[0] = m0;
+		value[1] = m1;
+		value[2] = m2;
+		value[3] = m3;
+		value[4] = m4;
+	}
+
+	mat5::mat5(const mat5& other)
+	{
+		this->value = other.value;
+	}
+	mat5::mat5(mat5&& other) noexcept
+	{
+		this->value = std::move(other.value);
+	}
+	mat5& mat5::operator=(const mat5& other)
+	{
+		this->value = other.value;
+
+		return *this;
+	}
+	mat5& mat5::operator=(mat5&& other) noexcept
+	{
+		this->value = std::move(other.value);
+
+		return *this;
+	}
+
+	mat5 mat5::operator*(const mat5& other) const
+	{
+		mat5 result;
 
 		for (int col = 0; col < 5; ++col)
 		{
@@ -493,162 +737,578 @@ namespace m5
 
 		return result;
 	}
-
-	Mat5 Mat5::operator*=(const Mat5& other)
+	mat5& mat5::operator*=(const mat5& other)
 	{
-		*this = *this * other;
-		return *this;
+		return *this = *this * other;
 	}
 
-	glm::vec4 Mat5::multiply(const glm::vec4& v, float finalComp) const
+	vec5 mat5::multiply(const vec5& v) const
 	{
-		return glm::vec4
+		return vec5
 		{
-			value[0][0] * v.x + value[1][0] * v.y + value[2][0] * v.z + value[3][0] * v.w + value[4][0] * finalComp,
-			value[0][1] * v.x + value[1][1] * v.y + value[2][1] * v.z + value[3][1] * v.w + value[4][1] * finalComp,
-			value[0][2] * v.x + value[1][2] * v.y + value[2][2] * v.z + value[3][2] * v.w + value[4][2] * finalComp,
-			value[0][3] * v.x + value[1][3] * v.y + value[2][3] * v.z + value[3][3] * v.w + value[4][3] * finalComp
+			value[0][0] * v[0] + value[1][0] * v[1] + value[2][0] * v[2] + value[3][0] * v[3] + value[4][0] * v[4],
+			value[0][1] * v[0] + value[1][1] * v[1] + value[2][1] * v[2] + value[3][1] * v[3] + value[4][1] * v[4],
+			value[0][2] * v[0] + value[1][2] * v[1] + value[2][2] * v[2] + value[3][2] * v[3] + value[4][2] * v[4],
+			value[0][3] * v[0] + value[1][3] * v[1] + value[2][3] * v[2] + value[3][3] * v[3] + value[4][3] * v[4],
+			value[0][4] * v[0] + value[1][4] * v[1] + value[2][4] * v[2] + value[3][4] * v[3] + value[4][4] * v[4]
 		};
 	}
-
-	glm::vec4 Mat5::operator*(const glm::vec4& v) const
+	glm::vec4 mat5::multiply(const glm::vec4& v, float finalComp) const
+	{
+		return multiply(vec5{ v, finalComp }).xyzw();
+	}
+	vec5 mat5::operator*(const vec5& v) const
+	{
+		return multiply(v);
+	}
+	glm::vec4 mat5::operator*(const glm::vec4& v) const
 	{
 		return multiply(v, 1.0f);
 	}
 
-	void Mat5::translate(const glm::vec4& v)
+	void mat5::translate(const glm::vec4& v)
 	{
-		value[4][0] += v.x * value[0][0] + v.y * value[1][0] + v.z * value[2][0] + v.w * value[3][0];
-		value[4][1] += v.x * value[0][1] + v.y * value[1][1] + v.z * value[2][1] + v.w * value[3][1];
-		value[4][2] += v.x * value[0][2] + v.y * value[1][2] + v.z * value[2][2] + v.w * value[3][2];
-		value[4][3] += v.x * value[0][3] + v.y * value[1][3] + v.z * value[2][3] + v.w * value[3][3];
+		value[4][0] += (value[0][0] * v.x) + (value[1][0] * v.y) + (value[2][0] * v.z) + (value[3][0] * v.w);
+		value[4][1] += (value[0][1] * v.x) + (value[1][1] * v.y) + (value[2][1] * v.z) + (value[3][1] * v.w);
+		value[4][2] += (value[0][2] * v.x) + (value[1][2] * v.y) + (value[2][2] * v.z) + (value[3][2] * v.w);
+		value[4][3] += (value[0][3] * v.x) + (value[1][3] * v.y) + (value[2][3] * v.z) + (value[3][3] * v.w);
+	}
+	void mat5::translate(float x, float y, float z, float w)
+	{
+		translate({ x,y,z,w });
+	}
+	void mat5::translate(float a)
+	{
+		translate(a, a, a, a);
+	}
+	void mat5::scale(const glm::vec4& s)
+	{
+		for (int row = 0; row < 5; ++row)
+			for (int col = 0; col < 4; ++col)
+				value[col][row] *= s[col];
+	}
+	void mat5::scale(float x, float y, float z, float w)
+	{
+		scale({ x,y,z,w });
+	}
+	void mat5::scale(float s)
+	{
+		scale(s, s, s, s);
 	}
 
-	void Mat5::scale(const glm::vec4& s)
+	mat5 mat5::transpose(const mat5& m)
 	{
-		for (int col = 0; col < 4; ++col)
+		return mat5
 		{
-			for (int row = 0; row < 5; ++row)
+			{ m[0][0],m[1][0],m[2][0],m[3][0],m[4][0] },
+			{ m[0][1],m[1][1],m[2][1],m[3][1],m[4][1] },
+			{ m[0][2],m[1][2],m[2][2],m[3][2],m[4][2] },
+			{ m[0][3],m[1][3],m[2][3],m[3][3],m[4][3] },
+			{ m[0][4],m[1][4],m[2][4],m[3][4],m[4][4] }
+		};
+	}
+	mat5 mat5::inverse(const mat5& m)
+	{
+		mat5 s{ 1 };
+		mat5 t{ m };
+
+		// Forward elimination
+		for (int i = 0; i < 5 - 1; ++i)
+		{
+			int pivot = i;
+			float pivotsize = t[i][i];
+
+			for (int j = i + 1; j < 5; ++j)
 			{
-				value[col][row] *= s[col];
+				float tmp = t[j][i];
+				if (fabs(tmp) > fabs(pivotsize))
+				{
+					pivotsize = tmp;
+					pivot = j;
+				}
+			}
+
+			if (pivotsize == 0.0f) return s;
+
+			if (pivot != i)
+			{
+				for (int j = 0; j < 5; ++j)
+				{
+					float tmp;
+					tmp = t[i][j];
+					t[i][j] = t[pivot][j];
+					t[pivot][j] = tmp;
+					tmp = s[i][j];
+					s[i][j] = s[pivot][j];
+					s[pivot][j] = tmp;
+				}
+			}
+
+			for (int j = i + 1; j < 5; ++j)
+			{
+				float f = t[j][i] / t[i][i];
+				for (int k = i + 1; k < 5; ++k)
+				{
+					t[j][k] -= f * t[i][k];
+				}
+				for (int k = 0; k < 5; ++k)
+				{
+					s[j][k] -= f * s[i][k];
+				}
+				t[j][i] = 0.0f;
 			}
 		}
+
+		// Backward substitution
+		for (int i = 0; i < 5; ++i)
+		{
+			float f = t[i][i];
+			if (f == 0.0f) return mat5{ 1 };
+
+			for (int j = 0; j < 5; ++j)
+			{
+				t[i][j] /= f;
+				s[i][j] /= f;
+			}
+
+			for (int j = 0; j < i; ++j)
+			{
+				f = t[j][i];
+				for (int k = 0; k < 5; ++k)
+				{
+					t[j][k] -= f * t[i][k];
+					s[j][k] -= f * s[i][k];
+				}
+			}
+		}
+
+		return s;
+	}
+	mat5::operator glm::mat4() const
+	{
+		return glm::mat4
+		{
+			value[0].xyzw(),
+			value[1].xyzw(),
+			value[2].xyzw(),
+			value[3].xyzw()
+		};
 	}
 
-	Mat5 createCamera(const glm::vec4& eye, const glm::vec4& forward, const glm::vec4& up, const glm::vec4& right, const glm::vec4& over)
+	mat5 createCamera4D(const glm::vec4& eye, const glm::vec4& left, const glm::vec4& up, const glm::vec4& forward, const glm::vec4& over)
 	{
-		Mat5 cameraD{ 1 };
+		mat5 cameraD{ -left, up, forward, over, {} };
+		cameraD = mat5::transpose(cameraD);
 
-		cameraD[0][0] = right.x;
-		cameraD[1][0] = right.y;
-		cameraD[2][0] = right.z;
-		cameraD[3][0] = right.w;
-		cameraD[0][1] = up.x;
-		cameraD[1][1] = up.y;
-		cameraD[2][1] = up.z;
-		cameraD[3][1] = up.w;
-		cameraD[0][2] = -forward.x;
-		cameraD[1][2] = -forward.y;
-		cameraD[2][2] = -forward.z;
-		cameraD[3][2] = -forward.w;
-		cameraD[0][3] = over.x;
-		cameraD[1][3] = over.y;
-		cameraD[2][3] = over.z;
-		cameraD[3][3] = over.w;
-
-		Mat5 cameraP{ 1 };
-		cameraP[4][0] = -eye.x;
-		cameraP[4][1] = -eye.y;
-		cameraP[4][2] = -eye.z;
-		cameraP[4][3] = -eye.w;
+		mat5 cameraP{ {}, {}, {}, {}, -eye };
 
 		return cameraD * cameraP;
 	}
 
+	mat5::mat5(const nlohmann::json& j)
+	{
+		for (int col = 0; col < 5; ++col)
+		{
+			for (int row = 0; row < 5; ++row)
+			{
+				value[col][row] = j.at(col).at(row).get<float>();
+			}
+		}
+	}
+
+	nlohmann::json mat5::toJson() const
+	{
+		return {
+			{ value[0][0], value[0][1], value[0][2], value[0][3], value[0][4] },
+			{ value[1][0], value[1][1], value[1][2], value[1][3], value[1][4] },
+			{ value[2][0], value[2][1], value[2][2], value[2][3], value[2][4] },
+			{ value[3][0], value[3][1], value[3][2], value[3][3], value[3][4] },
+			{ value[4][0], value[4][1], value[4][2], value[4][3], value[4][4] },
+		};
+	}
+
+	mat6::mat6(float x)
+	{
+		value[0][0] =
+			value[1][1] =
+			value[2][2] =
+			value[3][3] =
+			value[4][4] =
+			value[5][5] = x;
+	}
+	mat6::mat6(const mat5& m)
+	{
+		value[0] = m[0];
+		value[1] = m[1];
+		value[2] = m[2];
+		value[3] = m[3];
+		value[4] = m[4];
+		value[5][5] = 1.0f;
+	}
+
+	mat6::mat6(const std::array<vec6, 6>& value)
+		: value(value)
+	{
+	}
+	mat6::mat6(const vec6& m0, const vec6& m1, const vec6& m2, const vec6& m3, const vec6& m4, const vec6& m5)
+	{
+		value[0] = m0;
+		value[1] = m1;
+		value[2] = m2;
+		value[3] = m3;
+		value[4] = m4;
+		value[5] = m5;
+	}
+
+	mat6::mat6(const mat6& other)
+	{
+		this->value = other.value;
+	}
+	mat6::mat6(mat6&& other) noexcept
+	{
+		this->value = std::move(other.value);
+	}
+	mat6& mat6::operator=(const mat6& other)
+	{
+		this->value = other.value;
+
+		return *this;
+	}
+	mat6& mat6::operator=(mat6&& other) noexcept
+	{
+		this->value = std::move(other.value);
+
+		return *this;
+	}
+
+	mat6 mat6::operator*(const mat6& other) const
+	{
+		mat6 result;
+
+		for (int col = 0; col < 6; ++col)
+		{
+			for (int row = 0; row < 6; ++row)
+			{
+				for (int k = 0; k < 6; ++k)
+				{
+					result.value[col][row] += value[k][row] * other.value[col][k];
+				}
+			}
+		}
+
+		return result;
+	}
+	mat6& mat6::operator*=(const mat6& other)
+	{
+		return *this = *this * other;
+	}
+
+	vec6 mat6::multiply(const vec6& v) const
+	{
+		return vec6
+		{
+			value[0][0] * v[0] + value[1][0] * v[1] + value[2][0] * v[2] + value[3][0] * v[3] + value[4][0] * v[4] + value[5][0] * v[5],
+			value[0][1] * v[0] + value[1][1] * v[1] + value[2][1] * v[2] + value[3][1] * v[3] + value[4][1] * v[4] + value[5][1] * v[5],
+			value[0][2] * v[0] + value[1][2] * v[1] + value[2][2] * v[2] + value[3][2] * v[3] + value[4][2] * v[4] + value[5][2] * v[5],
+			value[0][3] * v[0] + value[1][3] * v[1] + value[2][3] * v[2] + value[3][3] * v[3] + value[4][3] * v[4] + value[5][3] * v[5],
+			value[0][4] * v[0] + value[1][4] * v[1] + value[2][4] * v[2] + value[3][4] * v[3] + value[4][4] * v[4] + value[5][4] * v[5],
+			value[0][5] * v[0] + value[1][5] * v[1] + value[2][5] * v[2] + value[3][5] * v[3] + value[4][5] * v[4] + value[5][5] * v[5]
+		};
+	}
+	vec6 mat6::operator*(const vec6& v) const
+	{
+		return multiply(v);
+	}
+
+	void mat6::translate(const vec5& v)
+	{
+		value[5][0] += (value[0][0] * v.x) + (value[1][0] * v.y) + (value[2][0] * v.z) + (value[3][0] * v.w) + (value[4][0] * v.v);
+		value[5][1] += (value[0][1] * v.x) + (value[1][1] * v.y) + (value[2][1] * v.z) + (value[3][1] * v.w) + (value[4][1] * v.v);
+		value[5][2] += (value[0][2] * v.x) + (value[1][2] * v.y) + (value[2][2] * v.z) + (value[3][2] * v.w) + (value[4][2] * v.v);
+		value[5][3] += (value[0][3] * v.x) + (value[1][3] * v.y) + (value[2][3] * v.z) + (value[3][3] * v.w) + (value[4][3] * v.v);
+		value[5][4] += (value[0][4] * v.x) + (value[1][4] * v.y) + (value[2][4] * v.z) + (value[3][4] * v.w) + (value[4][4] * v.v);
+	}
+	void mat6::translate(float x, float y, float z, float w, float v)
+	{
+		translate({ x,y,z,w,v });
+	}
+	void mat6::translate(float a)
+	{
+		translate(a, a, a, a, a);
+	}
+	void mat6::scale(const vec5& s)
+	{
+		for (int row = 0; row < 6; ++row)
+			for (int col = 0; col < 5; ++col)
+				value[col][row] *= s[col];
+	}
+	void mat6::scale(float x, float y, float z, float w, float v)
+	{
+		scale({ x,y,z,w,v });
+	}
+	void mat6::scale(float s)
+	{
+		scale(s, s, s, s, s);
+	}
+#define rotMat(mat, x, y, cos, sin) \
+{ \
+	mat5 rot{ 1 }; \
+	rot[x][x] = (cos); \
+	rot[y][x] = -(sin); \
+	rot[x][y] = (sin); \
+	rot[y][y] = (cos); \
+	mat *= rot; \
+}
+
+	void mat6::rotate(const bivec5& planes, float radians)
+	{
+		float cos = glm::cos(radians);
+		float sin = glm::sin(radians);
+
+		mat5 tRot{ 1 };
+		rotMat(tRot, 0, 1, planes[0] * cos, planes[0] * sin);
+		rotMat(tRot, 0, 2, planes[1] * cos, planes[1] * sin);
+		rotMat(tRot, 0, 3, planes[2] * cos, planes[2] * sin);
+		rotMat(tRot, 0, 4, planes[3] * cos, planes[3] * sin);
+		rotMat(tRot, 1, 2, planes[4] * cos, planes[4] * sin);
+		rotMat(tRot, 1, 3, planes[5] * cos, planes[5] * sin);
+		rotMat(tRot, 1, 4, planes[6] * cos, planes[6] * sin);
+		rotMat(tRot, 2, 3, planes[7] * cos, planes[7] * sin);
+		rotMat(tRot, 2, 4, planes[8] * cos, planes[8] * sin);
+		rotMat(tRot, 3, 4, planes[9] * cos, planes[9] * sin);
+
+		*this *= tRot;
+	}
+	void mat6::rotateXY(float radians) { rotMat(*this, 0, 1, glm::cos(radians), glm::sin(radians)); }
+	void mat6::rotateXZ(float radians) { rotMat(*this, 0, 2, glm::cos(radians), glm::sin(radians)); }
+	void mat6::rotateXW(float radians) { rotMat(*this, 0, 3, glm::cos(radians), glm::sin(radians)); }
+	void mat6::rotateXV(float radians) { rotMat(*this, 0, 4, glm::cos(radians), glm::sin(radians)); }
+	void mat6::rotateYZ(float radians) { rotMat(*this, 1, 2, glm::cos(radians), glm::sin(radians)); }
+	void mat6::rotateYW(float radians) { rotMat(*this, 1, 3, glm::cos(radians), glm::sin(radians)); }
+	void mat6::rotateYV(float radians) { rotMat(*this, 1, 4, glm::cos(radians), glm::sin(radians)); }
+	void mat6::rotateZW(float radians) { rotMat(*this, 2, 3, glm::cos(radians), glm::sin(radians)); }
+	void mat6::rotateZV(float radians) { rotMat(*this, 2, 4, glm::cos(radians), glm::sin(radians)); }
+	void mat6::rotateWV(float radians) { rotMat(*this, 3, 4, glm::cos(radians), glm::sin(radians)); }
+
+	mat6 mat6::transpose(const mat6& m)
+	{
+		return mat6
+		{
+			{ m[0][0],m[1][0],m[2][0],m[3][0],m[4][0],m[5][0] },
+			{ m[0][1],m[1][1],m[2][1],m[3][1],m[4][1],m[5][1] },
+			{ m[0][2],m[1][2],m[2][2],m[3][2],m[4][2],m[5][2] },
+			{ m[0][3],m[1][3],m[2][3],m[3][3],m[4][3],m[5][3] },
+			{ m[0][4],m[1][4],m[2][4],m[3][4],m[4][4],m[5][4] },
+			{ m[0][5],m[1][5],m[2][5],m[3][5],m[4][5],m[5][5] }
+		};
+	}
+	mat6 mat6::inverse(const mat6& m)
+	{
+		mat6 s{ 1 };
+		mat6 t{ m };
+
+		// Forward elimination
+		for (int i = 0; i < 6 - 1; ++i)
+		{
+			int pivot = i;
+			float pivotsize = t[i][i];
+
+			for (int j = i + 1; j < 6; ++j)
+			{
+				float tmp = t[j][i];
+				if (fabs(tmp) > fabs(pivotsize))
+				{
+					pivotsize = tmp;
+					pivot = j;
+				}
+			}
+
+			if (pivotsize == 0.0f) return s;
+
+			if (pivot != i)
+			{
+				for (int j = 0; j < 6; ++j)
+				{
+					float tmp;
+					tmp = t[i][j];
+					t[i][j] = t[pivot][j];
+					t[pivot][j] = tmp;
+					tmp = s[i][j];
+					s[i][j] = s[pivot][j];
+					s[pivot][j] = tmp;
+				}
+			}
+
+			for (int j = i + 1; j < 6; ++j)
+			{
+				float f = t[j][i] / t[i][i];
+				for (int k = i + 1; k < 6; ++k)
+				{
+					t[j][k] -= f * t[i][k];
+				}
+				for (int k = 0; k < 6; ++k)
+				{
+					s[j][k] -= f * s[i][k];
+				}
+				t[j][i] = 0.0f;
+			}
+		}
+
+		// Backward substitution
+		for (int i = 0; i < 6; ++i)
+		{
+			float f = t[i][i];
+			if (f == 0.0f) return mat6{ 1 };
+
+			for (int j = 0; j < 6; ++j)
+			{
+				t[i][j] /= f;
+				s[i][j] /= f;
+			}
+
+			for (int j = 0; j < i; ++j)
+			{
+				f = t[j][i];
+				for (int k = 0; k < 6; ++k)
+				{
+					t[j][k] -= f * t[i][k];
+					s[j][k] -= f * s[i][k];
+				}
+			}
+		}
+
+		return s;
+	}
+	mat6::operator mat5() const
+	{
+		return mat5
+		{
+			value[0].xyzwv(),
+			value[1].xyzwv(),
+			value[2].xyzwv(),
+			value[3].xyzwv(),
+			value[4].xyzwv()
+		};
+	}
+
+	// yonder - at some distance in the direction indicated; over there
+	mat6 m5::createCamera5D(const vec5& eye, const vec5& left, const vec5& up, const vec5& forward, const vec5& over, const vec5& yonder)
+	{
+		mat6 cameraD{ -left, up, forward, over, yonder, {} };
+		cameraD = mat6::transpose(cameraD);
+
+		mat6 cameraP{ {}, {}, {}, {}, {}, -eye };
+
+		return cameraD * cameraP;
+	}
+
+	mat6::mat6(const nlohmann::json& j)
+	{
+		for (int col = 0; col < 6; ++col)
+		{
+			for (int row = 0; row < 6; ++row)
+			{
+				value[col][row] = j.at(col).at(row).get<float>();
+			}
+		}
+	}
+
+	nlohmann::json mat6::toJson() const
+	{
+		return {
+			{ value[0][0], value[0][1], value[0][2], value[0][3], value[0][4], value[0][5] },
+			{ value[1][0], value[1][1], value[1][2], value[1][3], value[1][4], value[1][5] },
+			{ value[2][0], value[2][1], value[2][2], value[2][3], value[2][4], value[2][5] },
+			{ value[3][0], value[3][1], value[3][2], value[3][3], value[3][4], value[3][5] },
+			{ value[4][0], value[4][1], value[4][2], value[4][3], value[4][4], value[4][5] },
+			{ value[5][0], value[5][1], value[5][2], value[5][3], value[5][4], value[5][5] },
+		};
+	}
+
 	// untested
-	Mat5 perspective(float fovy, float aspect, float zNear, float zFar)
-	{
-		// https://www.scratchapixel.com/lessons/3d-basic-rendering/perspective-and-orthographic-projection-matrix/building-basic-perspective-projection-matrix.html
-		Mat5 res{ 0.0f };
-
-		float scale = 1.0f / glm::tan(glm::radians(fovy / 2.0f));
-		res[0][0] = scale;
-		res[1][1] = scale;
-		res[2][2] = -zFar / (zFar - zNear);
-		res[3][3] = scale;
-		res[4][2] = -(zFar * zNear) / (zFar - zNear);
-		res[2][4] = -1.0f;
-
-		return res;
-	}
-
-	glm::vec4 adjustToMaxHorizSpeed(const glm::vec4& vel, const glm::vec4& deltaVel, float maxHorizSpeed)
-	{
-		glm::vec4 totalVel = vel + deltaVel;
-
-		// the max horizontal speed can be thought of as the radius of a sphere centered at the origin.
-		// a line segment between vel and totalVel will intersect the sphere's surface at the desired velocity.
-		float radius = maxHorizSpeed;
-		glm::vec4 intersection;
-
-		glm::vec3 a{ vel.x, vel.z, vel.w };
-		glm::vec3 b{ totalVel.x, totalVel.z, totalVel.w };
-
-		// code adapted from https://stackoverflow.com/a/17499940/4885160
-		double px = a.x;
-		double py = a.y;
-		double pz = a.z;
-
-		double vx = b.x - px;
-		double vy = b.y - py;
-		double vz = b.z - pz;
-
-		double A = vx * vx + vy * vy + vz * vz;
-		double B = 2.0 * (px * vx + py * vy + pz * vz /*- vx * cx - vy * cy - vz * cz*/);
-		double C = px * px /*- 2 * px * cx + cx * cx*/ + py * py /*- 2 * py * cy + cy * cy*/ +
-			pz * pz /*- 2 * pz * cz + cz * cz*/ - radius * radius;
-
-		if (A == 0.0)
-		{
-			// prevent division by zero
-			return glm::vec4{ 0, totalVel.y, 0, 0 };
-		}
-
-		// discriminant
-		double D = B * B - 4 * A * C;
-
-		if (D < 0)
-		{
-			// prevent NaN
-			return glm::vec4{ 0, totalVel.y, 0, 0 };
-		}
-
-		// there will always be two intersections for this line
-		double t1 = (-B - glm::sqrt(D)) / (2.0 * A);
-		glm::vec3 solution1 = {
-			a.x * (1 - t1) + t1 * b.x,
-			a.y * (1 - t1) + t1 * b.y,
-			a.z * (1 - t1) + t1 * b.z
-		};
-
-		if (D == 0)
-		{
-			return { solution1.x, totalVel.y, solution1.y, solution1.z };
-		}
-
-		double t2 = (-B + glm::sqrt(D)) / (2.0 * A);
-		glm::vec3 solution2 = {
-			a.x * (1 - t2) + t2 * b.x,
-			a.y * (1 - t2) + t2 * b.y,
-			a.z * (1 - t2) + t2 * b.z
-		};
-
-		// prefer a solution that's on the line segment itself
-		if (glm::abs(t1 - 0.5) < glm::abs(t2 - 0.5))
-		{
-			return intersection = glm::vec4{ solution1.x, totalVel.y, solution1.y, solution1.z };
-		}
-
-		return intersection = glm::vec4{ solution2.x, totalVel.y, solution2.y, solution2.z };
-	}
+	//mat5 perspective(float fovy, float aspect, float zNear, float zFar)
+	//{
+	//	// https://www.scratchapixel.com/lessons/3d-basic-rendering/perspective-and-orthographic-projection-matrix/building-basic-perspective-projection-matrix.html
+	//	mat5 res{ 0.0f };
+	//
+	//	float scale = 1.0f / glm::tan(glm::radians(fovy / 2.0f));
+	//	res[0][0] = scale;
+	//	res[1][1] = scale;
+	//	res[2][2] = -zFar / (zFar - zNear);
+	//	res[3][3] = scale;
+	//	res[4][2] = -(zFar * zNear) / (zFar - zNear);
+	//	res[2][4] = -1.0f;
+	//
+	//	return res;
+	//}
+	//
+	//glm::vec4 adjustToMaxHorizSpeed(const glm::vec4& vel, const glm::vec4& deltaVel, float maxHorizSpeed)
+	//{
+	//	glm::vec4 totalVel = vel + deltaVel;
+	//
+	//	// the max horizontal speed can be thought of as the radius of a sphere centered at the origin.
+	//	// a line segment between vel and totalVel will intersect the sphere's surface at the desired velocity.
+	//	float radius = maxHorizSpeed;
+	//	glm::vec4 intersection;
+	//
+	//	glm::vec3 a{ vel.x, vel.z, vel.w };
+	//	glm::vec3 b{ totalVel.x, totalVel.z, totalVel.w };
+	//
+	//	// code adapted from https://stackoverflow.com/a/17499940/4885160
+	//	double px = a.x;
+	//	double py = a.y;
+	//	double pz = a.z;
+	//
+	//	double vx = b.x - px;
+	//	double vy = b.y - py;
+	//	double vz = b.z - pz;
+	//
+	//	double A = vx * vx + vy * vy + vz * vz;
+	//	double B = 2.0 * (px * vx + py * vy + pz * vz /*- vx * cx - vy * cy - vz * cz*/);
+	//	double C = px * px /*- 2 * px * cx + cx * cx*/ + py * py /*- 2 * py * cy + cy * cy*/ +
+	//		pz * pz /*- 2 * pz * cz + cz * cz*/ - radius * radius;
+	//
+	//	if (A == 0.0)
+	//	{
+	//		// prevent division by zero
+	//		return glm::vec4{ 0, totalVel.y, 0, 0 };
+	//	}
+	//
+	//	// discriminant
+	//	double D = B * B - 4 * A * C;
+	//
+	//	if (D < 0)
+	//	{
+	//		// prevent NaN
+	//		return glm::vec4{ 0, totalVel.y, 0, 0 };
+	//	}
+	//
+	//	// there will always be two intersections for this line
+	//	double t1 = (-B - glm::sqrt(D)) / (2.0 * A);
+	//	glm::vec3 solution1 = {
+	//		a.x * (1 - t1) + t1 * b.x,
+	//		a.y * (1 - t1) + t1 * b.y,
+	//		a.z * (1 - t1) + t1 * b.z
+	//	};
+	//
+	//	if (D == 0)
+	//	{
+	//		return { solution1.x, totalVel.y, solution1.y, solution1.z };
+	//	}
+	//
+	//	double t2 = (-B + glm::sqrt(D)) / (2.0 * A);
+	//	glm::vec3 solution2 = {
+	//		a.x * (1 - t2) + t2 * b.x,
+	//		a.y * (1 - t2) + t2 * b.y,
+	//		a.z * (1 - t2) + t2 * b.z
+	//	};
+	//
+	//	// prefer a solution that's on the line segment itself
+	//	if (glm::abs(t1 - 0.5) < glm::abs(t2 - 0.5))
+	//	{
+	//		return intersection = glm::vec4{ solution1.x, totalVel.y, solution1.y, solution1.z };
+	//	}
+	//
+	//	return intersection = glm::vec4{ solution2.x, totalVel.y, solution2.y, solution2.z };
+	//}
 }

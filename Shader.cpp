@@ -480,19 +480,15 @@ void Shader::setUniform(int loc, const glm::mat4x3& v, bool transpose) const
 	if (loc <= -1) return;
 	glProgramUniformMatrix4x3fv(ID, loc, 1, transpose, &v[0][0]);
 }
-void Shader::setUniform(int loc, const m5::Mat5& v) const
+void Shader::setUniform(int loc, const m5::mat5& v) const
 {
 	setUniform(loc, 5 * 5, &v[0][0]);
 }
-//void Shader::setUniform(int loc, const m5::Bivector4& v) const
-//{
-//	setUniform(loc, 6, &v[0]);
-//}
-//void Shader::setUniform(int loc, const m5::Mat6& v) const
-//{
-//	setUniform(loc, 6 * 6, &v[0][0]);
-//}
-void Shader::setUniform(int loc, const m5::Bivector5& v) const
+void Shader::setUniform(int loc, const m5::mat6& v) const
+{
+	setUniform(loc, 6 * 6, &v[0][0]);
+}
+void Shader::setUniform(int loc, const m5::bivec5& v) const
 {
 	setUniform(loc, 10, &v[0]);
 }
