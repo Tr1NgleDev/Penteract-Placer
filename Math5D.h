@@ -183,8 +183,8 @@ namespace m5
 
 		// reverse
 		rotor5 reverse() const;
-		rotor5 operator~() const;
-		rotor5 operator-() const;
+		rotor5 operator~() const { return reverse(); }
+		rotor5 operator-() const { return reverse(); }
 
 		bool operator==(const rotor5& other) const;
 

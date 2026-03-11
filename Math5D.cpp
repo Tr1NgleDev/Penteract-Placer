@@ -601,6 +601,11 @@ namespace m5
 		return this->s == other.s && this->b == other.b && this->q == other.q;
 	}
 
+	rotor5 rotor5::reverse() const
+	{
+		return { s, -b, q };
+	}
+
 	rotor5 rotor5::rotate(const rotor5& r) const
 	{
 		rotor5 l = *this;
