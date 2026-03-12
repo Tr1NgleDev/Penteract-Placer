@@ -1,6 +1,9 @@
 #include "TexRenderer.h"
+#include "QuadRendererBasic.h"
+#include "Shader.h"
+#include "Texture.h"
 
-TexRenderer::TexRenderer(Texture* texture, Shader* shader)
+TexRenderer::TexRenderer(const Texture* texture, const Shader* shader)
 	: texture(texture), shader(shader) { }
 
 void TexRenderer::render()
@@ -31,7 +34,7 @@ void TexRenderer::render()
 	shader->use();
 	shader->setUniform("model", model);
 	texture->use();
-	QuadRenderer::render();
+	QuadRendererBasic::render();
 }
 
 void TexRenderer::setPos(const glm::vec2& pos)

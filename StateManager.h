@@ -1,28 +1,25 @@
 #pragma once
-
+#include "State.h"
+#include "Math5D.h"
+#include "ui.h"
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
-#include "State.h"
 #include <vector>
-#include "Math5D.h"
 
 class StateManager
 {
-private:
-	std::vector<State*> states{};
-
 public:
-	GLFWwindow* window = nullptr;
+
+	StateManager(GLFWwindow* w) : window{ w } {}
 
 	bool isRunning();
 	State* getCurrentState();
 	State* getPrevState();
 
+	GLFWwindow* getWindow();
+
 	void update(double dt);
 	void render();
-
-	void updatePrevState(double dt);
-	void renderPrevState();
 
 	void quit();
 
@@ -34,10 +31,18 @@ public:
 	void charInput(unsigned int codepoint);
 	void fileDrop(int path_count, const char* paths[]);
 
+	void setUiPage(ui::page* page);
+
 	void pushState(State* state);
 	void popState();
 	void changeState(State* newState);
 
 	bool shouldClose() const;
 	void getSize(int* width, int* height) const;
+
+private:
+
+	std::vector<State*> states{};
+	GLFWwindow* window = nullptr;
+	ui::page* page = nullptr;
 };

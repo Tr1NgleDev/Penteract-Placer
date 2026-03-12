@@ -1,16 +1,15 @@
 #pragma once
-
 #include "StateManager.h"
-#include "QuadRenderer.h"
-#include "Shader.h"
-#include "Texture.h"
-#include "TextureBuffer.h"
 #include "GPUBuffer.h"
+#include "Math5D.h"
+
+class Shader;
 
 class StateGame : public State
 {
 public:
-	static StateGame instanceObj;
+
+	static StateGame* instance();
 
 	struct alignas(16) Camera
 	{
@@ -56,4 +55,9 @@ public:
 	void mouseButtonInput(StateManager& s, int button, int action, int mods) override;
 	void keyInput(StateManager&, int key, int scancode, int action, int mods) override;
 	void windowResize(StateManager&, int width, int height) override;
+
+private:
+
+	static StateGame instanceObj;
+	~StateGame() {}
 };

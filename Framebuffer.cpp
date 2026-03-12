@@ -1,4 +1,8 @@
 #include "Framebuffer.h"
+#include "Texture.h"
+#include "Shader.h"
+#include "QuadRendererBasic.h"
+#include <filesystem>
 #include <cassert>
 
 Framebuffer::Framebuffer(GLsizei width, GLsizei height, const std::vector<std::pair<std::string, RenderBuffer>>& renderBuffers, uint32_t msaaSamples)
@@ -91,7 +95,7 @@ void Framebuffer::render(bool doBlitFX)
 		++i;
 	}
 
-	QuadRenderer::render();
+	QuadRendererBasic::render();
 }
 
 void Framebuffer::cleanup()

@@ -1,9 +1,14 @@
 #pragma once
+#include <cstdint>
 
 class StateManager;
 class State
 {
 public:
+
+	virtual bool shouldUpdatePrevState() { return false; }
+	virtual bool shouldRenderPrevState() { return false; }
+
 	virtual void init(StateManager& s) {}
 	virtual void close(StateManager& s) {}
 	virtual void update(StateManager& s, double dt) {}

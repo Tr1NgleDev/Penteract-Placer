@@ -82,36 +82,50 @@
   <ItemGroup>
     <ClCompile Include="Directory.cpp" />
     <ClCompile Include="File.cpp" />
+    <ClCompile Include="TextRenderer.cpp" />
     <ClCompile Include="Framebuffer.cpp" />
     <ClCompile Include="GPUBuffer.cpp" />
+    <ClCompile Include="ui.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Math5D.cpp" />
     <ClCompile Include="QuadRenderer.cpp" />
+    <ClCompile Include="QuadRendererBasic.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="StateGame.cpp" />
     <ClCompile Include="StateManager.cpp" />
+    <ClCompile Include="StateTitleScreen.cpp" />
     <ClCompile Include="TexRenderer.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="TextureBuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="assets\shaders\quad.frag" />
     <None Include="assets\shaders\quad.vert" />
+    <None Include="assets\shaders\quadBasic.vert" />
     <None Include="assets\shaders\renderer.frag" />
     <None Include="assets\shaders\renderer.vert" />
+    <None Include="assets\shaders\tex.frag" />
+    <None Include="assets\shaders\text.frag" />
+    <None Include="assets\shaders\text.geom" />
+    <None Include="assets\shaders\text.vert" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Directory.h" />
     <ClInclude Include="File.h" />
+    <ClInclude Include="TextRenderer.h" />
     <ClInclude Include="Framebuffer.h" />
     <ClInclude Include="GPUBuffer.h" />
+    <ClInclude Include="ui.h" />
     <ClInclude Include="json.hpp" />
     <ClInclude Include="Math5D.h" />
     <ClInclude Include="QuadRenderer.h" />
+    <ClInclude Include="QuadRendererBasic.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="State.h" />
     <ClInclude Include="StateGame.h" />
     <ClInclude Include="StateManager.h" />
+    <ClInclude Include="StateTitleScreen.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="TexRenderer.h" />
     <ClInclude Include="Texture.h" />

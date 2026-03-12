@@ -15,38 +15,55 @@ State* StateManager::getPrevState()
 	return states[states.size() - 2];
 }
 
+GLFWwindow* StateManager::getWindow()
+{
+	return window;
+}
+
 void StateManager::update(double dt)
 {
-	if (isRunning())
+	if (isRunning() && !states.empty())
 	{
-		getCurrentState()->update(*this, dt);
+		// an index must be used here because updates can add or remove states,
+		// invalidating any iterators.
+		// this is technically possible in render(),
+		// but who would modify the StateManager from a render method?
+		int index = states.size();
+		do
+		{
+			--index;
+		} while (states[index]->shouldUpdatePrevState());
+
+		for (; index < states.size(); ++index)
+		{
+			states[index]->update(*this, dt);
+		}
 	}
 }
+
 void StateManager::render()
 {
-	if (isRunning())
+	if (isRunning() && !states.empty())
 	{
-		getCurrentState()->render(*this);
+		auto it = states.end();
+		do
+		{
+			--it;
+		} while ((*it)->shouldRenderPrevState());
+
+		for (; it != states.end(); ++it)
+		{
+			State* state = *it;
+			state->render(*this);
+		}
+	}
+
+	if (page != nullptr)
+	{
+		page->render();
 	}
 
 	glfwSwapBuffers(window);
-}
-
-void StateManager::updatePrevState(double dt)
-{
-	State* prevState = getPrevState();
-	if (prevState)
-	{
-		prevState->update(*this, dt);
-	}
-}
-void StateManager::renderPrevState()
-{
-	State* prevState = getPrevState();
-	if (prevState)
-	{
-		prevState->render(*this);
-	}
 }
 
 void StateManager::quit()
@@ -73,6 +90,7 @@ void StateManager::scrollInput(double xoffset, double yoffset)
 		getCurrentState()->scrollInput(*this, xoffset, yoffset);
 	}
 }
+
 void StateManager::mouseButtonInput(int button, int action, int mods)
 {
 	if (isRunning())
@@ -80,6 +98,7 @@ void StateManager::mouseButtonInput(int button, int action, int mods)
 		getCurrentState()->mouseButtonInput(*this, button, action, mods);
 	}
 }
+
 void StateManager::keyInput(int key, int scancode, int action, int mods)
 {
 	if (isRunning())
@@ -87,10 +106,16 @@ void StateManager::keyInput(int key, int scancode, int action, int mods)
 		getCurrentState()->keyInput(*this, key, scancode, action, mods);
 	}
 }
+
 void StateManager::windowResize(int width, int height)
 {
 	width = glm::max(width, 1);
 	height = glm::max(height, 1);
+	
+	if (page != nullptr)
+	{
+		page->windowResize(width, height);
+	}
 
 	for (auto& state : states)
 	{
@@ -99,6 +124,7 @@ void StateManager::windowResize(int width, int height)
 
 	render();
 }
+
 void StateManager::charInput(unsigned int codepoint)
 {
 	if (isRunning())
@@ -106,11 +132,21 @@ void StateManager::charInput(unsigned int codepoint)
 		getCurrentState()->charInput(*this, codepoint);
 	}
 }
+
 void StateManager::fileDrop(int path_count, const char* paths[])
 {
 	if (isRunning())
 	{
 		getCurrentState()->fileDrop(*this, path_count, paths);
+	}
+}
+
+void StateManager::setUiPage(ui::page* page)
+{
+	this->page = page;
+	if (page != nullptr)
+	{
+		page->init(window);
 	}
 }
 

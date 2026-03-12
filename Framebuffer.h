@@ -4,10 +4,8 @@
 #include <GLFW/glfw3.h>
 #include <vector>
 #include <string>
-#include <filesystem>
-#include "Texture.h"
-#include "Shader.h"
-#include "QuadRenderer.h"
+
+class Shader;
 
 class Framebuffer
 {
