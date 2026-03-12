@@ -12,7 +12,7 @@ public:
 	// rendering mode
 	enum Mode
 	{
-		MODE_FILL = GL_TRIANGLES,
+		MODE_FILL = GL_TRIANGLE_FAN,
 		MODE_LINES = GL_LINE_LOOP,
 	};
 
@@ -37,6 +37,8 @@ public:
 	// one color for each corner
 	void setColors(GLfloat* colors);
 
+	void setColors(const std::array<glm::vec4, 4>& colors);
+
 	void setPos(GLint x, GLint y, GLint w, GLint h);
 	void setPos(GLint x, GLint y, GLint w, GLint h, GLfloat radians);
 
@@ -49,7 +51,6 @@ private:
 
 
 	enum bufferIndex {
-		VBO_INDEX,
 		VBO_VERTEX,
 		VBO_COLOR,
 		VBO_MODEL,
@@ -59,6 +60,5 @@ private:
 	GLuint buffers[VBO_COUNT];
 
 	GLenum mode = MODE_FILL;
-	GLuint elementCount = 6;
 
 };
