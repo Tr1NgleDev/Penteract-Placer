@@ -158,6 +158,5 @@ void StateGame::keyInput(StateManager& s, int key, int scancode, int action, int
 
 void StateGame::windowResize(StateManager&, int width, int height)
 {
-	glViewport(0, 0, width, height);
 	rendererShader->setUniform("screenSize", (float)width, (float)height, 1.0f / width, 1.0f / height);
 }

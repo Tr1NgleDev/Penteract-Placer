@@ -24,6 +24,8 @@ void StateTitleScreen::update(StateManager& s, double dt)
 
 void StateTitleScreen::render(StateManager& s)
 {
+	glClearColor(0, 0, 0, 0);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void StateTitleScreen::mouseInput(StateManager& s, double xpos, double ypos)

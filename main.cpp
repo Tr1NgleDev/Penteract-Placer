@@ -48,6 +48,7 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 }
 void framebufferSizeCallback(GLFWwindow* window, int width, int height)
 {
+	glViewport(0, 0, width, height);
 	StateManager* s = reinterpret_cast<StateManager*>(glfwGetWindowUserPointer(window));
 	s->windowResize(width, height);
 }
@@ -112,7 +113,7 @@ int main()
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
 #endif
 
-	GLFWwindow* window = glfwCreateWindow(1280, 720, "5D Miner by Mashpoe and Tr1Ngle", nullptr, nullptr);
+	GLFWwindow* window = glfwCreateWindow(200, 720, "5D Miner by Mashpoe and Tr1Ngle", nullptr, nullptr);
 	if (!window)
 	{
 		printf("Failed to initialize the window!\n");
