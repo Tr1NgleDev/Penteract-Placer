@@ -1,6 +1,14 @@
 #include "StateGame.h"
+#include "Shader.h"
+#include "Texture.h"
+#include "TextureBuffer.h"
+#include "QuadRendererBasic.h"
 
-StateGame StateGame::instanceObj{};
+StateGame StateGame::instanceObj;
+StateGame* StateGame::instance()
+{
+	return &instanceObj;
+}
 
 void StateGame::init(StateManager& s)
 {
@@ -22,8 +30,8 @@ void StateGame::init(StateManager& s)
 	cam.vFov = glm::radians(90.0f);
 
 	lastMousePos = glm::vec2{ 0 };
-	glfwSetCursorPos(s.window, lastMousePos.x, lastMousePos.y);
-	glfwSetInputMode(s.window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwSetCursorPos(s.getWindow(), lastMousePos.x, lastMousePos.y);
+	glfwSetInputMode(s.getWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 }
 
 void StateGame::update(StateManager& s, double dt)
@@ -60,7 +68,7 @@ void StateGame::render(StateManager& s)
 	cameraBuf.uploadData<Camera>(&cam);
 
 	rendererShader->use();
-	QuadRenderer::render();
+	QuadRendererBasic::render();
 }
 
 void StateGame::mouseInput(StateManager& s, double xpos, double ypos)
@@ -128,7 +136,7 @@ void StateGame::mouseButtonInput(StateManager& s, int button, int action, int mo
 	}
 }
 
-void StateGame::keyInput(StateManager&, int key, int scancode, int action, int mods)
+void StateGame::keyInput(StateManager& s, int key, int scancode, int action, int mods)
 {
 	if (action == GLFW_REPEAT) return;
 
@@ -144,6 +152,7 @@ void StateGame::keyInput(StateManager&, int key, int scancode, int action, int m
 	case GLFW_KEY_F: keys.f = (action == GLFW_PRESS); break;
 	case GLFW_KEY_SPACE: keys.space = (action == GLFW_PRESS); break;
 	case GLFW_KEY_LEFT_SHIFT: keys.shift = (action == GLFW_PRESS); break;
+	case GLFW_KEY_ESCAPE: s.popState(); break;
 	}
 }
 

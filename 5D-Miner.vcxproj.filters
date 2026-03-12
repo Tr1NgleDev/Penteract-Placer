@@ -57,6 +57,18 @@
     <ClCompile Include="TextureBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="StateTitleScreen.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ui.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="QuadRendererBasic.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TextRenderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -67,6 +79,21 @@
       <Filter>Shader FIles</Filter>
     </None>
     <None Include="assets\shaders\renderer.vert">
+      <Filter>Shader FIles</Filter>
+    </None>
+    <None Include="assets\shaders\text.vert">
+      <Filter>Shader FIles</Filter>
+    </None>
+    <None Include="assets\shaders\quad.frag">
+      <Filter>Shader FIles</Filter>
+    </None>
+    <None Include="assets\shaders\quadBasic.vert">
+      <Filter>Shader FIles</Filter>
+    </None>
+    <None Include="assets\shaders\text.frag">
+      <Filter>Shader FIles</Filter>
+    </None>
+    <None Include="assets\shaders\text.geom">
       <Filter>Shader FIles</Filter>
     </None>
   </ItemGroup>
@@ -123,6 +150,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="json.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="StateTitleScreen.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ui.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="QuadRendererBasic.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TextRenderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

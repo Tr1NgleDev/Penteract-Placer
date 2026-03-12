@@ -1,8 +1,9 @@
 #pragma once
+#include <glm/vec2.hpp>
+#include <glm/mat4x4.hpp>
 
-#include "QuadRenderer.h"
-#include "Shader.h"
-#include "Texture.h"
+class Texture;
+class Shader;
 
 class TexRenderer
 {

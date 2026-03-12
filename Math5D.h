@@ -72,6 +72,18 @@ namespace m5
 		bivec5 normalized() const;
 		bivec5& normalize();
 
+		// ig we're just going to do two component names for everything lol
+		inline static bivec5 AB() { return bivec5{ 1,0,0,0,0,0,0,0,0,0 }; }
+		inline static bivec5 AC() { return bivec5{ 0,1,0,0,0,0,0,0,0,0 }; }
+		inline static bivec5 AD() { return bivec5{ 0,0,1,0,0,0,0,0,0,0 }; }
+		inline static bivec5 AE() { return bivec5{ 0,0,0,1,0,0,0,0,0,0 }; }
+		inline static bivec5 BC() { return bivec5{ 0,0,0,0,1,0,0,0,0,0 }; }
+		inline static bivec5 BD() { return bivec5{ 0,0,0,0,0,1,0,0,0,0 }; }
+		inline static bivec5 BE() { return bivec5{ 0,0,0,0,0,0,1,0,0,0 }; }
+		inline static bivec5 CD() { return bivec5{ 0,0,0,0,0,0,0,1,0,0 }; }
+		inline static bivec5 CE() { return bivec5{ 0,0,0,0,0,0,0,0,1,0 }; }
+		inline static bivec5 DE() { return bivec5{ 0,0,0,0,0,0,0,0,0,1 }; }
+
 		inline static bivec5 XY() { return bivec5{ 1,0,0,0,0,0,0,0,0,0 }; }
 		inline static bivec5 XZ() { return bivec5{ 0,1,0,0,0,0,0,0,0,0 }; }
 		inline static bivec5 XW() { return bivec5{ 0,0,1,0,0,0,0,0,0,0 }; }

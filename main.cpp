@@ -11,10 +11,12 @@
 #include "StateManager.h"
 
 #include "StateGame.h"
+#include "StateTitleScreen.h"
 
-#include "QuadRenderer.h"
+#include "QuadRendererBasic.h"
 #include "Texture.h"
 #include "Shader.h"
+#include "ui.h"
 
 #ifdef _WIN32
 extern "C"
@@ -24,35 +26,40 @@ extern "C"
 }
 #endif
 
-StateManager stateManager{};
-
 void handleRawMouseInput(GLFWwindow* window, double xpos, double ypos)
 {
-	stateManager.mouseInput(xpos, ypos);
+	StateManager* s = reinterpret_cast<StateManager*>(glfwGetWindowUserPointer(window));
+	s->mouseInput(xpos, ypos);
 }
 void scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 {
-	stateManager.scrollInput(xoffset, yoffset);
+	StateManager* s = reinterpret_cast<StateManager*>(glfwGetWindowUserPointer(window));
+	s->scrollInput(xoffset, yoffset);
 }
 void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
 {
-	stateManager.mouseButtonInput(button, action, mods);
+	StateManager* s = reinterpret_cast<StateManager*>(glfwGetWindowUserPointer(window));
+	s->mouseButtonInput(button, action, mods);
 }
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-	stateManager.keyInput(key, scancode, action, mods);
+	StateManager* s = reinterpret_cast<StateManager*>(glfwGetWindowUserPointer(window));
+	s->keyInput(key, scancode, action, mods);
 }
 void framebufferSizeCallback(GLFWwindow* window, int width, int height)
 {
-	stateManager.windowResize(width, height);
+	StateManager* s = reinterpret_cast<StateManager*>(glfwGetWindowUserPointer(window));
+	s->windowResize(width, height);
 }
 void charCallback(GLFWwindow* window, unsigned int codepoint)
 {
-	stateManager.charInput(codepoint);
+	StateManager* s = reinterpret_cast<StateManager*>(glfwGetWindowUserPointer(window));
+	s->charInput(codepoint);
 }
 void fileDropCallback(GLFWwindow* window, int path_count, const char* paths[])
 {
-	stateManager.fileDrop(path_count, paths);
+	StateManager* s = reinterpret_cast<StateManager*>(glfwGetWindowUserPointer(window));
+	s->fileDrop(path_count, paths);
 }
 
 #ifndef NDEBUG
@@ -112,7 +119,7 @@ int main()
 		return 2;
 	}
 
-	stateManager.window = window;
+	StateManager stateManager{ window };
 	glfwSetWindowUserPointer(window, &stateManager);
 
 	glfwSetInputMode(window, GLFW_STICKY_KEYS, true);
@@ -163,9 +170,23 @@ int main()
 	glClearColor(0, 0, 0, 0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	QuadRenderer::init();
+	QuadRendererBasic::init();
 
-	stateManager.changeState(&StateGame::instanceObj);
+	// idk where you want me to put this
+	Shader::load("quad", {
+		{ GL_VERTEX_SHADER, "assets/shaders/quad.vert" },
+		{ GL_FRAGMENT_SHADER, "assets/shaders/quad.frag" }
+	});
+
+	Shader::load("text", {
+		{ GL_VERTEX_SHADER, "assets/shaders/text.vert" },
+		{ GL_GEOMETRY_SHADER, "assets/shaders/text.geom" },
+		{ GL_FRAGMENT_SHADER, "assets/shaders/text.frag" }
+	});
+
+	ui::element::renderInit();
+
+	stateManager.changeState(StateTitleScreen::instance());
 
 	int wW, wH;
 	stateManager.getSize(&wW, &wH);
@@ -198,7 +219,7 @@ int main()
 
 	Texture::destroy();
 	Shader::destroy();
-	QuadRenderer::destroy();
+	QuadRendererBasic::destroy();
 
 	glfwDestroyWindow(window);
 	glfwTerminate();
