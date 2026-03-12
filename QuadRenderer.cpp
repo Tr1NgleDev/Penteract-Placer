@@ -186,10 +186,5 @@ void QuadRenderer::setPos(GLint x, GLint y, GLint w, GLint h, GLfloat radians)
 
 void QuadRenderer::setMode(Mode renderingMode)
 {
-	if (renderingMode == this->mode)
-	{
-		return;
-	}
-
 	this->mode = renderingMode;
 }
