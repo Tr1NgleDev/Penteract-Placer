@@ -82,19 +82,6 @@ GPUBuffer::~GPUBuffer()
 	cleanup();
 }
 
-GLenum GPUBuffer::glAccess(AccessMode access)
-{
-	switch (access)
-	{
-	case READ_ONLY:
-		return GL_READ_ONLY;
-	case WRITE_ONLY:
-		return GL_WRITE_ONLY;
-	case READ_WRITE:
-		return GL_READ_WRITE;
-	}
-	return GL_READ_ONLY;
-}
 GLenum GPUBuffer::glBufferType(BufferType type)
 {
 	switch (type)
@@ -105,21 +92,4 @@ GLenum GPUBuffer::glBufferType(BufferType type)
 		return GL_UNIFORM_BUFFER;
 	}
 	return GL_SHADER_STORAGE_BUFFER;
-}
-
-void* GPUBuffer::map(AccessMode access)
-{
-	if (!ID) return nullptr;
-	return glMapNamedBuffer(ID, glAccess(access));
-}
-void* GPUBuffer::map(size_t offset, size_t size, AccessMode access)
-{
-	if (!ID) return nullptr;
-	return glMapNamedBufferRange(ID, offset, size, glAccess(access));
-}
-
-void GPUBuffer::unmap()
-{
-	if (!ID) return;
-	glUnmapNamedBuffer(ID);
 }

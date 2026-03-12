@@ -7,13 +7,6 @@
 class GPUBuffer
 {
 public:
-	enum AccessMode
-	{
-		READ_ONLY,
-		WRITE_ONLY,
-		READ_WRITE
-	};
-
 	enum BufferType
 	{
 		SHADER_STORAGE_BUFFER, // SSBO
@@ -26,7 +19,6 @@ private:
 
 	void init(size_t size, const void* data = nullptr);
 
-	static GLenum glAccess(AccessMode access);
 	static GLenum glBufferType(BufferType type);
 
 public:
@@ -83,20 +75,4 @@ public:
 	GPUBuffer& operator=(GPUBuffer&& other) noexcept;
 
 	~GPUBuffer();
-
-	void* map(AccessMode access);
-	void* map(size_t offset, size_t size, AccessMode access);
-
-	template<typename T>
-	T* map(AccessMode access)
-	{
-		return (T*)map(access);
-	}
-	template<typename T>
-	T* map(size_t offset, AccessMode access)
-	{
-		return (T*)map(offset, sizeof(T), access);
-	}
-
-	void unmap();
 };
