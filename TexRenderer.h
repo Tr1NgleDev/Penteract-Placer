@@ -20,7 +20,9 @@ protected:
 public:
 
 	TexRenderer(const Texture* texture = nullptr, const Shader* shader = nullptr);
+	const Texture* getTexture() const { return texture; }
 	void setTexture(const Texture* texture) { this->texture = texture; }
+	const Shader* getShader() const { return shader; }
 	void setShader(const Shader* shader) { this->shader = shader; }
 	void setPos(const glm::vec2& pos);
 	void setPos(float x, float y) { setPos({ x, y }); }

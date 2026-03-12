@@ -568,29 +568,41 @@ void ui::image::getBounds(page* p, int* x, int* y, int* w, int* h)
 void ui::image::init(page* p)
 {
 	renderer.setShader(Shader::get("tex"));
+	renderer.setScaleOrigin({ 0.0f, 0.0f });
 }
 
 void ui::image::render(page* p)
 {
-	int x, y, w, h;
-	getBounds(p, &x, &y, &w, &h);
-	renderer.setPos(x, y);
 	renderer.render();
 }
 
-void ui::image::setDimensions(int w, int h)
+void ui::image::windowResize(page* p, int width, int height)
 {
-	width = w;
-	height = h;
+	int x, y, w, h;
+	getBounds(p, &x, &y, &w, &h);
+	renderer.setPos(x, y);
 }
 
-void ui::image::setTexture(const Texture* texture, bool updateDimensions)
+void ui::image::setScale(float x, float y)
 {
-	renderer.setTexture(texture);
+	renderer.setScale(x, y);
+	updateSize();
+}
 
-	if (texture != nullptr && updateDimensions)
+void ui::image::updateSize()
+{
+	const Texture* texture = renderer.getTexture();
+	if (texture != nullptr)
 	{
 		auto& size = texture->getSize();
-		setDimensions(size.x, size.y);
+		auto scale = renderer.getScale();
+		width = size.x * scale.x;
+		height = size.y * scale.y;
 	}
+}
+
+void ui::image::setTexture(const Texture* texture)
+{
+	renderer.setTexture(texture);
+	updateSize();
 }

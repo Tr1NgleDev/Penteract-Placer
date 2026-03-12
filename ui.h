@@ -163,12 +163,13 @@ namespace ui
 
 		void init(page* p) override;
 		void render(page* p) override;
+		void windowResize(page* p, int width, int height) override;
 
 		// class-specific methods
 		// ----------------------
 
-		void setTexture(const Texture* texture, bool updateDimensions = true);
-		void setDimensions(int w, int h);
+		void setTexture(const Texture* texture);
+		void setScale(float x, float y);
 
 	private:
 
@@ -177,5 +178,7 @@ namespace ui
 
 		int width;
 		int height;
+
+		void updateSize();
 	};
 }

@@ -10,12 +10,13 @@ void StateTitleScreen::init(StateManager& s)
 {
 	text.setValue("hello world");
 	text.setAlignX(ui::ALIGN_CENTER_X);
-	text.setOffsetY(200);
+	text.setOffsetY(300);
 	text.setColor(glm::vec4{ 0, 1, 0, 1 });
 
 	Texture::load("assets/textures/logo.png", 0, false, "logo.png");
 	logo.setTexture(Texture::get("logo.png"));
 	logo.setAlignX(ui::ALIGN_CENTER_X);
+	logo.setScale(2.0f, 2.0f);
 
 	page.addElem(&text);
 	page.addElem(&logo);
