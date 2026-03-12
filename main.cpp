@@ -113,7 +113,7 @@ int main()
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
 #endif
 
-	GLFWwindow* window = glfwCreateWindow(200, 720, "5D Miner by Mashpoe and Tr1Ngle", nullptr, nullptr);
+	GLFWwindow* window = glfwCreateWindow(1280, 720, "5D Miner by Mashpoe and Tr1Ngle", nullptr, nullptr);
 	if (!window)
 	{
 		printf("Failed to initialize the window!\n");
@@ -183,6 +183,11 @@ int main()
 		{ GL_VERTEX_SHADER, "assets/shaders/text.vert" },
 		{ GL_GEOMETRY_SHADER, "assets/shaders/text.geom" },
 		{ GL_FRAGMENT_SHADER, "assets/shaders/text.frag" }
+	});
+
+	Shader::load("tex", {
+		{ GL_VERTEX_SHADER, "assets/shaders/quadBasic.vert" },
+		{ GL_FRAGMENT_SHADER, "assets/shaders/tex.frag" }
 	});
 
 	ui::element::renderInit();

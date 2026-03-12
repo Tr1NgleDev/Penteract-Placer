@@ -104,6 +104,7 @@
     <None Include="assets\shaders\quadBasic.vert" />
     <None Include="assets\shaders\renderer.frag" />
     <None Include="assets\shaders\renderer.vert" />
+    <None Include="assets\shaders\tex.frag" />
     <None Include="assets\shaders\text.frag" />
     <None Include="assets\shaders\text.geom" />
     <None Include="assets\shaders\text.vert" />

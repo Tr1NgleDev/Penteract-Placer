@@ -175,6 +175,10 @@ void ui::page::windowResize(int width, int height)
 	textShader->use();
 	glUniformMatrix4fv(glGetUniformLocation(textShader->id(), "P"), 1, GL_FALSE, &projection2D[0][0]);
 
+	const Shader* texShader = Shader::get("tex");
+	texShader->use();
+	glUniformMatrix4fv(glGetUniformLocation(texShader->id(), "proj"), 1, GL_FALSE, &projection2D[0][0]);
+
 	for (auto elem : elems)
 	{
 		elem->windowResize(this, width, height);
@@ -510,4 +514,83 @@ void ui::text::renderText(page* p, std::string_view text, int x, int y, bool ali
 	tr.setColor(color);
 	tr.setPos(adjustedX, y);
 	tr.render();
+}
+
+void ui::image::getBounds(page* p, int* x, int* y, int* w, int* h)
+{
+	*w = width;
+	*h = height;
+
+	int wWidth, wHeight;
+	glfwGetWindowSize(p->getWindow(), &wWidth, &wHeight);
+
+	switch (alignmentX)
+	{
+	case ALIGN_LEFT:
+	{
+		*x = 0;
+		break;
+	}
+	case ALIGN_RIGHT:
+	{
+		*x = wWidth - width;
+	}
+	case ALIGN_CENTER_X:
+		[[fallthrough]];
+	default:
+	{
+		*x = (wWidth - width) / 2;
+		break;
+	}
+	}
+
+	switch (alignmentY)
+	{
+	case ALIGN_TOP:
+	{
+		*y = 0;
+		break;
+	}
+	case ALIGN_BOTTOM:
+	{
+		*y = wHeight - height;
+	}
+	case ALIGN_CENTER_Y:
+		[[fallthrough]];
+	default:
+	{
+		*y = (wHeight - height) / 2;
+		break;
+	}
+	}
+}
+
+void ui::image::init(page* p)
+{
+	renderer.setShader(Shader::get("tex"));
+}
+
+void ui::image::render(page* p)
+{
+	int x, y, w, h;
+	getBounds(p, &x, &y, &w, &h);
+	renderer.setPos(x, y);
+	renderer.render();
+}
+
+void ui::image::setDimensions(int w, int h)
+{
+	width = w;
+	height = h;
+}
+
+void ui::image::setTexture(const Texture* texture, bool updateDimensions)
+{
+	renderer.setTexture(texture);
+
+	if (texture != nullptr && updateDimensions)
+	{
+		auto& size = texture->getSize();
+		setDimensions(size.x, size.y);
+	}
 }

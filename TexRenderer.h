@@ -15,12 +15,13 @@ protected:
 	glm::vec2 scaleOrigin{ 0.5f };
 	glm::mat4 model{ 1 };
 	bool updateModel = true;
-	Texture* texture = nullptr;
+	const Texture* texture = nullptr;
+	const Shader* shader = nullptr;
 public:
-	Shader* shader = nullptr;
 
-	TexRenderer(Texture* texture = nullptr, Shader* shader = nullptr);
-	void setTexture(Texture* texture) { this->texture = texture; }
+	TexRenderer(const Texture* texture = nullptr, const Shader* shader = nullptr);
+	void setTexture(const Texture* texture) { this->texture = texture; }
+	void setShader(const Shader* shader) { this->shader = shader; }
 	void setPos(const glm::vec2& pos);
 	void setPos(float x, float y) { setPos({ x, y }); }
 	void setScale(const glm::vec2& scale);

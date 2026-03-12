@@ -96,6 +96,9 @@
     <None Include="assets\shaders\text.geom">
       <Filter>Shader FIles</Filter>
     </None>
+    <None Include="assets\shaders\tex.frag">
+      <Filter>Shader FIles</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math5D.h">

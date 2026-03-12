@@ -3,7 +3,7 @@
 #include "Shader.h"
 #include "Texture.h"
 
-TexRenderer::TexRenderer(Texture* texture, Shader* shader)
+TexRenderer::TexRenderer(const Texture* texture, const Shader* shader)
 	: texture(texture), shader(shader) { }
 
 void TexRenderer::render()

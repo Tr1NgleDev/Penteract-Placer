@@ -1,7 +1,7 @@
 #version 330 core
 
 layout(points) in;
-layout(triangle_strip, max_vertices = 6) out;
+layout(triangle_strip, max_vertices = 4) out;
 
 in int gsChars[];
 
@@ -24,14 +24,6 @@ void main()
 	// create the triangles
 	fsUV = vec2(charStartUV.x, charStartUV.y);
 	gl_Position = P * MV * vec4(charStartPos.x, charStartPos.y, 0, 1);
-	EmitVertex();
-
-	fsUV = vec2(charEndUV.x, charStartUV.y);
-	gl_Position = P * MV * vec4(charEndPos.x, charStartPos.y, 0, 1);
-	EmitVertex();
-
-	fsUV = vec2(charStartUV.x, charEndUV.y);
-	gl_Position = P * MV * vec4(charStartPos.x, charEndPos.y, 0, 1);
 	EmitVertex();
 
 	fsUV = vec2(charEndUV.x, charStartUV.y);

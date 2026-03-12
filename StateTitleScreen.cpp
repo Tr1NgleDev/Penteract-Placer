@@ -13,7 +13,12 @@ void StateTitleScreen::init(StateManager& s)
 	text.setOffsetY(200);
 	text.setColor(glm::vec4{ 0, 1, 0, 1 });
 
+	Texture::load("assets/textures/logo.png", 0, false, "logo.png");
+	logo.setTexture(Texture::get("logo.png"));
+	logo.setAlignX(ui::ALIGN_CENTER_X);
+
 	page.addElem(&text);
+	page.addElem(&logo);
 
 	s.setUiPage(&page);
 }

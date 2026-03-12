@@ -4,6 +4,7 @@
 #include <string>
 #include "QuadRenderer.h"
 #include "TextRenderer.h"
+#include "TexRenderer.h"
 
 struct GLFWwindow;
 
@@ -149,5 +150,32 @@ namespace ui
 		void getBoundSize(int* w, int* h);
 
 		void renderText(page* p, std::string_view text, int x, int y, bool align);
+	};
+
+	class image : public element
+	{
+	public:
+
+		// element overrides
+		// -----------------
+
+		void getBounds(page* p, int* x, int* y, int* w, int* h) override;
+
+		void init(page* p) override;
+		void render(page* p) override;
+
+		// class-specific methods
+		// ----------------------
+
+		void setTexture(const Texture* texture, bool updateDimensions = true);
+		void setDimensions(int w, int h);
+
+	private:
+
+		const Texture* texture = nullptr;
+		TexRenderer renderer;
+
+		int width;
+		int height;
 	};
 }

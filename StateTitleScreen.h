@@ -30,4 +30,5 @@ private:
 	ui::page page;
 
 	ui::text text;
+	ui::image logo;
 };
