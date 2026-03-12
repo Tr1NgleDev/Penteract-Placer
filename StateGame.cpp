@@ -36,12 +36,6 @@ void StateGame::init(StateManager& s)
 
 void StateGame::update(StateManager& s, double dt)
 {
-	if (s.shouldClose())
-	{
-		s.popState();
-		return;
-	}
-
 	m5::vec5 moveDir{ 0 };
 
 	if (keys.w) moveDir += cam.forward;

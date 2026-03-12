@@ -221,6 +221,11 @@ int main()
 		}
 
 		stateManager.render();
+
+		while (stateManager.shouldClose() && stateManager.isRunning())
+		{
+			stateManager.popState();
+		}
 	}
 
 	Texture::destroy();
