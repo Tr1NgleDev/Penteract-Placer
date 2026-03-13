@@ -85,6 +85,11 @@ void StateManager::mouseInput(double xpos, double ypos)
 }
 void StateManager::scrollInput(double xoffset, double yoffset)
 {
+	if (page != nullptr && page->scrollInput(xoffset, yoffset))
+	{
+		return;
+	}
+
 	if (isRunning())
 	{
 		getCurrentState()->scrollInput(*this, xoffset, yoffset);
@@ -93,6 +98,11 @@ void StateManager::scrollInput(double xoffset, double yoffset)
 
 void StateManager::mouseButtonInput(int button, int action, int mods)
 {
+	if (page != nullptr && page->mouseButtonInput(button, action, mods))
+	{
+		return;
+	}
+
 	if (isRunning())
 	{
 		getCurrentState()->mouseButtonInput(*this, button, action, mods);
@@ -101,6 +111,11 @@ void StateManager::mouseButtonInput(int button, int action, int mods)
 
 void StateManager::keyInput(int key, int scancode, int action, int mods)
 {
+	if (page != nullptr && page->keyInput(key, scancode, action, mods))
+	{
+		return;
+	}
+
 	if (isRunning())
 	{
 		getCurrentState()->keyInput(*this, key, scancode, action, mods);

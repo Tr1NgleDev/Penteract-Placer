@@ -44,12 +44,13 @@ namespace ui
 		void init(GLFWwindow* w);
 		void render();
 		void mouseInput(double xpos, double ypos);
-		void scrollInput(double xoff, double yoff);
-		void mouseButtonInput(int button, int action, int mods);
-		void keyInput(int key, int scancode, int action, int mods);
+		bool scrollInput(double xoff, double yoff);
+		bool mouseButtonInput(int button, int action, int mods);
+		bool keyInput(int key, int scancode, int action, int mods);
+		bool charInput(uint32_t codepoint);
+		bool fileDrop(int count, const char* paths[]);
+
 		void windowResize(int width, int height);
-		void charInput(uint32_t codepoint);
-		void fileDrop(int count, const char* paths[]);
 
 		GLFWwindow* getWindow();
 		// returns nullptr if there is no focused element
@@ -61,6 +62,9 @@ namespace ui
 		GLFWwindow* window = nullptr;
 
 		int focusIndex = -1;
+		int mouseDownIndex = -1;
+
+		void mouseDownCancel();
 	};
 	
 	class element
@@ -72,18 +76,23 @@ namespace ui
 		// virtual methods
 		// ---------------
 
+		virtual void init(page* p) {}
+		virtual void render(page* p) {}
+
 		virtual bool clickable() { return false; }
 		virtual void getBounds(page* p, int* x, int* y, int* w, int* h) = 0;
 
-		virtual void init(page* p) {}
-		virtual void render(page* p) {}
 		virtual void mouseInput(page* p, double xpos, double ypos) {}
 		virtual bool scrollInput(page* p, double xoff, double yoff) { return false; }
 		virtual bool mouseButtonInput(page* p, double xpos, double ypos, int button, int action, int mods) { return false; }
-		virtual void keyInput(page* p, int key, int scancode, int action, int mods) {}
+		virtual bool keyInput(page* p, int key, int scancode, int action, int mods) { return false; }
+		virtual bool charInput(page* p, uint32_t codepoint) { return false; }
+		virtual bool fileDrop(page* p, int count, const char* paths[]) { return false; }
+
+		// called when the left mouse button was pressed over the element but is released off of it
+		virtual void mouseDownCancel() {}
+
 		virtual void windowResize(page* p, int width, int height) {}
-		virtual void charInput(page* p, uint32_t codepoint) {}
-		virtual void fileDrop(page* p, int count, const char* paths[]) {}
 
 		virtual void focus() {}
 		virtual void defocus() {}
@@ -122,10 +131,10 @@ namespace ui
 		// element overrides
 		// -----------------
 
-		void getBounds(page* p, int* x, int* y, int* w, int* h) override;
-
 		//void init(page* p) override;
 		void render(page* p) override;
+
+		void getBounds(page* p, int* x, int* y, int* w, int* h) override;
 
 		// class-specific methods
 		// ----------------------
@@ -162,10 +171,11 @@ namespace ui
 		// element overrides
 		// -----------------
 
-		void getBounds(page* p, int* x, int* y, int* w, int* h) override;
-
 		void init(page* p) override;
 		void render(page* p) override;
+
+		void getBounds(page* p, int* x, int* y, int* w, int* h) override;
+
 		void windowResize(page* p, int width, int height) override;
 
 		// class-specific methods
@@ -189,13 +199,24 @@ namespace ui
 	{
 	public:
 
-		void getBounds(page* p, int* x, int* y, int* w, int* h) override;
+		// element overrides
+		// -----------------
 
 		void render(page* p) override;
+
+		bool clickable() override { return true; }
+		void getBounds(page* p, int* x, int* y, int* w, int* h) override;
+
+		bool mouseButtonInput(page* p, double xpos, double ypos, int button, int action, int mods) override;
+
+		void mouseDownCancel() override;
+
+		void defocus() override;
 
 		// class-specific methods
 		// ----------------------
 
+		void setAction(std::move_only_function<void()> action);
 		void setText(std::string_view value);
 		void setSize(int width, int height);
 
@@ -205,5 +226,9 @@ namespace ui
 
 		int width;
 		int height;
+
+		bool mouseDown = false;
+
+		std::move_only_function<void()> action;
 	};
 }

@@ -1,4 +1,5 @@
 #include "StateTitleScreen.h"
+#include <iostream>
 
 StateTitleScreen StateTitleScreen::instanceObj;
 StateTitleScreen* StateTitleScreen::instance()
@@ -22,6 +23,7 @@ void StateTitleScreen::init(StateManager& s)
 	logo.setScale(2.0f, 2.0f);
 
 	button.setText("New World");
+	button.setAction([]() { std::cout << "action!" << std::endl; });
 	button.setSize(150, 50);
 	button.setAlignX(ui::ALIGN_CENTER_X);
 	button.setOffsetY(500);
@@ -50,9 +52,10 @@ void StateTitleScreen::render(StateManager& s)
 	qr.setMode(QuadRenderer::MODE_FILL);
 	qr.setColors({
 		glm::vec4{ 0.3f, 0.14f, 0.34f, 1.0f },
-		glm::vec4{ 0.4f, 0.27f, 0.65f, 1.0f },
-		glm::vec4{ 0.4f, 0.27f, 0.65f, 1.0f },
-		glm::vec4{ 0.3f, 0.14f, 0.34f, 1.0f } });
+		glm::vec4{ 0.0f, 0.0f, 0.0f, 1.0f },
+		glm::vec4{ 0.0f, 0.0f, 0.0f, 1.0f },
+		glm::vec4{ 0.3f, 0.14f, 0.34f, 1.0f }
+	});
 	qr.setPos(0, 0, wW, wH);
 	qr.render();
 

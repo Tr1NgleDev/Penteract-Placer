@@ -27,9 +27,10 @@ public:
 	void scrollInput(double xoffset, double yoffset);
 	void mouseButtonInput(int button, int action, int mods);
 	void keyInput(int key, int scancode, int action, int mods);
-	void windowResize(int width, int height);
 	void charInput(unsigned int codepoint);
 	void fileDrop(int path_count, const char* paths[]);
+
+	void windowResize(int width, int height);
 
 	void setUiPage(ui::page* page);
 

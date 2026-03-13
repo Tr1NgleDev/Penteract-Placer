@@ -39,6 +39,15 @@ void ui::page::removeElem(container_t::iterator it)
 		--focusIndex;
 	}
 
+	if (index == mouseDownIndex)
+	{
+		mouseDownIndex = -1;
+	}
+	else if (index < mouseDownIndex)
+	{
+		--mouseDownIndex;
+	}
+
 	elems.erase(it);
 }
 
@@ -92,7 +101,7 @@ void ui::page::mouseInput(double xpos, double ypos)
 	}
 }
 
-void ui::page::scrollInput(double xoff, double yoff)
+bool ui::page::scrollInput(double xoff, double yoff)
 {
 	double xpos, ypos;
 	int mx, my;
@@ -114,11 +123,16 @@ void ui::page::scrollInput(double xoff, double yoff)
 			continue;
 		}
 
-		elem->scrollInput(this, xoff, yoff);
+		if (elem->scrollInput(this, xoff, yoff))
+		{
+			return true;
+		}
 	}
+
+	return false;
 }
 
-void ui::page::mouseButtonInput(int button, int action, int mods)
+bool ui::page::mouseButtonInput(int button, int action, int mods)
 {
 	double xpos, ypos;
 	int mx, my;
@@ -136,7 +150,7 @@ void ui::page::mouseButtonInput(int button, int action, int mods)
 
 		int x, y, w, h;
 		elem->getBounds(this, &x, &y, &w, &h);
-		if (mx < x || mx < y || mx >= x + w || mx >= y + h)
+		if (mx < x || my < y || mx >= x + w || my >= y + h)
 		{
 			continue;
 		}
@@ -144,19 +158,29 @@ void ui::page::mouseButtonInput(int button, int action, int mods)
 		if (elem->mouseButtonInput(this, xpos, ypos, button, action, mods))
 		{
 			focusIndex = it - elems.begin();
+
+			if (mouseDownIndex != focusIndex)
+			{
+				mouseDownCancel();
+			}
+			mouseDownIndex = focusIndex;
+			return true;
 		}
 	}
+
+	mouseDownCancel();
+	return false;
 }
 
-void ui::page::keyInput(int key, int scancode, int action, int mods)
+bool ui::page::keyInput(int key, int scancode, int action, int mods)
 {
 	element* elem = getFocusedElem();
 	if (elem == nullptr)
 	{
-		return;
+		return false;
 	}
 
-	elem->keyInput(this, key, scancode, action, mods);
+	return elem->keyInput(this, key, scancode, action, mods);
 }
 
 void ui::page::windowResize(int width, int height)
@@ -185,26 +209,26 @@ void ui::page::windowResize(int width, int height)
 	}
 }
 
-void ui::page::charInput(uint32_t codepoint)
+bool ui::page::charInput(uint32_t codepoint)
 {
 	element* elem = getFocusedElem();
 	if (elem == nullptr)
 	{
-		return;
+		return false;
 	}
 
-	elem->charInput(this, codepoint);
+	return elem->charInput(this, codepoint);
 }
 
-void ui::page::fileDrop(int count, const char* paths[])
+bool ui::page::fileDrop(int count, const char* paths[])
 {
 	element* elem = getFocusedElem();
 	if (elem == nullptr)
 	{
-		return;
+		return false;
 	}
 
-	elem->fileDrop(this, count, paths);
+	return elem->fileDrop(this, count, paths);
 }
 
 GLFWwindow* ui::page::getWindow()
@@ -220,6 +244,19 @@ ui::element* ui::page::getFocusedElem()
 		return elems[focusIndex];
 	}
 	return nullptr;
+}
+
+void ui::page::mouseDownCancel()
+{
+	if (mouseDownIndex < 0)
+	{
+		return;
+	}
+
+	assert(mouseDownIndex < elems.size());
+	elems[mouseDownIndex]->mouseDownCancel();
+
+	mouseDownIndex = -1;
 }
 
 QuadRenderer ui::element::qr;
@@ -660,10 +697,83 @@ void ui::button::render(page* p)
 {
 	int x, y, w, h;
 	getBounds(p, &x, &y, &w, &h);
-
 	qr.setPos(x, y, w, h);
-	qr.setColor({ 0.0f, 0.1f, 0.0f, 1.0f });
+
+	glm::vec3 textColor{ 1.0f, 1.0f, 1.0f };
+
+	if (mouseDown)
+	{
+		qr.setColor(textColor);
+		textColor = { 0.0f, 0.7f, 0.0f };
+	}
+	else
+	{
+		double mousex, mousey;
+		glfwGetCursorPos(p->getWindow(), &mousex, &mousey);
+		if (mousex >= x && mousex < x + w && mousey >= y && mousey < y + h)
+		{
+			qr.setColor({ 0.0f, 0.7f, 0.0f, 1.0f });
+		}
+		else
+		{
+			qr.setColor({ 0.0f, 0.1f, 0.0f, 1.0f });
+		}
+	}
+
 	qr.render();
+
+	tr.setText(text);
+	int tw = tr.getCharWidth() * 2 * text.size();
+	int th = tr.getCharHeight() * 2;
+
+	int tx = x + ((w - tw) / 2);
+	int ty = y + ((h - th) / 2);
+
+	tr.setFontSize(2);
+
+	// text shadow
+	tr.setPos(tx + 2, ty + 2);
+	tr.setColor({ 0.0f, 0.0f, 0.0f });
+	tr.render();
+
+	// text
+	tr.setPos(tx, ty);
+	tr.setColor(textColor);
+	tr.render();
+}
+
+bool ui::button::mouseButtonInput(page* p, double xpos, double ypos, int button, int action, int mods)
+{
+	if (action == GLFW_PRESS)
+	{
+		mouseDown = true;
+		return true;
+	}
+	else if (action == GLFW_RELEASE)
+	{
+		if (mouseDown)
+		{
+			this->action();
+			mouseDown = false;
+			return true;
+		}
+	}
+	return false;
+}
+
+void ui::button::mouseDownCancel()
+{
+	mouseDown = false;
+}
+
+void ui::button::defocus()
+{
+	mouseDown = false;
+}
+
+void ui::button::setAction(std::move_only_function<void()> action)
+{
+	this->action = std::move(action);
 }
 
 void ui::button::setText(std::string_view text)
