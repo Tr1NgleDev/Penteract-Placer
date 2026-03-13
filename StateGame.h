@@ -60,4 +60,6 @@ private:
 
 	static StateGame instanceObj;
 	~StateGame() {}
+
+	
 };
