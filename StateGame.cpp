@@ -32,6 +32,10 @@ void StateGame::init(StateManager& s)
 	lastMousePos = glm::vec2{ 0 };
 	glfwSetCursorPos(s.getWindow(), lastMousePos.x, lastMousePos.y);
 	glfwSetInputMode(s.getWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+	int wWidth, wHeight;
+	glfwGetWindowSize(s.getWindow(), &wWidth, &wHeight);
+	windowResize(s, wWidth, wHeight);
 }
 
 void StateGame::update(StateManager& s, double dt)

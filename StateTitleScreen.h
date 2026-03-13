@@ -14,6 +14,7 @@ public:
 	static StateTitleScreen* instance();
 
 	void init(StateManager& s) override;
+	void close(StateManager& s) override;
 	void update(StateManager& s, double dt) override;
 	void render(StateManager& s) override;
 	void mouseInput(StateManager& s, double xpos, double ypos) override;

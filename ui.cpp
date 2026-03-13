@@ -699,12 +699,15 @@ void ui::button::render(page* p)
 	getBounds(p, &x, &y, &w, &h);
 	qr.setPos(x, y, w, h);
 
+	constexpr glm::vec3 colorA{ 20 / 255.0f, 160 / 255.0f, 46 / 255.0f };
+	constexpr glm::vec3 colorB{ 121 / 255.0f, 58 / 255.0f, 128 / 255.0f };
+
 	glm::vec3 textColor{ 1.0f, 1.0f, 1.0f };
 
 	if (mouseDown)
 	{
 		qr.setColor(textColor);
-		textColor = { 0.0f, 0.7f, 0.0f };
+		textColor = colorA;
 	}
 	else
 	{
@@ -712,11 +715,11 @@ void ui::button::render(page* p)
 		glfwGetCursorPos(p->getWindow(), &mousex, &mousey);
 		if (mousex >= x && mousex < x + w && mousey >= y && mousey < y + h)
 		{
-			qr.setColor({ 0.0f, 0.7f, 0.0f, 1.0f });
+			qr.setColor(colorA);
 		}
 		else
 		{
-			qr.setColor({ 0.0f, 0.1f, 0.0f, 1.0f });
+			qr.setColor(colorB);
 		}
 	}
 

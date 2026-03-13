@@ -1,4 +1,5 @@
 #include "StateTitleScreen.h"
+#include "StateGame.h"
 #include <iostream>
 
 StateTitleScreen StateTitleScreen::instanceObj;
@@ -12,10 +13,10 @@ void StateTitleScreen::init(StateManager& s)
 	qr = QuadRenderer{ Shader::get("quad") };
 	qr.init();
 
-	text.setValue("hello world");
-	text.setAlignX(ui::ALIGN_CENTER_X);
-	text.setOffsetY(300);
-	text.setColor(glm::vec4{ 0, 1, 0, 1 });
+	//text.setValue("hello world");
+	//text.setAlignX(ui::ALIGN_CENTER_X);
+	//text.setOffsetY(300);
+	//text.setColor(glm::vec4{ 0, 1, 0, 1 });
 
 	Texture::load("assets/textures/logo.png", 0, false, "logo.png");
 	logo.setTexture(Texture::get("logo.png"));
@@ -23,7 +24,7 @@ void StateTitleScreen::init(StateManager& s)
 	logo.setScale(2.0f, 2.0f);
 
 	button.setText("New World");
-	button.setAction([]() { std::cout << "action!" << std::endl; });
+	button.setAction([this, &s]() { s.changeState(StateGame::instance()); });
 	button.setSize(150, 50);
 	button.setAlignX(ui::ALIGN_CENTER_X);
 	button.setOffsetY(500);
@@ -33,6 +34,11 @@ void StateTitleScreen::init(StateManager& s)
 	page.addElem(&button);
 
 	s.setUiPage(&page);
+}
+
+void StateTitleScreen::close(StateManager& s)
+{
+	s.setUiPage(nullptr);
 }
 
 void StateTitleScreen::update(StateManager& s, double dt)
@@ -57,15 +63,6 @@ void StateTitleScreen::render(StateManager& s)
 		glm::vec4{ 0.3f, 0.14f, 0.34f, 1.0f }
 	});
 	qr.setPos(0, 0, wW, wH);
-	qr.render();
-
-	qr.setMode(QuadRenderer::MODE_FILL);
-	qr.setColor(0.0f, 0.0f, 0.0f, 0.7f);
-	qr.setPos(100, 500, 150, 50);
-	qr.render();
-
-	qr.setMode(QuadRenderer::MODE_LINES);
-	qr.setColor(1.0f, 1.0f, 1.0f, 1.0f);
 	qr.render();
 }
 
