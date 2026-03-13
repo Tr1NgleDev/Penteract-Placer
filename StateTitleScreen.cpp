@@ -21,8 +21,14 @@ void StateTitleScreen::init(StateManager& s)
 	logo.setAlignX(ui::ALIGN_CENTER_X);
 	logo.setScale(2.0f, 2.0f);
 
+	button.setText("New World");
+	button.setSize(150, 50);
+	button.setAlignX(ui::ALIGN_CENTER_X);
+	button.setOffsetY(500);
+
 	page.addElem(&text);
 	page.addElem(&logo);
+	page.addElem(&button);
 
 	s.setUiPage(&page);
 }

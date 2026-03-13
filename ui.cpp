@@ -528,18 +528,18 @@ void ui::image::getBounds(page* p, int* x, int* y, int* w, int* h)
 	{
 	case ALIGN_LEFT:
 	{
-		*x = 0;
+		*x = 0 + offsetX;
 		break;
 	}
 	case ALIGN_RIGHT:
 	{
-		*x = wWidth - width;
+		*x = wWidth - width + offsetX;
 	}
 	case ALIGN_CENTER_X:
 		[[fallthrough]];
 	default:
 	{
-		*x = (wWidth - width) / 2;
+		*x = ((wWidth - width) / 2) + offsetX;
 		break;
 	}
 	}
@@ -548,18 +548,18 @@ void ui::image::getBounds(page* p, int* x, int* y, int* w, int* h)
 	{
 	case ALIGN_TOP:
 	{
-		*y = 0;
+		*y = 0 + offsetY;
 		break;
 	}
 	case ALIGN_BOTTOM:
 	{
-		*y = wHeight - height;
+		*y = wHeight - height + offsetY;
 	}
 	case ALIGN_CENTER_Y:
 		[[fallthrough]];
 	default:
 	{
-		*y = (wHeight - height) / 2;
+		*y = ((wHeight - height) / 2) + offsetY;
 		break;
 	}
 	}
@@ -605,4 +605,74 @@ void ui::image::setTexture(const Texture* texture)
 {
 	renderer.setTexture(texture);
 	updateSize();
+}
+
+void ui::button::getBounds(page* p, int* x, int* y, int* w, int* h)
+{
+	*w = width;
+	*h = height;
+
+	int wWidth, wHeight;
+	glfwGetWindowSize(p->getWindow(), &wWidth, &wHeight);
+
+	switch (alignmentX)
+	{
+	case ALIGN_LEFT:
+	{
+		*x = 0 + offsetX;
+		break;
+	}
+	case ALIGN_RIGHT:
+	{
+		*x = wWidth - width + offsetX;
+	}
+	case ALIGN_CENTER_X:
+		[[fallthrough]];
+	default:
+	{
+		*x = ((wWidth - width) / 2) + offsetX;
+		break;
+	}
+	}
+
+	switch (alignmentY)
+	{
+	case ALIGN_TOP:
+	{
+		*y = 0 + offsetY;
+		break;
+	}
+	case ALIGN_BOTTOM:
+	{
+		*y = wHeight - height + offsetY;
+	}
+	case ALIGN_CENTER_Y:
+		[[fallthrough]];
+	default:
+	{
+		*y = ((wHeight - height) / 2) + offsetY;
+		break;
+	}
+	}
+}
+
+void ui::button::render(page* p)
+{
+	int x, y, w, h;
+	getBounds(p, &x, &y, &w, &h);
+
+	qr.setPos(x, y, w, h);
+	qr.setColor({ 0.0f, 0.1f, 0.0f, 1.0f });
+	qr.render();
+}
+
+void ui::button::setText(std::string_view text)
+{
+	this->text = text;
+}
+
+void ui::button::setSize(int width, int height)
+{
+	this->width = width;
+	this->height = height;
 }

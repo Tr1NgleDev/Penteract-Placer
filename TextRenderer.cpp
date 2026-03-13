@@ -2,6 +2,7 @@
 #include "Texture.h"
 #include "Shader.h"
 #include <glm/gtc/matrix_transform.hpp>
+#include "ui.h"
 
 TextRenderer::TextRenderer(const Texture* texture, const Shader* shader) : texture(texture), shader(shader)
 {

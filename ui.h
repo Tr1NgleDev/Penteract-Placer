@@ -1,10 +1,10 @@
 #pragma once
-#include <cstdint>
-#include <vector>
-#include <string>
 #include "QuadRenderer.h"
 #include "TextRenderer.h"
 #include "TexRenderer.h"
+#include <cstdint>
+#include <vector>
+#include <string>
 
 struct GLFWwindow;
 
@@ -84,6 +84,9 @@ namespace ui
 		virtual void windowResize(page* p, int width, int height) {}
 		virtual void charInput(page* p, uint32_t codepoint) {}
 		virtual void fileDrop(page* p, int count, const char* paths[]) {}
+
+		virtual void focus() {}
+		virtual void defocus() {}
 
 		// non-virtual methods
 		// -------------------
@@ -180,5 +183,27 @@ namespace ui
 		int height;
 
 		void updateSize();
+	};
+
+	class button : public element
+	{
+	public:
+
+		void getBounds(page* p, int* x, int* y, int* w, int* h) override;
+
+		void render(page* p) override;
+
+		// class-specific methods
+		// ----------------------
+
+		void setText(std::string_view value);
+		void setSize(int width, int height);
+
+	private:
+
+		std::string text;
+
+		int width;
+		int height;
 	};
 }

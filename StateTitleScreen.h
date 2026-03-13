@@ -31,6 +31,7 @@ private:
 
 	ui::text text;
 	ui::image logo;
+	ui::button button;
 
 	QuadRenderer qr;
 };

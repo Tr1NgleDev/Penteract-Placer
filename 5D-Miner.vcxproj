@@ -113,6 +113,7 @@
   <ItemGroup>
     <ClInclude Include="Directory.h" />
     <ClInclude Include="File.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="TextRenderer.h" />
     <ClInclude Include="Framebuffer.h" />
     <ClInclude Include="GPUBuffer.h" />
@@ -133,6 +134,12 @@
     <ClInclude Include="tuple_hash.h" />
     <ClInclude Include="vec5.h" />
     <ClInclude Include="vec6.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="5D-Miner.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="icon.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
