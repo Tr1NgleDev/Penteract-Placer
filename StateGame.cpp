@@ -99,8 +99,8 @@ void StateGame::mouseInput(StateManager& s, double xpos, double ypos)
 		}
 		else
 		{
-			m5::rotor5 rotH{ m5::wedge(cam.yonder, cam.left), hAngleDelta }; // XV
-			m5::rotor5 rotV{ m5::wedge(pd, cam.yonder), vAngleDelta }; // ZV
+			m5::rotor5 rotH{ m5::wedge(cam.yonder, cam.left), hAngleDelta }; // CE
+			m5::rotor5 rotV{ m5::wedge(pd, cam.yonder), vAngleDelta }; // BE
 
 			orientation = rotH * rotV * orientation;
 		}
