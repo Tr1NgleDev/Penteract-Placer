@@ -104,6 +104,7 @@
     <ClCompile Include="TexRenderer.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="TextureBuffer.cpp" />
+    <ClCompile Include="World.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="assets\shaders\quad.frag" />
@@ -143,6 +144,7 @@
     <ClInclude Include="tuple_hash.h" />
     <ClInclude Include="vec5.h" />
     <ClInclude Include="vec6.h" />
+    <ClInclude Include="World.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="5D-Miner.rc" />
