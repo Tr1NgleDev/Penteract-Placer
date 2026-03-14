@@ -69,6 +69,8 @@ void StateGame::init(StateManager& s)
 	pauseMenu.addElem(&pausedText);
 	pauseMenu.addElem(&backToGameButton);
 	pauseMenu.addElem(&quitToTitleButton);
+
+	createWorld(1);
 }
 
 void StateGame::close(StateManager& s)

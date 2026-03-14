@@ -16,7 +16,6 @@ struct World
 
 	Chunk* getChunk(glm::u8vec4 chunkPos);
 	const Chunk* getChunk(glm::u8vec4 chunkPos) const;
-
 private:
 
 	uint8_t edgeLength;

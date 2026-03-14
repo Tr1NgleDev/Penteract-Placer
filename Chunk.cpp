@@ -6,7 +6,7 @@ uint8_t Chunk::BlockColumn::getBlock(size_t index)
 
 	int shift = 4 * (index & 1);
 
-	return (blockData[index >> 1] >> shift) & 0b00001111ui8;
+	return (blockData[index >> 1] >> shift) & BLOCK_ID_MAX;
 }
 
 void Chunk::BlockColumn::setBlock(size_t index, uint8_t value)
