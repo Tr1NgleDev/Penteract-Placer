@@ -2,6 +2,7 @@
 #include "StateManager.h"
 #include "GPUBuffer.h"
 #include "Math5D.h"
+#include "World.h"
 
 class Shader;
 
@@ -10,6 +11,25 @@ class StateGame : public State
 public:
 
 	static StateGame* instance();
+
+	void init(StateManager& s) override;
+	void close(StateManager& s) override;
+	void update(StateManager& s, double dt) override;
+	void render(StateManager& s) override;
+	void mouseInput(StateManager& s, double xpos, double ypos) override;
+	void scrollInput(StateManager& s, double xoff, double yoff) override;
+	void mouseButtonInput(StateManager& s, int button, int action, int mods) override;
+	void keyInput(StateManager&, int key, int scancode, int action, int mods) override;
+	void windowResize(StateManager&, int width, int height) override;
+
+	// creates a world with a given edge length,
+	// returning a pointer so the caller can initialize the world data.
+	World* createWorld(uint8_t edgeLength);
+
+private:
+
+	static StateGame instanceObj;
+	~StateGame() {}
 
 	struct alignas(16) Camera
 	{
@@ -45,21 +65,15 @@ public:
 		bool rmb;
 	} keys;
 
-	glm::vec2 lastMousePos{ 0 };
+	glm::dvec2 lastMousePos{ 0 };
+	void enableCursor(GLFWwindow* window);
+	void disableCursor(GLFWwindow* window);
 
-	void init(StateManager& s) override;
-	void update(StateManager& s, double dt) override;
-	void render(StateManager& s) override;
-	void mouseInput(StateManager& s, double xpos, double ypos) override;
-	void scrollInput(StateManager& s, double xoff, double yoff) override;
-	void mouseButtonInput(StateManager& s, int button, int action, int mods) override;
-	void keyInput(StateManager&, int key, int scancode, int action, int mods) override;
-	void windowResize(StateManager&, int width, int height) override;
-
-private:
-
-	static StateGame instanceObj;
-	~StateGame() {}
-
+	World world;
 	
+	ui::page pauseMenu;
+	
+	ui::text pausedText;
+	ui::button backToGameButton;
+	ui::button quitToTitleButton;
 };

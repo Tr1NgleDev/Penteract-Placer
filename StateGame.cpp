@@ -1,4 +1,5 @@
 #include "StateGame.h"
+#include "StateTitleScreen.h"
 #include "Shader.h"
 #include "Texture.h"
 #include "TextureBuffer.h"
@@ -29,13 +30,54 @@ void StateGame::init(StateManager& s)
 	cam.yonder		= { 0, 0, 0, 0, 1 };
 	cam.vFov = glm::radians(90.0f);
 
-	lastMousePos = glm::vec2{ 0 };
-	glfwSetCursorPos(s.getWindow(), lastMousePos.x, lastMousePos.y);
-	glfwSetInputMode(s.getWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	disableCursor(s.getWindow());
 
 	int wWidth, wHeight;
 	glfwGetWindowSize(s.getWindow(), &wWidth, &wHeight);
 	windowResize(s, wWidth, wHeight);
+
+	pausedText.setText("Paused...");
+	pausedText.setSize(3);
+	pausedText.setShadow(true);
+	pausedText.setAlignX(ui::ALIGN_CENTER_X);
+	pausedText.setOffsetY(300);
+
+	backToGameButton.setText("Back To Game");
+	backToGameButton.setAction([this, &s]()
+		{
+			disableCursor(s.getWindow());
+			s.setUiPage(nullptr);
+		}
+	);
+	backToGameButton.setSize(210, 50);
+	backToGameButton.setAlignX(ui::ALIGN_CENTER_X);
+	backToGameButton.setOffsetY(450);
+
+	quitToTitleButton.setText("Quit To Title");
+	quitToTitleButton.setAction([this, &s]()
+		{
+			// TODO: save world data
+			s.setUiPage(nullptr);
+			s.changeState(StateTitleScreen::instance());
+		}
+	);
+	quitToTitleButton.setSize(230, 50);
+	quitToTitleButton.setAlignX(ui::ALIGN_CENTER_X);
+	quitToTitleButton.setOffsetY(550);
+
+	pauseMenu.clear();
+	pauseMenu.addElem(&pausedText);
+	pauseMenu.addElem(&backToGameButton);
+	pauseMenu.addElem(&quitToTitleButton);
+}
+
+void StateGame::close(StateManager& s)
+{
+	if (s.getUiPage() != nullptr)
+	{
+		enableCursor(s.getWindow());
+		s.setUiPage(nullptr);
+	}
 }
 
 void StateGame::update(StateManager& s, double dt)
@@ -150,11 +192,47 @@ void StateGame::keyInput(StateManager& s, int key, int scancode, int action, int
 	case GLFW_KEY_F: keys.f = (action == GLFW_PRESS); break;
 	case GLFW_KEY_SPACE: keys.space = (action == GLFW_PRESS); break;
 	case GLFW_KEY_LEFT_SHIFT: keys.shift = (action == GLFW_PRESS); break;
-	case GLFW_KEY_ESCAPE: s.popState(); break;
+	case GLFW_KEY_ESCAPE:
+	{
+		if (action == GLFW_PRESS)
+		{
+			if (s.getUiPage() == &pauseMenu)
+			{
+				disableCursor(s.getWindow());
+				s.setUiPage(nullptr);
+			}
+			else
+			{
+				enableCursor(s.getWindow());
+				s.setUiPage(&pauseMenu);
+			}
+		}
+		break;
+	}
 	}
 }
 
 void StateGame::windowResize(StateManager&, int width, int height)
 {
 	rendererShader->setUniform("screenSize", (float)width, (float)height, 1.0f / width, 1.0f / height);
+}
+
+World* StateGame::createWorld(uint8_t edgeLength)
+{
+	world = World{ edgeLength };
+	return &world;
+}
+
+void StateGame::enableCursor(GLFWwindow* window)
+{
+	glfwSetCursorPos(window, lastMousePos.x, lastMousePos.y);
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+}
+
+void StateGame::disableCursor(GLFWwindow* window)
+{
+	glfwGetCursorPos(window, &lastMousePos.x, &lastMousePos.y);
+
+	//glfwSetCursorPos(window, 0.0, 0.0);
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 }

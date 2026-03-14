@@ -34,6 +34,7 @@ namespace ui
 		void addElem(element* e);
 		bool removeElem(element* e);
 		void removeElem(container_t::iterator it);
+		void clear();
 
 		container_t::iterator begin();
 		container_t::iterator end();
@@ -139,7 +140,7 @@ namespace ui
 		// class-specific methods
 		// ----------------------
 
-		void setValue(std::string_view value);
+		void setText(std::string_view value);
 
 		int getSize() const;
 		void setSize(uint32_t size);
@@ -224,8 +225,8 @@ namespace ui
 
 		std::string text;
 
-		int width;
-		int height;
+		int width = 200;
+		int height = 50;
 
 		bool mouseDown = false;
 

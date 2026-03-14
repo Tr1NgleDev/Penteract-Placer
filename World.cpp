@@ -1,6 +1,10 @@
 #include "World.h"
 #include <glm/common.hpp>
 
+World::World() : edgeLength{ 0 }
+{
+}
+
 World::World(uint8_t edgeLength) :
 	edgeLength{ edgeLength },
 	chunks{ std::make_unique<Chunk[]>(edgeLength * edgeLength * edgeLength * edgeLength) }

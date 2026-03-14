@@ -32,7 +32,9 @@ private:
 
 	ui::text text;
 	ui::image logo;
-	ui::button button;
+	ui::button newWorldButton;
+	ui::button loadWorldButton;
+	ui::button quitButton;
 
 	QuadRenderer qr;
 };

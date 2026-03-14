@@ -51,6 +51,13 @@ void ui::page::removeElem(container_t::iterator it)
 	elems.erase(it);
 }
 
+void ui::page::clear()
+{
+	focusIndex = -1;
+	mouseDownIndex = -1;
+	elems.clear();
+}
+
 ui::page::container_t::iterator ui::page::begin()
 {
 	return elems.begin();
@@ -238,7 +245,7 @@ GLFWwindow* ui::page::getWindow()
 
 ui::element* ui::page::getFocusedElem()
 {
-	assert(focusIndex < elems.size());
+	assert(focusIndex < 0 || focusIndex < elems.size());
 	if (focusIndex > 0)
 	{
 		return elems[focusIndex];
@@ -422,7 +429,7 @@ void ui::text::render(page* p)
 	renderText(p, text.substr(lineStart), x, y + yOffset * charHeight, true);
 }
 
-void ui::text::setValue(std::string_view value)
+void ui::text::setText(std::string_view value)
 {
 	text = value;
 }

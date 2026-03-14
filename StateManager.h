@@ -32,6 +32,7 @@ public:
 
 	void windowResize(int width, int height);
 
+	ui::page* getUiPage();
 	void setUiPage(ui::page* page);
 
 	void pushState(State* state);

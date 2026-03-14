@@ -5,6 +5,7 @@
 
 struct World
 {
+	World();
 	World(uint8_t edgeLength);
 
 	size_t getEdgeLength() const;

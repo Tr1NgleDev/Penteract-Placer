@@ -23,15 +23,30 @@ void StateTitleScreen::init(StateManager& s)
 	logo.setAlignX(ui::ALIGN_CENTER_X);
 	logo.setScale(2.0f, 2.0f);
 
-	button.setText("New World");
-	button.setAction([this, &s]() { s.changeState(StateGame::instance()); });
-	button.setSize(150, 50);
-	button.setAlignX(ui::ALIGN_CENTER_X);
-	button.setOffsetY(500);
+	newWorldButton.setText("New World");
+	newWorldButton.setAction([this, &s]() { s.changeState(StateGame::instance()); });
+	newWorldButton.setSize(160, 50);
+	newWorldButton.setAlignX(ui::ALIGN_CENTER_X);
+	newWorldButton.setOffsetY(350);
 
+	loadWorldButton.setText("Load World");
+	loadWorldButton.setAction([this, &s]() { s.changeState(StateGame::instance()); });
+	loadWorldButton.setSize(180, 50);
+	loadWorldButton.setAlignX(ui::ALIGN_CENTER_X);
+	loadWorldButton.setOffsetY(450);
+
+	quitButton.setText("Quit Game");
+	quitButton.setAction([this, &s]() { s.popState(); });
+	quitButton.setSize(170, 50);
+	quitButton.setAlignX(ui::ALIGN_CENTER_X);
+	quitButton.setOffsetY(550);
+
+	page.clear();
 	page.addElem(&text);
 	page.addElem(&logo);
-	page.addElem(&button);
+	page.addElem(&newWorldButton);
+	page.addElem(&loadWorldButton);
+	page.addElem(&quitButton);
 
 	s.setUiPage(&page);
 }

@@ -78,6 +78,12 @@ bool StateManager::shouldClose() const
 
 void StateManager::mouseInput(double xpos, double ypos)
 {
+	if (page != nullptr)
+	{
+		page->mouseInput(xpos, ypos);
+		return;
+	}
+
 	if (isRunning())
 	{
 		getCurrentState()->mouseInput(*this, xpos, ypos);
@@ -154,6 +160,11 @@ void StateManager::fileDrop(int path_count, const char* paths[])
 	{
 		getCurrentState()->fileDrop(*this, path_count, paths);
 	}
+}
+
+ui::page* StateManager::getUiPage()
+{
+	return page;
 }
 
 void StateManager::setUiPage(ui::page* page)
