@@ -388,11 +388,19 @@ bool Texture::load(const std::string& path, uint8_t desiredChannels, bool linear
 		{
 			//destroy(name);
 			tex = textures[name];
-			if (tex && tex->ID)
+			if (tex)
 			{
-				glDeleteTextures(1, &tex->ID);
-				tex->ID = 0;
-				tex->target = 0;
+				if (tex->handle)
+				{
+					glMakeTextureHandleNonResidentARB(tex->handle);
+					tex->handle = 0;
+				}
+				if (tex->ID)
+				{
+					glDeleteTextures(1, &tex->ID);
+					tex->ID = 0;
+					tex->target = 0;
+				}
 			}
 		}
 		else
@@ -535,11 +543,19 @@ bool Texture::loadArray(const std::string& path, int cols, int rows, uint8_t des
 		{
 			//destroy(name);
 			tex = textures[name];
-			if (tex && tex->ID)
+			if (tex)
 			{
-				glDeleteTextures(1, &tex->ID);
-				tex->ID = 0;
-				tex->target = 0;
+				if (tex->handle)
+				{
+					glMakeTextureHandleNonResidentARB(tex->handle);
+					tex->handle = 0;
+				}
+				if (tex->ID)
+				{
+					glDeleteTextures(1, &tex->ID);
+					tex->ID = 0;
+					tex->target = 0;
+				}
 			}
 		}
 		else
