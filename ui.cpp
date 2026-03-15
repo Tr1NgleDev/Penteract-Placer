@@ -224,20 +224,6 @@ bool ui::page::mouseButtonInput(int button, int action, int mods)
 	mx = xpos;
 	my = ypos;
 
-	if (element* focusedElem = getFocusedElem();
-		focusedElem != nullptr)
-	{
-		if (focusedElem->mouseButtonInput(this, xpos, ypos, button, action, mods))
-		{
-			return true;
-		}
-		else
-		{
-			focusedElem->defocus();
-			focusIndex = -1;
-		}
-	}
-
 	for (auto it = elems.begin(); it != elems.end(); ++it)
 	{
 		element* elem = *it;
@@ -255,6 +241,17 @@ bool ui::page::mouseButtonInput(int button, int action, int mods)
 
 		if (elem->mouseButtonInput(this, xpos, ypos, button, action, mods))
 		{
+			if (element* focusElem = getFocusedElem();
+				elem != focusElem)
+			{
+				if (focusElem != nullptr)
+				{
+					focusElem->defocus();
+				}
+
+				elem->focus();
+			}
+
 			focusIndex = it - elems.begin();
 
 			if (mouseDownIndex != focusIndex)
@@ -266,6 +263,15 @@ bool ui::page::mouseButtonInput(int button, int action, int mods)
 		}
 	}
 
+	if (action == GLFW_PRESS)
+	{
+		if (element* focusElem = getFocusedElem();
+			focusElem != nullptr)
+		{
+			focusElem->defocus();
+			focusIndex = -1;
+		}
+	}
 	mouseDownCancel();
 	return false;
 }
@@ -319,6 +325,16 @@ ui::element* ui::page::getFocusedElem()
 	if (focusIndex > 0)
 	{
 		return elems[focusIndex];
+	}
+	return nullptr;
+}
+
+ui::element* ui::page::getMouseDownElem()
+{
+	assert(mouseDownIndex < 0 || mouseDownIndex < elems.size());
+	if (mouseDownIndex > 0)
+	{
+		return elems[mouseDownIndex];
 	}
 	return nullptr;
 }
@@ -1323,6 +1339,11 @@ bool ui::text_input::charInput(window* win, uint32_t codepoint)
 	}
 
 	return true;
+}
+
+void ui::text_input::mouseDownCancel()
+{
+	mouseDown = false;
 }
 
 void ui::text_input::focus()
