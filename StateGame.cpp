@@ -147,7 +147,7 @@ void StateGame::init(StateManager& s)
 		console.ui.addElem(&console.logText);
 	}
 
-	createWorld(3);
+	//createWorld(3);
 
 	cam.pos = {
 		32.0f,
@@ -156,33 +156,33 @@ void StateGame::init(StateManager& s)
 		world.getEdgeLength() * Chunk::SIZE / 2.0f,
 		world.getEdgeLength() * Chunk::SIZE / 2.0f
 	};
-	for (int e = 0; e < world.getEdgeLength() * Chunk::SIZE; ++e)
-	{
-		for (int d = 0; d < world.getEdgeLength() * Chunk::SIZE; ++d)
-		{
-			for (int c = 0; c < world.getEdgeLength() * Chunk::SIZE; ++c)
-			{
-				for (int b = 0; b < world.getEdgeLength() * Chunk::SIZE; ++b)
-				{
-					for (int a = 0; a < 16; ++a)
-					{
-						if (a >= 15)
-						{
-							world.setBlock({ a,b,c,d,e }, Block::GRASS);
-						}
-						else if (a >= 12)
-						{
-							world.setBlock({ a,b,c,d,e }, Block::DIRT);
-						}
-						else if (a >= 0)
-						{
-							world.setBlock({ a,b,c,d,e }, Block::STONE);
-						}
-					}
-				}
-			}
-		}
-	}
+	//for (int e = 0; e < world.getEdgeLength() * Chunk::SIZE; ++e)
+	//{
+	//	for (int d = 0; d < world.getEdgeLength() * Chunk::SIZE; ++d)
+	//	{
+	//		for (int c = 0; c < world.getEdgeLength() * Chunk::SIZE; ++c)
+	//		{
+	//			for (int b = 0; b < world.getEdgeLength() * Chunk::SIZE; ++b)
+	//			{
+	//				for (int a = 0; a < 16; ++a)
+	//				{
+	//					if (a >= 15)
+	//					{
+	//						world.setBlock({ a,b,c,d,e }, Block::GRASS);
+	//					}
+	//					else if (a >= 12)
+	//					{
+	//						world.setBlock({ a,b,c,d,e }, Block::DIRT);
+	//					}
+	//					else if (a >= 0)
+	//					{
+	//						world.setBlock({ a,b,c,d,e }, Block::STONE);
+	//					}
+	//				}
+	//			}
+	//		}
+	//	}
+	//}
 
 	// init renderer buffers
 	chunksBuffer = TextureBuffer{ 1, 1, 1, TextureFormat::RGBA32u };
@@ -215,6 +215,18 @@ void StateGame::init(StateManager& s)
 	tileTextureHandles = GPUBuffer{ sizeof(uint64_t) * textures.size(), textures.data() };
 
 	updateRendererData();
+	
+	if (console.open)
+	{
+		if (glfwGetInputMode(s.getWindow(), GLFW_CURSOR) == GLFW_CURSOR_DISABLED)
+		{
+			enableCursor(s.getWindow());
+		}
+		if (s.getUiPage() != &console.ui)
+		{
+			s.setUiPage(&console.ui);
+		}
+	}
 }
 
 void StateGame::close(StateManager& s)

@@ -53,6 +53,9 @@ public:
 	// waits until all tasks have been completed
 	void wait();
 
+	// cancels all tasks that aren't already running
+	void cancelAllQueuedTasks();
+
 private:
 
 	std::vector<std::thread> workers;
@@ -186,4 +189,11 @@ auto MashPool::addTaskFuture(F&& f, Args&&... args)
 inline void MashPool::wait()
 {
 	while (taskCount > 0);
+}
+
+inline void MashPool::cancelAllQueuedTasks()
+{
+	std::scoped_lock lock{ queueMutex };
+	decltype(tasks) tmp;
+	std::swap(tasks, tmp);
 }

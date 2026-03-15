@@ -296,6 +296,8 @@ namespace ui
 
 		void setAction(std::move_only_function<void(bool checked)> action);
 		void setText(std::string_view value);
+
+		bool getChecked() const;
 		void setChecked(bool checked);
 
 	private:

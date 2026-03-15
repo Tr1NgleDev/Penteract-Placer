@@ -12,6 +12,8 @@ public:
 
 	void init(StateManager& s) override;
 	void close(StateManager& s) override;
+	void pause(StateManager& s) override;
+	void resume(StateManager& s) override;
 	void update(StateManager& s, double dt) override;
 	void render(StateManager& s) override;
 	void mouseInput(StateManager& s, double xpos, double ypos) override;
@@ -39,11 +41,5 @@ private:
 	ui::text worldSizeValueText;
 	ui::button worldSizeDecButton;
 	ui::button worldSizeIncButton;
-	int worldSize = 3;
-
-	ui::page loadingPage;
-	ui::text loadingText;
-
-	// for loading bar
-	QuadRenderer qr;
+	uint8_t worldSize = 3;
 };

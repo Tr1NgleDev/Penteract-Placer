@@ -90,6 +90,7 @@
     <ClCompile Include="Directory.cpp" />
     <ClCompile Include="File.cpp" />
     <ClCompile Include="StateCreateWorld.cpp" />
+    <ClCompile Include="StateGeneratingWorld.cpp" />
     <ClCompile Include="TextRenderer.cpp" />
     <ClCompile Include="Framebuffer.cpp" />
     <ClCompile Include="GPUBuffer.cpp" />
@@ -125,8 +126,10 @@
     <ClInclude Include="File.h" />
     <ClInclude Include="Block.h" />
     <ClInclude Include="MashPool.h" />
+    <ClInclude Include="OpenSimplexNoise.hpp" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="StateCreateWorld.h" />
+    <ClInclude Include="StateGeneratingWorld.h" />
     <ClInclude Include="TextRenderer.h" />
     <ClInclude Include="Framebuffer.h" />
     <ClInclude Include="GPUBuffer.h" />
@@ -157,6 +160,7 @@
   <ImportGroup Label="ExtensionTargets">
     <Import Project="packages\glfw.3.4.0\build\native\glfw.targets" Condition="Exists('packages\glfw.3.4.0\build\native\glfw.targets')" />
     <Import Project="packages\glm.1.0.3\build\native\glm.targets" Condition="Exists('packages\glm.1.0.3\build\native\glm.targets')" />
+    <Import Project="packages\boost.1.87.0\build\boost.targets" Condition="Exists('packages\boost.1.87.0\build\boost.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
@@ -166,5 +170,6 @@
     <Error Condition="!Exists('packages\GLEW-dynamic.2.2.0\build\native\GLEW-dynamic.props')" Text="$([System.String]::Format('$(ErrorText)', 'packages\GLEW-dynamic.2.2.0\build\native\GLEW-dynamic.props'))" />
     <Error Condition="!Exists('packages\glfw.3.4.0\build\native\glfw.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\glfw.3.4.0\build\native\glfw.targets'))" />
     <Error Condition="!Exists('packages\glm.1.0.3\build\native\glm.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\glm.1.0.3\build\native\glm.targets'))" />
+    <Error Condition="!Exists('packages\boost.1.87.0\build\boost.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\boost.1.87.0\build\boost.targets'))" />
   </Target>
 </Project>

@@ -1,6 +1,6 @@
 #include "StateCreateWorld.h"
 #include "StateTitleScreen.h"
-#include "StateGame.h"
+#include "StateGeneratingWorld.h"
 #include "StateManager.h"
 #include <iostream>
 
@@ -12,9 +12,6 @@ StateCreateWorld* StateCreateWorld::instance()
 
 void StateCreateWorld::init(StateManager& s)
 {
-	qr = QuadRenderer{ Shader::get("quad") };
-	qr.init();
-
 	worldNameText.setText("World Name:");
 	worldNameText.setAlignX(ui::ALIGN_CENTER_X);
 	worldNameText.setOffsetY(50);
@@ -100,7 +97,12 @@ void StateCreateWorld::init(StateManager& s)
 	cancelButton.setOffsetY(-25);
 
 	createButton.setText("Create New World!");
-	createButton.setAction([this, &s]() { s.changeState(StateGame::instance()); });
+	createButton.setAction([this, &s]()
+		{
+			StateGeneratingWorld::instance()->setDetails(worldNameInput.getText(), worldSeedInput.getText(), worldSize, flatCheckbox.getChecked(), cavesCheckbox.getChecked());
+			s.pushState(StateGeneratingWorld::instance());
+		}
+	);
 	createButton.setSize(290, 50);
 	createButton.setAlignX(ui::ALIGN_RIGHT);
 	createButton.setOffsetX(-25);
@@ -127,6 +129,16 @@ void StateCreateWorld::init(StateManager& s)
 void StateCreateWorld::close(StateManager& s)
 {
 	s.setUiPage(nullptr);
+}
+
+void StateCreateWorld::pause(StateManager& s)
+{
+	s.setUiPage(nullptr);
+}
+
+void StateCreateWorld::resume(StateManager& s)
+{
+	s.setUiPage(&page);
 }
 
 void StateCreateWorld::update(StateManager& s, double dt)

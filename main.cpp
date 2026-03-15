@@ -17,6 +17,8 @@
 #include "Shader.h"
 #include "ui.h"
 
+#include <Windows.h>
+
 #ifdef _WIN32
 extern "C"
 {
@@ -98,6 +100,8 @@ void APIENTRY glDebugOutput(GLenum source, GLenum type, unsigned int id, GLenum 
 
 int main()
 {
+	SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_HIGHEST);
+
 	if (!glfwInit())
 	{
 		printf("Failed to initialize GLFW!\n");

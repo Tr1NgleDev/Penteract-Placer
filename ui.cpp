@@ -1070,6 +1070,11 @@ void ui::checkbox::setText(std::string_view text)
 	this->text = text;
 }
 
+bool ui::checkbox::getChecked() const
+{
+	return checked;
+}
+
 void ui::checkbox::setChecked(bool checked)
 {
 	this->checked = checked;
