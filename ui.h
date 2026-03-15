@@ -102,6 +102,9 @@ namespace ui
 	{
 	public:
 		
+		// static methods
+		// --------------
+
 		static void renderInit();
 
 		// virtual methods
@@ -263,6 +266,50 @@ namespace ui
 		bool mouseDown = false;
 
 		std::move_only_function<void()> action;
+	};
+
+	class checkbox : public element
+	{
+	public:
+
+		// static methods
+		// --------------
+
+		static void renderInit();
+
+		// element overrides
+		// -----------------
+
+		void render(window* win) override;
+
+		bool clickable() override { return true; }
+		void getBounds(window* win, int* x, int* y, int* w, int* h) override;
+
+		bool mouseButtonInput(window* win, double xpos, double ypos, int button, int action, int mods) override;
+
+		void mouseDownCancel() override;
+
+		void defocus() override;
+
+		// class-specific methods
+		// ----------------------
+
+		void setAction(std::move_only_function<void(bool checked)> action);
+		void setText(std::string_view value);
+
+	private:
+
+		static TexRenderer checkRenderer;
+
+		static constexpr uint32_t BOX_SIZE = 24;
+
+		std::string text;
+
+		bool mouseDown = false;
+
+		std::move_only_function<void(bool checked)> action;
+
+		bool checked = false;
 	};
 
 	class text_input : public element

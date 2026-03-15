@@ -1,6 +1,8 @@
 #include "StateCreateWorld.h"
-#include "StateManager.h"
+#include "StateTitleScreen.h"
 #include "StateGame.h"
+#include "StateManager.h"
+#include <iostream>
 
 StateCreateWorld StateCreateWorld::instanceObj;
 StateCreateWorld* StateCreateWorld::instance()
@@ -15,16 +17,26 @@ void StateCreateWorld::init(StateManager& s)
 
 	worldNameText.setText("World Name:");
 	worldNameText.setAlignX(ui::ALIGN_CENTER_X);
-	worldNameText.setOffsetY(200);
+	worldNameText.setOffsetY(50);
 	worldNameText.setColor(glm::vec4{ 0, 1, 0, 1 });
 
 	worldNameInput.setText("My World");
 	worldNameInput.setSize(250, 50);
 	worldNameInput.setAlignX(ui::ALIGN_CENTER_X);
-	worldNameInput.setOffsetY(250);
+	worldNameInput.setOffsetY(100);
+
+	worldSeedText.setText("World Seed:");
+	worldSeedText.setAlignX(ui::ALIGN_CENTER_X);
+	worldSeedText.setOffsetY(200);
+	worldSeedText.setColor(glm::vec4{ 0, 1, 0, 1 });
+
+	worldSeedInput.setText("");
+	worldSeedInput.setSize(250, 50);
+	worldSeedInput.setAlignX(ui::ALIGN_CENTER_X);
+	worldSeedInput.setOffsetY(250);
 
 	cancelButton.setText("Cancel");
-	cancelButton.setAction([this, &s]() { s.popState(); });
+	cancelButton.setAction([this, &s]() { s.changeState(StateTitleScreen::instance()); });
 	cancelButton.setSize(170, 50);
 	cancelButton.setOffsetX(25);
 	cancelButton.setAlignY(ui::ALIGN_BOTTOM);
@@ -38,11 +50,19 @@ void StateCreateWorld::init(StateManager& s)
 	createButton.setAlignY(ui::ALIGN_BOTTOM);
 	createButton.setOffsetY(-25);
 
+	flatCheckbox.setText("Flat World");
+	flatCheckbox.setAction([this, &s](bool checked) { std::cout << (checked ? "checked" : "unchecked") << std::endl; });
+	flatCheckbox.setAlignX(ui::ALIGN_CENTER_X);
+	flatCheckbox.setOffsetY(350);
+
 	page.clear();
 	page.addElem(&worldNameText);
 	page.addElem(&worldNameInput);
+	page.addElem(&worldSeedText);
+	page.addElem(&worldSeedInput);
 	page.addElem(&cancelButton);
 	page.addElem(&createButton);
+	page.addElem(&flatCheckbox);
 
 	s.setUiPage(&page);
 }

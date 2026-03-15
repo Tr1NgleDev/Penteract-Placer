@@ -27,9 +27,16 @@ private:
 
 	ui::text worldNameText;
 	ui::text_input worldNameInput;
+	ui::text worldSeedText;
 	ui::text_input worldSeedInput;
 	ui::button cancelButton;
 	ui::button createButton;
+	ui::checkbox flatCheckbox;
+	ui::checkbox cavesCheckbox;
+	ui::text worldSizeText;
+	ui::button worldSizeIncButton;
+	ui::button worldSizeDecButton;
+	int worldSize = 3;
 
 	ui::page loadingPage;
 	ui::text loadingText;

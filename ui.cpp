@@ -363,6 +363,8 @@ void ui::element::renderInit()
 	tr.setShader(Shader::get("text"));
 	tr.setTexture(Texture::get("pixelfont.png"));
 	tr.init();
+
+	checkbox::renderInit();
 }
 
 ui::alignx ui::element::getAlignX() const
@@ -906,6 +908,168 @@ void ui::button::setSize(uint32_t w, uint32_t h)
 	height = h;
 }
 
+TexRenderer ui::checkbox::checkRenderer;
+void ui::checkbox::renderInit()
+{
+	Texture::load("assets/textures/check.png", 0, false, "check");
+	checkRenderer.setTexture(Texture::get("check"));
+	checkRenderer.setShader(Shader::get("tex"));
+	checkRenderer.setScaleOrigin({ 0.0f, 0.0f });
+	checkRenderer.setScale({ 2.0f, 2.0f });
+}
+
+void ui::checkbox::render(window* win)
+{
+	int x, y, w, h;
+	getBounds(win, &x, &y, &w, &h);
+	qr.setPos(x, y, BOX_SIZE, BOX_SIZE);
+
+	constexpr glm::vec3 colorA{ 20 / 255.0f, 160 / 255.0f, 46 / 255.0f };
+	constexpr glm::vec3 colorB{ 121 / 255.0f, 58 / 255.0f, 128 / 255.0f };
+
+	glm::vec3 textColor{ 1.0f, 1.0f, 1.0f };
+
+	if (mouseDown)
+	{
+		qr.setColor(textColor);
+		textColor = colorA;
+	}
+	else
+	{
+		double mx, my;
+		win->getCursorPos(&mx, &my);
+		if (mx >= x && mx < x + w && my >= y && my < y + h)
+		{
+			qr.setColor(colorA);
+		}
+		else
+		{
+			qr.setColor(colorB);
+		}
+	}
+
+	qr.render();
+
+	if (checked)
+	{
+		checkRenderer.setPos(x, y);
+		checkRenderer.render();
+	}
+
+	tr.setText(text);
+	int tw = tr.getCharWidth() * 2 * text.size();
+	int th = tr.getCharHeight() * 2;
+
+	int tx = x + BOX_SIZE + 10;
+	int ty = y + ((BOX_SIZE - th) / 2);
+
+	tr.setFontSize(2);
+
+	// text shadow
+	tr.setPos(tx + 2, ty + 2);
+	tr.setColor({ 0.0f, 0.0f, 0.0f });
+	tr.render();
+
+	// text
+	tr.setPos(tx, ty);
+	tr.setColor(textColor);
+	tr.render();
+}
+
+void ui::checkbox::getBounds(window* win, int* x, int* y, int* w, int* h)
+{
+	int charWidth = tr.getCharWidth() * 2;
+	int textWidth = text.length() * charWidth;
+
+	*w = BOX_SIZE + textWidth + 10;
+	*h = BOX_SIZE;
+
+	int wWidth, wHeight;
+	glfwGetFramebufferSize(win->getGlfwWindow(), &wWidth, &wHeight);
+
+	switch (alignmentX)
+	{
+	case ALIGN_LEFT:
+	{
+		*x = 0 + offsetX;
+		break;
+	}
+	case ALIGN_RIGHT:
+	{
+		*x = wWidth - *w + offsetX;
+		break;
+	}
+	case ALIGN_CENTER_X:
+		[[fallthrough]];
+	default:
+	{
+		*x = ((wWidth - *w) / 2) + offsetX;
+		break;
+	}
+	}
+
+	switch (alignmentY)
+	{
+	case ALIGN_TOP:
+	{
+		*y = 0 + offsetY;
+		break;
+	}
+	case ALIGN_BOTTOM:
+	{
+		*y = wHeight - BOX_SIZE + offsetY;
+		break;
+	}
+	case ALIGN_CENTER_Y:
+		[[fallthrough]];
+	default:
+	{
+		*y = ((wHeight - BOX_SIZE) / 2) + offsetY;
+		break;
+	}
+	}
+}
+
+bool ui::checkbox::mouseButtonInput(window* win, double xpos, double ypos, int button, int action, int mods)
+{
+	if (action == GLFW_PRESS)
+	{
+		mouseDown = true;
+		return true;
+	}
+	else if (action == GLFW_RELEASE)
+	{
+		if (mouseDown)
+		{
+			checked = !checked;
+			this->action(checked);
+			mouseDown = false;
+			return true;
+		}
+	}
+	return false;
+}
+
+void ui::checkbox::mouseDownCancel()
+{
+	mouseDown = false;
+}
+
+void ui::checkbox::defocus()
+{
+	mouseDown = false;
+}
+
+void ui::checkbox::setAction(std::move_only_function<void(bool checked)> action)
+{
+	this->action = std::move(action);
+}
+
+void ui::checkbox::setText(std::string_view text)
+{
+	this->text = text;
+}
+
 void ui::text_input::render(window* win)
 {
 	int x, y, w, h;
@@ -1253,6 +1417,7 @@ bool ui::text_input::keyInput(window* win, int key, int scancode, int action, in
 			lastTypedCharTimer = 0;
 			updateScrollBackspace(win, 1);
 		}
+		cursorBlinkTimer = glfwGetTime();
 		break;
 	case GLFW_KEY_BACKSPACE:
 		if (highlight)
@@ -1269,6 +1434,7 @@ bool ui::text_input::keyInput(window* win, int key, int scancode, int action, in
 			lastTypedCharTimer = 0;
 			updateScrollBackspace(win, 1);
 		}
+		cursorBlinkTimer = glfwGetTime();
 		break;
 	case GLFW_KEY_A:
 		if ((mods & GLFW_MOD_CONTROL) && !text.empty())
