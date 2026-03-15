@@ -83,7 +83,7 @@ void ui::page::init(GLFWwindow* w)
 	window = w;
 
 	int wWidth, wHeight;
-	glfwGetWindowSize(window, &wWidth, &wHeight);
+	glfwGetFramebufferSize(window, &wWidth, &wHeight);
 	windowResize(wWidth, wHeight);
 
 	for (auto elem : elems)
@@ -200,15 +200,15 @@ void ui::page::windowResize(int width, int height)
 	// update the projection matrices for all of the shaders
 	const Shader* quadShader = Shader::get("quad");
 	quadShader->use();
-	glUniformMatrix4fv(glGetUniformLocation(quadShader->id(), "P"), 1, GL_FALSE, &projection2D[0][0]);
+	quadShader->setUniform("P", projection2D);
 
 	const Shader* textShader = Shader::get("text");
 	textShader->use();
-	glUniformMatrix4fv(glGetUniformLocation(textShader->id(), "P"), 1, GL_FALSE, &projection2D[0][0]);
+	textShader->setUniform("P", projection2D);
 
 	const Shader* texShader = Shader::get("tex");
 	texShader->use();
-	glUniformMatrix4fv(glGetUniformLocation(texShader->id(), "proj"), 1, GL_FALSE, &projection2D[0][0]);
+	texShader->setUniform("proj", projection2D);
 
 	for (auto elem : elems)
 	{
@@ -324,7 +324,7 @@ void ui::text::getBounds(page* p, int* x, int* y, int* w, int* h)
 	getBoundSize(w, h);
 
 	int wWidth, wHeight;
-	glfwGetWindowSize(p->getWindow(), &wWidth, &wHeight);
+	glfwGetFramebufferSize(p->getWindow(), &wWidth, &wHeight);
 
 	switch (alignmentX)
 	{
@@ -566,7 +566,7 @@ void ui::image::getBounds(page* p, int* x, int* y, int* w, int* h)
 	*h = height;
 
 	int wWidth, wHeight;
-	glfwGetWindowSize(p->getWindow(), &wWidth, &wHeight);
+	glfwGetFramebufferSize(p->getWindow(), &wWidth, &wHeight);
 
 	switch (alignmentX)
 	{
@@ -578,6 +578,7 @@ void ui::image::getBounds(page* p, int* x, int* y, int* w, int* h)
 	case ALIGN_RIGHT:
 	{
 		*x = wWidth - width + offsetX;
+		break;
 	}
 	case ALIGN_CENTER_X:
 		[[fallthrough]];
@@ -598,6 +599,7 @@ void ui::image::getBounds(page* p, int* x, int* y, int* w, int* h)
 	case ALIGN_BOTTOM:
 	{
 		*y = wHeight - height + offsetY;
+		break;
 	}
 	case ALIGN_CENTER_Y:
 		[[fallthrough]];
@@ -657,7 +659,7 @@ void ui::button::getBounds(page* p, int* x, int* y, int* w, int* h)
 	*h = height;
 
 	int wWidth, wHeight;
-	glfwGetWindowSize(p->getWindow(), &wWidth, &wHeight);
+	glfwGetFramebufferSize(p->getWindow(), &wWidth, &wHeight);
 
 	switch (alignmentX)
 	{
@@ -669,6 +671,7 @@ void ui::button::getBounds(page* p, int* x, int* y, int* w, int* h)
 	case ALIGN_RIGHT:
 	{
 		*x = wWidth - width + offsetX;
+		break;
 	}
 	case ALIGN_CENTER_X:
 		[[fallthrough]];
@@ -689,6 +692,7 @@ void ui::button::getBounds(page* p, int* x, int* y, int* w, int* h)
 	case ALIGN_BOTTOM:
 	{
 		*y = wHeight - height + offsetY;
+		break;
 	}
 	case ALIGN_CENTER_Y:
 		[[fallthrough]];

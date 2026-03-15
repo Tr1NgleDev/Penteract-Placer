@@ -178,6 +178,7 @@ struct RayHit
 	vec4 texCoord;
 	float dist;
 	uint id;
+	ivec5 blockPos;
 };
 
 vec4 computeTexCoord(in vec5 p, in vec5 n)
@@ -207,6 +208,42 @@ vec4 computeTexCoord(in vec5 p, in vec5 n)
 
 	return fract(texCoord);
 }
+int getNormalAxis(vec5 n)
+{
+	for (int i = 0; i < 5; ++i)
+	{
+		if (abs(ind_get(n, i)) > 0.5)
+		{
+			return i;
+		}
+	}
+	return 0;
+}
+ivec4 getTangentAxes(vec5 n)
+{
+	if (abs(n.abcd.y) > 0.5)
+	{
+		return ivec4(2, 0, 3, 4);
+	}
+	else if (abs(n.abcd.x) > 0.5)
+	{
+		return ivec4(1, 2, 3, 4);
+	}
+	else if (abs(n.abcd.z) > 0.5)
+	{
+		return ivec4(1, 0, 3, 4);
+	}
+	else if (abs(n.abcd.w) > 0.5)
+	{
+		return ivec4(2, 0, 2, 4);
+	}
+	else
+	{
+		return ivec4(2, 0, 3, 1);
+	}
+
+	return ivec4(0);
+}
 
 int minAxis5(vec5 v)
 {
@@ -226,6 +263,7 @@ RayHit trace5D(in vec5 ro, in vec5 rd, float maxDist, out vec4 tileColor)
 	RayHit result;
 	result.hit = false;
 	result.pos = ro;
+	result.blockPos = ivec5_vec5(ro);
 	result.normal = vec5(vec4(0.0), 0.0);
 	result.texCoord = vec4(0.0);
 	result.dist = maxDist;
@@ -269,7 +307,7 @@ RayHit trace5D(in vec5 ro, in vec5 rd, float maxDist, out vec4 tileColor)
 	{
 		// early bounds check
 		ivec4 rel4 = bcde(vC) - chunksMinBound;
-		if (any(lessThan(rel4, ivec4(0))) || any(greaterThanEqual(rel4, chunksSize)) || 
+		if (any(lessThan(rel4, ivec4(0))) || any(greaterThanEqual(rel4, chunksSize)) ||
 			vC.abcd.x < 0 || vC.abcd.x >= 4)
 		{
 			axisC = minAxis5(tMaxC);
@@ -319,6 +357,7 @@ RayHit trace5D(in vec5 ro, in vec5 rd, float maxDist, out vec4 tileColor)
 			{
 				result.dist = t + t5;
 				result.pos = add(ro, mul(rd, result.dist));
+				result.blockPos = add(mul(vC, CHUNK_SIZE_I), v);
 				result.normal = vec5(vec4(0.0), 0.0);
 				ind_set(result.normal, axis5, -ind_get(stepF, axis5));
 				result.texCoord = computeTexCoord(result.pos, result.normal);
@@ -367,6 +406,122 @@ RayHit trace5D(in vec5 ro, in vec5 rd, float maxDist, out vec4 tileColor)
 	return result;
 }
 
+uint getBlockGlobal(ivec5 p)
+{
+	const vec5 CHUNK_SIZE = vec5(vec4(32.0, 8.0, 8.0, 8.0), 8.0);
+	const ivec5 CHUNK_SIZE_I = ivec5(ivec4(32, 8, 8, 8), 8);
+
+	ivec5 vC = ivec5_vec5(floor5(div(vec5_ivec5(p), CHUNK_SIZE)));
+
+	ivec5 local = sub(p, mul(vC, CHUNK_SIZE_I));
+
+	ivec4 rel4 = bcde(vC) - chunksMinBound;
+	if (any(lessThan(rel4, ivec4(0))) || any(greaterThanEqual(rel4, chunksSize)))
+	{
+		return 0u;
+	}
+
+	if (vC.abcd.x < 0 || vC.abcd.x >= 4)
+	{
+		return 0u;
+	}
+
+	uint chunkDataIdx = texelFetch(
+		chunks,
+		ivec3(rel4.x, rel4.y, rel4.z + rel4.w * chunksSize.z),
+		0
+	)[vC.abcd.x];
+
+	if (chunkDataIdx == 0u)
+	{
+		return 0u;
+	}
+
+	return getBlock(blockData[int(chunkDataIdx - 1u)], local);
+}
+
+bool isSolid(ivec5 p)
+{
+	return getBlockGlobal(p) != 0u;
+}
+
+float computeAO(ivec5 blockPos, in vec5 normal, in vec4 texCoord)
+{
+	int normalAxis = getNormalAxis(normal);
+	ivec4 axes = getTangentAxes(normal);
+
+	ivec5 air = blockPos;
+	ind_set(air, normalAxis, ind_get(air, normalAxis) + (ind_get(normal, normalAxis) > 0.0 ? 1 : -1));
+
+	float occ = 0.0;
+
+	for (int i = 0; i < 4; ++i)
+	{
+		int axis = axes[i];
+
+		ivec5 n0 = air;
+		ivec5 n1 = air;
+		
+		int iOff = (i == 1 ? -1 : 1);
+
+		ind_set(n0, axis, ind_get(n0, axis) - iOff);
+		ind_set(n1, axis, ind_get(n1, axis) + iOff);
+
+		float o0 = isSolid(n0) ? 1.0 : 0.0;
+		float o1 = isSolid(n1) ? 1.0 : 0.0;
+
+		occ += mix(o0, o1, texCoord[i]);
+	}
+
+	float diagOcc = 0.0;
+	for (int i = 0; i < 4; ++i)
+	for (int j = i + 1; j < 4; ++j)
+	{
+		int ai = axes[i];
+		int aj = axes[j];
+
+		float ui = texCoord[i];
+		float uj = texCoord[j];
+
+		ivec5 p00 = air;
+		ivec5 p10 = air;
+		ivec5 p01 = air;
+		ivec5 p11 = air;
+
+		int iOff = (i == 1 ? -1 : 1);
+		int jOff = (j == 1 ? -1 : 1);
+
+		ind_set(p00, ai, ind_get(p00, ai) - iOff);
+		ind_set(p00, aj, ind_get(p00, aj) - jOff);
+
+		ind_set(p10, ai, ind_get(p10, ai) + iOff);
+		ind_set(p10, aj, ind_get(p10, aj) - jOff);
+
+		ind_set(p01, ai, ind_get(p01, ai) - iOff);
+		ind_set(p01, aj, ind_get(p01, aj) + jOff);
+
+		ind_set(p11, ai, ind_get(p11, ai) + iOff);
+		ind_set(p11, aj, ind_get(p11, aj) + jOff);
+
+		float o00 = isSolid(p00) ? 1.0 : 0.0;
+		float o10 = isSolid(p10) ? 1.0 : 0.0;
+		float o01 = isSolid(p01) ? 1.0 : 0.0;
+		float o11 = isSolid(p11) ? 1.0 : 0.0;
+
+		diagOcc +=
+			o00 * (1.0 - ui) * (1.0 - uj) +
+			o10 * ui         * (1.0 - uj) +
+			o01 * (1.0 - ui) * uj +
+			o11 * ui         * uj;
+	}
+
+	float ao = 1.0 - occ * 0.5 - diagOcc * 0.5;
+	return clamp(ao, 0.0, 1.0);
+}
+
+uniform bool shadows;
+uniform bool ambientOcclusion;
+
 void main()
 {
 	float aspect = screenSize.x * screenSize.w;
@@ -381,15 +536,27 @@ void main()
 			mul(cam.up, -py)
 		)
 	);
-
-	//color = vec4(vec3(abs(sin(rd.abcd.x) + sin(rd.abcd.y) + sin(rd.abcd.z) + sin(rd.abcd.w) + sin(rd.e))), 1.0);
 	
 	color = vec4(vec3(0.0), 1.0);
 
 	vec4 tileColor = vec4(0.0);
-	RayHit hit = trace5D(ro, rd, 128.0, tileColor);
+	RayHit hit = trace5D(ro, rd, 64.0, tileColor);
 	if (hit.hit)
 	{
-		color = vec4(tileColor.rgb, 1.0);
+		float lighting = max(dot5(hit.normal, lightDir), 0.0);
+		if (shadows)
+		{
+			vec4 shadowTile = vec4(0.0);
+			RayHit hitShadow = trace5D(add(hit.pos, mul(hit.normal, 0.001)), lightDir, 64.0, shadowTile);
+			if (hitShadow.hit)
+			{
+				lighting *= 0.4;
+			}
+		}
+		if (ambientOcclusion)
+		{
+			lighting *= computeAO(hit.blockPos, hit.normal, hit.texCoord) * 0.5 + 0.5;
+		}
+		color = vec4(tileColor.rgb * (lighting * 0.8 + 0.2), 1.0);
 	}
 }

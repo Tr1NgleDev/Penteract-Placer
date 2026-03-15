@@ -81,14 +81,7 @@ public:
 	void setUniform(int loc, const glm::mat3x4& v, bool transpose = false) const;
 	void setUniform(int loc, const glm::mat4x3& v, bool transpose = false) const;
 	void setUniform(int loc, const m5::mat5& v) const;
-	void setUniform(int loc, const m5::vec5& v) const;
-	void setUniform(int loc, const m5::ivec5& v) const;
-	void setUniform(int loc, const m5::uvec5& v) const;
 	void setUniform(int loc, const m5::mat6& v) const;
-	void setUniform(int loc, const m5::bivec5& v) const;
-	void setUniform(int loc, const m5::vec6& v) const;
-	void setUniform(int loc, const m5::ivec6& v) const;
-	void setUniform(int loc, const m5::uvec6& v) const;
 	void setUniform(int loc, uint64_t handle) const;
 
 	void setUniform(const std::string& name, int count, const float* v) const
@@ -233,33 +226,20 @@ public:
 	}
 	void setUniform(const std::string& name, const m5::vec5& v) const
 	{
-		setUniform(getUniformLocation(name), v);
+		setUniform(getUniformLocation(name + ".abcd"), v.xyzw());
+		setUniform(getUniformLocation(name + ".e"), v.e);
 	}
 	void setUniform(const std::string& name, const m5::ivec5& v) const
 	{
-		setUniform(getUniformLocation(name), v);
+		setUniform(getUniformLocation(name + ".abcd"), v.xyzw());
+		setUniform(getUniformLocation(name + ".e"), v.e);
 	}
 	void setUniform(const std::string& name, const m5::uvec5& v) const
 	{
-		setUniform(getUniformLocation(name), v);
+		setUniform(getUniformLocation(name + ".abcd"), v.xyzw());
+		setUniform(getUniformLocation(name + ".e"), v.e);
 	}
 	void setUniform(const std::string& name, const m5::mat6& v) const
-	{
-		setUniform(getUniformLocation(name), v);
-	}
-	void setUniform(const std::string& name, const m5::bivec5& v) const
-	{
-		setUniform(getUniformLocation(name), v);
-	}
-	void setUniform(const std::string& name, const m5::vec6& v) const
-	{
-		setUniform(getUniformLocation(name), v);
-	}
-	void setUniform(const std::string& name, const m5::ivec6& v) const
-	{
-		setUniform(getUniformLocation(name), v);
-	}
-	void setUniform(const std::string& name, const m5::uvec6& v) const
 	{
 		setUniform(getUniformLocation(name), v);
 	}

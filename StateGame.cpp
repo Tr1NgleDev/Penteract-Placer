@@ -63,10 +63,49 @@ void StateGame::init(StateManager& s)
 	quitToTitleButton.setAlignX(ui::ALIGN_CENTER_X);
 	quitToTitleButton.setOffsetY(550);
 
+	// TODO: change these into checkboxes maybe
+	toggleShadowsButton.setText(std::format("Shadows: {}", shadows ? "On" : "Off"));
+	toggleShadowsButton.setAction([this, &s]()
+		{
+			shadows = !shadows;
+			toggleShadowsButton.setText(std::format("Shadows: {}", shadows ? "On" : "Off"));
+		});
+	toggleShadowsButton.setSize(210, 50);
+	toggleShadowsButton.setAlignX(ui::ALIGN_LEFT);
+	toggleShadowsButton.setAlignY(ui::ALIGN_BOTTOM);
+	toggleShadowsButton.setOffsetX(10);
+	toggleShadowsButton.setOffsetY(-80);
+
+	toggleAOButton.setText(std::format("AO: {}", ambientOcclusion ? "On" : "Off"));
+	toggleAOButton.setAction([this, &s]()
+		{
+			ambientOcclusion = !ambientOcclusion;
+			toggleAOButton.setText(std::format("AO: {}", ambientOcclusion ? "On" : "Off"));
+		});
+	toggleAOButton.setSize(210, 50);
+	toggleAOButton.setAlignX(ui::ALIGN_LEFT);
+	toggleAOButton.setAlignY(ui::ALIGN_BOTTOM);
+	toggleAOButton.setOffsetX(10);
+	toggleAOButton.setOffsetY(-10);
+
 	pauseMenu.clear();
 	pauseMenu.addElem(&pausedText);
 	pauseMenu.addElem(&backToGameButton);
 	pauseMenu.addElem(&quitToTitleButton);
+	pauseMenu.addElem(&toggleShadowsButton);
+	pauseMenu.addElem(&toggleAOButton);
+
+	fpsText.setText("");
+	fpsText.setSize(2);
+	fpsText.setShadow(true);
+	fpsText.setAlignX(ui::ALIGN_LEFT);
+	fpsText.setAlignY(ui::ALIGN_TOP);
+	fpsText.setOffsetX(5);
+	fpsText.setOffsetY(5);
+
+	ui.clear();
+	ui.addElem(&fpsText);
+	ui.init(s.getWindow());
 
 	createWorld(6);
 
@@ -169,6 +208,14 @@ void StateGame::update(StateManager& s, double dt)
 
 void StateGame::render(StateManager& s)
 {
+	static double lastTime = glfwGetTime();
+	double curTime = glfwGetTime();
+	double dt = curTime - lastTime;
+	lastTime = curTime;
+
+	double fps = 1.0 / dt;
+	fpsText.setText(std::format("FPS: {:.1f}", fps));
+
 	glDisable(GL_DEPTH_TEST);
 	
 	glClearColor(0, 0, 0, 0);
@@ -180,7 +227,12 @@ void StateGame::render(StateManager& s)
 	blockDataHandlesBuffer.use(1);
 	blockTexturesBuffer.use(2);
 	tileTextureHandles.use(3);
+	rendererShader->setUniform("shadows", shadows);
+	rendererShader->setUniform("ambientOcclusion", ambientOcclusion);
+	rendererShader->setUniform("lightDir", lightDir);
 	QuadRendererBasic::render();
+
+	ui.render();
 }
 
 void StateGame::mouseInput(StateManager& s, double xpos, double ypos)
@@ -327,7 +379,7 @@ constexpr uint8_t SECTIONS = 4u; // RGBA channels
 constexpr uint8_t SECTION_HEIGHT = Chunk::HEIGHT / SECTIONS;
 constexpr uint8_t BLOCK_BITS = 4u;
 constexpr uint8_t BLOCKS_VERTICAL = 32u / BLOCK_BITS;
-constexpr uint32_t CHUNK_BLOCKS = Chunk::SIZE * SECTION_HEIGHT * Chunk::SIZE * Chunk::SIZE * Chunk::SIZE / BLOCKS_VERTICAL;
+constexpr uint32_t CHUNK_BLOCKS = SECTION_HEIGHT * Chunk::SIZE * Chunk::SIZE * Chunk::SIZE * Chunk::SIZE / BLOCKS_VERTICAL;
 using BlockArray = std::array<uint32_t, CHUNK_BLOCKS>;
 
 void StateGame::updateRendererData()
@@ -359,19 +411,17 @@ void StateGame::updateRendererData()
 		for (int s = 0; s < SECTIONS; ++s)
 		{
 			BlockArray blocks{ 0 };
+
 			bool empty = true;
 			if (!chunk->shouldUpdateRenderer[s])
 			{
 				chunks[ind * SECTIONS + s] = chunk->rendererHandleIndices[s];
 				continue;
 			}
-			for (int ab = 0; ab < Chunk::SIZE; ++ab)
-			{
-				for (int ac = 0; ac < Chunk::SIZE; ++ac)
-				{
-					for (int ad = 0; ad < Chunk::SIZE; ++ad)
-					{
-						for (int ae = 0; ae < Chunk::SIZE; ++ae)
+			for (int ae = 0; ae < Chunk::SIZE; ++ae)
+				for (int ad = 0; ad < Chunk::SIZE; ++ad)
+					for (int ac = 0; ac < Chunk::SIZE; ++ac)
+						for (int ab = 0; ab < Chunk::SIZE; ++ab)
 						{
 							uint32_t packed[SECTIONS]{ 0 };
 							bool colNonEmpty = false;
@@ -408,9 +458,7 @@ void StateGame::updateRendererData()
 								blocks[indB * 4 + 3] = packed[3];
 							}
 						}
-					}
-				}
-			}
+
 			if (!empty)
 			{
 				if (chunk->rendererTexIndices[s] && chunk->rendererHandleIndices[s] && chunk->rendererTexIndices[s] <= blockDataBuffers.size() && chunk->rendererHandleIndices[s] <= blockDataHandles.size())
@@ -443,6 +491,7 @@ void StateGame::updateRendererData()
 	chunksBuffer.uploadData(size.x, size.y, size.z * size.w, chunks);
 
 	delete[] chunks;
+
 	chunks = nullptr;
 
 	{
