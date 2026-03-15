@@ -146,7 +146,7 @@ void StateGame::init(StateManager& s)
 		console.ui.addElem(&console.logText);
 	}
 
-	createWorld(2);
+	createWorld(3);
 
 	cam.pos = {
 		32.0f,
@@ -244,17 +244,20 @@ void StateGame::update(StateManager& s, double dt)
 
 	cam.pos += moveDir * 4.0f * dt;
 
+	if (keys.space) cam.pos.a += 7.0f * dt;
+	if (keys.shift) cam.pos.a -= 7.0f * dt;
+
 	coordsText.setText(std::format(
 		"Pos: A:{:+.1f} B:{:+.1f} C:{:+.1f} D:{:+.1f} E:{:+.1f}\n"
-		"Left: A:{:+.1f} B:{:+.1f} C:{:+.1f} D:{:+.1f} E:{:+.1f}\n"
 		"Up: A:{:+.1f} B:{:+.1f} C:{:+.1f} D:{:+.1f} E:{:+.1f}\n"
 		"Forward: A:{:+.1f} B:{:+.1f} C:{:+.1f} D:{:+.1f} E:{:+.1f}\n"
+		"Left: A:{:+.1f} B:{:+.1f} C:{:+.1f} D:{:+.1f} E:{:+.1f}\n"
 		"Over: A:{:+.1f} B:{:+.1f} C:{:+.1f} D:{:+.1f} E:{:+.1f}\n"
 		"Yonder: A:{:+.1f} B:{:+.1f} C:{:+.1f} D:{:+.1f} E:{:+.1f}\n",
 		cam.pos.a, cam.pos.b, cam.pos.c, cam.pos.d, cam.pos.e,
-		cam.left.a, cam.left.b, cam.left.c, cam.left.d, cam.left.e,
 		cam.up.a, cam.up.b, cam.up.c, cam.up.d, cam.up.e,
 		cam.forward.a, cam.forward.b, cam.forward.c, cam.forward.d, cam.forward.e,
+		cam.left.a, cam.left.b, cam.left.c, cam.left.d, cam.left.e,
 		cam.over.a, cam.over.b, cam.over.c, cam.over.d, cam.over.e,
 		cam.yonder.a, cam.yonder.b, cam.yonder.c, cam.yonder.d, cam.yonder.e
 	));

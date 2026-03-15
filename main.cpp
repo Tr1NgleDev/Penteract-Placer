@@ -10,7 +10,6 @@
 
 #include "StateManager.h"
 
-#include "StateGame.h"
 #include "StateTitleScreen.h"
 
 #include "QuadRendererBasic.h"

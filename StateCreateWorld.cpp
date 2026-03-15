@@ -1,15 +1,14 @@
-#include "StateTitleScreen.h"
 #include "StateCreateWorld.h"
+#include "StateManager.h"
 #include "StateGame.h"
-#include <iostream>
 
-StateTitleScreen StateTitleScreen::instanceObj;
-StateTitleScreen* StateTitleScreen::instance()
+StateCreateWorld StateCreateWorld::instanceObj;
+StateCreateWorld* StateCreateWorld::instance()
 {
 	return &instanceObj;
 }
 
-void StateTitleScreen::init(StateManager& s)
+void StateCreateWorld::init(StateManager& s)
 {
 	qr = QuadRenderer{ Shader::get("quad") };
 	qr.init();
@@ -53,16 +52,16 @@ void StateTitleScreen::init(StateManager& s)
 	s.setUiPage(&page);
 }
 
-void StateTitleScreen::close(StateManager& s)
+void StateCreateWorld::close(StateManager& s)
 {
 	s.setUiPage(nullptr);
 }
 
-void StateTitleScreen::update(StateManager& s, double dt)
+void StateCreateWorld::update(StateManager& s, double dt)
 {
 }
 
-void StateTitleScreen::render(StateManager& s)
+void StateCreateWorld::render(StateManager& s)
 {
 	glClearColor(0, 0, 0, 0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -78,27 +77,27 @@ void StateTitleScreen::render(StateManager& s)
 		glm::vec4{ 0.0f, 0.0f, 0.0f, 1.0f },
 		glm::vec4{ 0.0f, 0.0f, 0.0f, 1.0f },
 		glm::vec4{ 0.3f, 0.14f, 0.34f, 1.0f }
-	});
+		});
 	qr.setPos(0, 0, wW, wH);
 	qr.render();
 }
 
-void StateTitleScreen::mouseInput(StateManager& s, double xpos, double ypos)
+void StateCreateWorld::mouseInput(StateManager& s, double xpos, double ypos)
 {
 }
 
-void StateTitleScreen::scrollInput(StateManager& s, double xoff, double yoff)
+void StateCreateWorld::scrollInput(StateManager& s, double xoff, double yoff)
 {
 }
 
-void StateTitleScreen::mouseButtonInput(StateManager& s, int button, int action, int mods)
+void StateCreateWorld::mouseButtonInput(StateManager& s, int button, int action, int mods)
 {
 }
 
-void StateTitleScreen::keyInput(StateManager&, int key, int scancode, int action, int mods)
+void StateCreateWorld::keyInput(StateManager&, int key, int scancode, int action, int mods)
 {
 }
 
-void StateTitleScreen::windowResize(StateManager&, int width, int height)
+void StateCreateWorld::windowResize(StateManager&, int width, int height)
 {
 }

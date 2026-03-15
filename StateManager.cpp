@@ -89,6 +89,7 @@ void StateManager::mouseInput(double xpos, double ypos)
 		getCurrentState()->mouseInput(*this, xpos, ypos);
 	}
 }
+
 void StateManager::scrollInput(double xoffset, double yoffset)
 {
 	if (page != nullptr && page->scrollInput(xoffset, yoffset))
@@ -148,6 +149,11 @@ void StateManager::windowResize(int width, int height)
 
 void StateManager::charInput(unsigned int codepoint)
 {
+	if (page != nullptr && page->charInput(codepoint))
+	{
+		return;
+	}
+
 	if (isRunning())
 	{
 		getCurrentState()->charInput(*this, codepoint);

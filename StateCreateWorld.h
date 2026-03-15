@@ -1,17 +1,12 @@
 #pragma once
-#include "StateManager.h"
-#include "QuadRenderer.h"
-#include "Shader.h"
-#include "Texture.h"
-#include "TextureBuffer.h"
-#include "GPUBuffer.h"
+#include "State.h"
 #include "ui.h"
 
-class StateTitleScreen : public State
+class StateCreateWorld : public State
 {
 public:
 
-	static StateTitleScreen* instance();
+	static StateCreateWorld* instance();
 
 	void init(StateManager& s) override;
 	void close(StateManager& s) override;
@@ -24,9 +19,9 @@ public:
 	void windowResize(StateManager&, int width, int height) override;
 
 private:
-	
-	static StateTitleScreen instanceObj;
-	~StateTitleScreen() {}
+
+	static StateCreateWorld instanceObj;
+	~StateCreateWorld() {}
 
 	ui::page page;
 
@@ -37,5 +32,13 @@ private:
 	ui::button quitButton;
 	ui::text_input textInput;
 
+	ui::page loadingPage;
+	ui::text loadingText;
+
+	// for loading bar
 	QuadRenderer qr;
+
+private:
+
+
 };

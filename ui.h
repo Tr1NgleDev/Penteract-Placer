@@ -24,12 +24,38 @@ namespace ui
 		ALIGN_CENTER_Y,
 	};
 	
+	class window
+	{
+	public:
+		virtual GLFWwindow* getGlfwWindow() = 0;
+		virtual void getCursorPos(double* xpos, double* ypos) = 0;
+		virtual void changeViewport(const glm::ivec4& pos, const glm::ivec2& scroll) = 0;
+	};
+
 	class element;
-	class page
+	class page : public window
 	{
 	public:
 
+		// constants & types
+		// -----------------
+
 		using container_t = std::vector<element*>;
+
+		// constructors
+		// ------------
+
+		page();
+
+		// window method overrides
+		// -----------------------
+
+		GLFWwindow* getGlfwWindow() override;
+		void getCursorPos(double* xpos, double* ypos) override;
+		void changeViewport(const glm::ivec4& pos, const glm::ivec2& scroll) override;
+
+		// class-specific methods
+		// ----------------------
 
 		void addElem(element* e);
 		bool removeElem(element* e);
@@ -52,8 +78,6 @@ namespace ui
 		bool fileDrop(int count, const char* paths[]);
 
 		void windowResize(int width, int height);
-
-		GLFWwindow* getWindow();
 		// returns nullptr if there is no focused element
 		element* getFocusedElem();
 
@@ -66,37 +90,44 @@ namespace ui
 		int mouseDownIndex = -1;
 
 		void mouseDownCancel();
+
+		bool viewportUpdated = false;
+
+		int currentCursorType = GLFW_ARROW_CURSOR;
+		GLFWcursor* currentCursor = nullptr;
 	};
 	
 	class element
 	{
 	public:
-
+		
 		static void renderInit();
 
 		// virtual methods
 		// ---------------
 
-		virtual void init(page* p) {}
-		virtual void render(page* p) {}
+		virtual void init(window* win) {}
+		virtual void render(window* win) {}
 
 		virtual bool clickable() { return false; }
-		virtual void getBounds(page* p, int* x, int* y, int* w, int* h) = 0;
+		virtual void getBounds(window* win, int* x, int* y, int* w, int* h) = 0;
 
-		virtual void mouseInput(page* p, double xpos, double ypos) {}
-		virtual bool scrollInput(page* p, double xoff, double yoff) { return false; }
-		virtual bool mouseButtonInput(page* p, double xpos, double ypos, int button, int action, int mods) { return false; }
-		virtual bool keyInput(page* p, int key, int scancode, int action, int mods) { return false; }
-		virtual bool charInput(page* p, uint32_t codepoint) { return false; }
-		virtual bool fileDrop(page* p, int count, const char* paths[]) { return false; }
+		virtual bool mouseInput(window* win, double xpos, double ypos) { return false; }
+		virtual bool scrollInput(window* win, double xoff, double yoff) { return false; }
+		virtual bool mouseButtonInput(window* win, double xpos, double ypos, int button, int action, int mods) { return false; }
+		virtual bool keyInput(window* win, int key, int scancode, int action, int mods) { return false; }
+		virtual bool charInput(window* win, uint32_t codepoint) { return false; }
+		virtual bool fileDrop(window* win, int count, const char* paths[]) { return false; }
 
 		// called when the left mouse button was pressed over the element but is released off of it
 		virtual void mouseDownCancel() {}
 
-		virtual void windowResize(page* p, int width, int height) {}
+		virtual void windowResize(window* win, int width, int height) {}
 
 		virtual void focus() {}
 		virtual void defocus() {}
+		
+		virtual int getCursorType() { return GLFW_ARROW_CURSOR; }
 
 		// non-virtual methods
 		// -------------------
@@ -132,10 +163,10 @@ namespace ui
 		// element overrides
 		// -----------------
 
-		//void init(page* p) override;
-		void render(page* p) override;
+		//void init(window* win) override;
+		void render(window* win) override;
 
-		void getBounds(page* p, int* x, int* y, int* w, int* h) override;
+		void getBounds(window* win, int* x, int* y, int* w, int* h) override;
 
 		// class-specific methods
 		// ----------------------
@@ -162,7 +193,7 @@ namespace ui
 
 		void getBoundSize(int* w, int* h);
 
-		void renderText(page* p, std::string_view text, int x, int y, bool align);
+		void renderText(window* win, std::string_view text, int x, int y, bool align);
 	};
 
 	class image : public element
@@ -172,12 +203,12 @@ namespace ui
 		// element overrides
 		// -----------------
 
-		void init(page* p) override;
-		void render(page* p) override;
+		void init(window* win) override;
+		void render(window* win) override;
 
-		void getBounds(page* p, int* x, int* y, int* w, int* h) override;
+		void getBounds(window* win, int* x, int* y, int* w, int* h) override;
 
-		void windowResize(page* p, int width, int height) override;
+		void windowResize(window* win, int width, int height) override;
 
 		// class-specific methods
 		// ----------------------
@@ -203,12 +234,12 @@ namespace ui
 		// element overrides
 		// -----------------
 
-		void render(page* p) override;
+		void render(window* win) override;
 
 		bool clickable() override { return true; }
-		void getBounds(page* p, int* x, int* y, int* w, int* h) override;
+		void getBounds(window* win, int* x, int* y, int* w, int* h) override;
 
-		bool mouseButtonInput(page* p, double xpos, double ypos, int button, int action, int mods) override;
+		bool mouseButtonInput(window* win, double xpos, double ypos, int button, int action, int mods) override;
 
 		void mouseDownCancel() override;
 
@@ -231,5 +262,77 @@ namespace ui
 		bool mouseDown = false;
 
 		std::move_only_function<void()> action;
+	};
+
+	class text_input : public element
+	{
+	public:
+
+		// element overrides
+		// -----------------
+
+		//void init(window* win) override;
+		void render(window* win) override;
+
+		bool clickable() override { return true; }
+		void getBounds(window* win, int* x, int* y, int* w, int* h) override;
+
+		bool mouseInput(window* win, double xpos, double ypos) override;
+		bool mouseButtonInput(window* win, double xpos, double ypos, int button, int action, int mods) override;
+		bool keyInput(window* win, int key, int scancode, int action, int mods) override;
+		bool charInput(window* win, uint32_t codepoint) override;
+
+		void focus() override;
+		void defocus() override;
+
+		int getCursorType() override { return GLFW_IBEAM_CURSOR; }
+
+		// class-specific methods
+		// ----------------------
+
+		void setText(std::string_view text);
+		std::string getText() const;
+		std::string getTextHighlighted() const;
+
+	private:
+
+		std::string text;
+		bool enabled = true;
+		bool editable = true;
+		bool mouseDown = false;
+		// is the input capturing key presses?
+		bool active = false;
+		bool highlight = false;
+
+		int cursorPos = 0;
+		int highlightStart = 0;
+		unsigned int width = 100;
+		unsigned int height = 50;
+
+		static constexpr int maxScrollPos = 4;
+		int scrollPos = maxScrollPos;
+		void updateScrollPos(window* win);
+		void updateScrollBackspace(window* win, int deletedCharCount);
+
+		// cursor blink time in seconds
+		static constexpr float cursorBlinkTime = 0.5f;
+		float cursorBlinkTimer = 0;
+
+		static constexpr float lastTypedCharTime = 0.2f;
+		float lastTypedCharTimer = 0;
+		int lastTypedCharIndex = 0;
+
+		int xOffset = 0;
+		int yOffset = 0;
+		alignx alignmentx = ALIGN_LEFT;
+		aligny alignmenty = ALIGN_TOP;
+
+		bool touchingMouse(window* win);
+
+		// removes the UTF-8 encoded chars from a string.
+		// also removes control chars like newlines
+		std::string removeInvalidChars(const char* str);
+
+		void removeHighlightedText();
 	};
 }
