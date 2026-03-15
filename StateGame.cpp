@@ -505,10 +505,13 @@ void StateGame::keyInput(StateManager& s, int key, int scancode, int action, int
 		} break;
 		case GLFW_KEY_UP:
 		{
-			console.input = console.history[console.historyIndex];
-			console.cursorPos = console.input.size();
+			if (console.historyCount > 0)
+			{
+				console.input = console.history[console.historyIndex];
+				console.cursorPos = console.input.size();
 
-			console.historyIndex = (console.historyIndex + 1) % console.historyCount;
+				console.historyIndex = (console.historyIndex + 1) % console.historyCount;
+			}
 		} break;
 		case GLFW_KEY_DOWN:
 		{
