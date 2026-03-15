@@ -900,10 +900,10 @@ void ui::button::setText(std::string_view text)
 	this->text = text;
 }
 
-void ui::button::setSize(int width, int height)
+void ui::button::setSize(uint32_t w, uint32_t h)
 {
-	this->width = width;
-	this->height = height;
+	width = w;
+	height = h;
 }
 
 void ui::text_input::render(window* win)
@@ -929,22 +929,21 @@ void ui::text_input::render(window* win)
 	int centerHeight = (height - charHeight) / 2;
 
 	// render cool effect for the last typed char
-	if (glfwGetTime() - lastTypedCharTimer < lastTypedCharTime)
+	if (float dt = glfwGetTime() - lastTypedCharTimer;
+		dt < lastTypedCharTime)
 	{
-		// get two random offsets
-		glm::ivec2 offsetA = glm::diskRand(5.0f);
-		glm::ivec2 offsetB = glm::diskRand(5.0f);
+		float a = dt / lastTypedCharTime;
 
 		std::string lastTypedChar;
 		lastTypedChar.push_back(text[lastTypedCharIndex]);
 		int charX = lastTypedCharIndex * charWidth;
 
 		tr.setText(lastTypedChar);
-		tr.setColor({ 0, 1, 1, 0.7 });
-		tr.setPos(charX + offsetA.x, centerHeight + offsetA.y);
+		tr.setColor({ 0, 1, 0, a });
+		tr.setPos(charX, centerHeight + (1.0f - a) * 10.0f);
 		tr.render();
-		tr.setColor({ 1, 0, 1, 0.7 });
-		tr.setPos(charX + offsetB.x, centerHeight + offsetB.y);
+		tr.setColor({ 0.5f, 0, 1, a });
+		tr.setPos(charX, centerHeight - (1.0f - a) * 10.0f);
 		tr.render();
 	}
 
@@ -966,16 +965,8 @@ void ui::text_input::render(window* win)
 			tr.render();
 		}
 
-		// render the highlight bar/box
-		glm::ivec2 offsetA = glm::diskRand(2.0f);
-		glm::ivec2 offsetB = glm::diskRand(2.0f);
-
-		qr.setColor(1, 0, 1, 0.7);
-		qr.setPos(hStart * charWidth + offsetA.x, centerHeight - 2 + offsetA.y, hWidth * charWidth, charHeight + 2 + 2);
-		qr.render();
-
-		qr.setColor(0, 1, 1, 0.7);
-		qr.setPos(hStart * charWidth + offsetB.x, centerHeight - 2 + offsetB.y, hWidth * charWidth, charHeight + 2 + 2);
+		qr.setColor(0, 1, 0, 1);
+		qr.setPos(hStart * charWidth, centerHeight - 2, hWidth * charWidth, charHeight + 2 + 2);
 		qr.render();
 
 		// render the highlighted text
@@ -999,20 +990,20 @@ void ui::text_input::render(window* win)
 	}
 	else
 	{
-		tr.setColor({ 1, 1, 1 });
-		tr.setText(text);
-		tr.setPos(0, centerHeight);
-		tr.render();
-
 		// render cursor
 		bool showCursor = active && (int)((glfwGetTime() - cursorBlinkTimer) / cursorBlinkTime) % 2 == 0;
 		if (showCursor)
 		{
 			int cursorX = cursorPos * charWidth - 2;
-			qr.setColor(0, 1, 1, 0.7);
-			qr.setPos(cursorX, centerHeight - 2, 2, tr.getCharHeight() * 2 + 4);
+			qr.setColor(0.5f, 0, 1, 1);
+			qr.setPos(cursorX, centerHeight + (tr.getCharHeight() * 2), tr.getCharWidth() * 2, 2);
 			qr.render();
 		}
+
+		tr.setColor({ 1, 1, 1 });
+		tr.setText(text);
+		tr.setPos(0, centerHeight);
+		tr.render();
 	}
 }
 
@@ -1318,6 +1309,7 @@ bool ui::text_input::charInput(window* win, uint32_t codepoint)
 			// ascii character
 			text.insert(text.begin() + cursorPos, c);
 
+			cursorBlinkTimer = glfwGetTime();
 			lastTypedCharTimer = glfwGetTime();
 			lastTypedCharIndex = cursorPos;
 
@@ -1362,6 +1354,12 @@ std::string ui::text_input::getTextHighlighted() const
 	int hStart = glm::min(cursorPos, highlightStart);
 	int hEnd = glm::max(cursorPos, highlightStart);
 	return text.substr(hStart, hEnd - hStart);
+}
+
+void ui::text_input::setSize(uint32_t w, uint32_t h)
+{
+	width = w;
+	height = h;
 }
 
 void ui::text_input::updateScrollPos(window* win)

@@ -251,14 +251,14 @@ namespace ui
 
 		void setAction(std::move_only_function<void()> action);
 		void setText(std::string_view value);
-		void setSize(int width, int height);
+		void setSize(uint32_t w, uint32_t h);
 
 	private:
 
 		std::string text;
 
-		int width = 200;
-		int height = 50;
+		uint32_t width = 200;
+		uint32_t height = 50;
 
 		bool mouseDown = false;
 
@@ -297,6 +297,8 @@ namespace ui
 		std::string getText() const;
 		std::string getTextHighlighted() const;
 
+		void setSize(uint32_t w, uint32_t h);
+
 	private:
 
 		std::string text;
@@ -309,8 +311,8 @@ namespace ui
 
 		int cursorPos = 0;
 		int highlightStart = 0;
-		unsigned int width = 100;
-		unsigned int height = 50;
+		uint32_t width = 100;
+		uint32_t height = 50;
 
 		static constexpr int maxScrollPos = 4;
 		int scrollPos = maxScrollPos;

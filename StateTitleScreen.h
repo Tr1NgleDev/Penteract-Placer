@@ -35,7 +35,6 @@ private:
 	ui::button newWorldButton;
 	ui::button loadWorldButton;
 	ui::button quitButton;
-	ui::text_input textInput;
 
 	QuadRenderer qr;
 };

@@ -13,41 +13,36 @@ void StateCreateWorld::init(StateManager& s)
 	qr = QuadRenderer{ Shader::get("quad") };
 	qr.init();
 
-	//text.setValue("hello world");
-	//text.setAlignX(ui::ALIGN_CENTER_X);
-	//text.setOffsetY(300);
-	//text.setColor(glm::vec4{ 0, 1, 0, 1 });
+	worldNameText.setText("World Name:");
+	worldNameText.setAlignX(ui::ALIGN_CENTER_X);
+	worldNameText.setOffsetY(200);
+	worldNameText.setColor(glm::vec4{ 0, 1, 0, 1 });
 
-	Texture::load("assets/textures/logo.png", 0, false, "logo.png");
-	logo.setTexture(Texture::get("logo.png"));
-	logo.setAlignX(ui::ALIGN_CENTER_X);
-	logo.setScale(2.0f, 2.0f);
+	worldNameInput.setText("My World");
+	worldNameInput.setSize(250, 50);
+	worldNameInput.setAlignX(ui::ALIGN_CENTER_X);
+	worldNameInput.setOffsetY(250);
 
-	newWorldButton.setText("New World");
-	newWorldButton.setAction([this, &s]() { s.changeState(StateCreateWorld::instance()); });
-	newWorldButton.setSize(160, 50);
-	newWorldButton.setAlignX(ui::ALIGN_CENTER_X);
-	newWorldButton.setOffsetY(350);
+	cancelButton.setText("Cancel");
+	cancelButton.setAction([this, &s]() { s.popState(); });
+	cancelButton.setSize(170, 50);
+	cancelButton.setOffsetX(25);
+	cancelButton.setAlignY(ui::ALIGN_BOTTOM);
+	cancelButton.setOffsetY(-25);
 
-	loadWorldButton.setText("Load World");
-	loadWorldButton.setAction([this, &s]() { s.changeState(StateGame::instance()); });
-	loadWorldButton.setSize(180, 50);
-	loadWorldButton.setAlignX(ui::ALIGN_CENTER_X);
-	loadWorldButton.setOffsetY(450);
-
-	quitButton.setText("Quit Game");
-	quitButton.setAction([this, &s]() { s.popState(); });
-	quitButton.setSize(170, 50);
-	quitButton.setAlignX(ui::ALIGN_CENTER_X);
-	quitButton.setOffsetY(550);
+	createButton.setText("Create New World!");
+	createButton.setAction([this, &s]() { s.changeState(StateGame::instance()); });
+	createButton.setSize(280, 50);
+	createButton.setAlignX(ui::ALIGN_RIGHT);
+	createButton.setOffsetX(-25);
+	createButton.setAlignY(ui::ALIGN_BOTTOM);
+	createButton.setOffsetY(-25);
 
 	page.clear();
-	page.addElem(&text);
-	page.addElem(&logo);
-	page.addElem(&newWorldButton);
-	page.addElem(&loadWorldButton);
-	page.addElem(&quitButton);
-	page.addElem(&textInput);
+	page.addElem(&worldNameText);
+	page.addElem(&worldNameInput);
+	page.addElem(&cancelButton);
+	page.addElem(&createButton);
 
 	s.setUiPage(&page);
 }

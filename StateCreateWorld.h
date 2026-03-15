@@ -25,20 +25,15 @@ private:
 
 	ui::page page;
 
-	ui::text text;
-	ui::image logo;
-	ui::button newWorldButton;
-	ui::button loadWorldButton;
-	ui::button quitButton;
-	ui::text_input textInput;
+	ui::text worldNameText;
+	ui::text_input worldNameInput;
+	ui::text_input worldSeedInput;
+	ui::button cancelButton;
+	ui::button createButton;
 
 	ui::page loadingPage;
 	ui::text loadingText;
 
 	// for loading bar
 	QuadRenderer qr;
-
-private:
-
-
 };

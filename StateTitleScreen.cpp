@@ -48,7 +48,6 @@ void StateTitleScreen::init(StateManager& s)
 	page.addElem(&newWorldButton);
 	page.addElem(&loadWorldButton);
 	page.addElem(&quitButton);
-	page.addElem(&textInput);
 
 	s.setUiPage(&page);
 }
