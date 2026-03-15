@@ -92,6 +92,7 @@ private:
 
 	ui::page ui;
 	ui::text fpsText;
+	ui::text coordsText;
 
 	void updateRendererData();
 };

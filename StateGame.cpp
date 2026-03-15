@@ -103,8 +103,17 @@ void StateGame::init(StateManager& s)
 	fpsText.setOffsetX(5);
 	fpsText.setOffsetY(5);
 
+	coordsText.setText("");
+	coordsText.setSize(1);
+	coordsText.setShadow(true);
+	coordsText.setAlignX(ui::ALIGN_LEFT);
+	coordsText.setAlignY(ui::ALIGN_TOP);
+	coordsText.setOffsetX(5);
+	coordsText.setOffsetY(25);
+
 	ui.clear();
 	ui.addElem(&fpsText);
+	ui.addElem(&coordsText);
 	ui.init(s.getWindow());
 
 	createWorld(6);
@@ -204,6 +213,21 @@ void StateGame::update(StateManager& s, double dt)
 	moveDir = m5::normalize(moveDir);
 
 	cam.pos += moveDir * 4.0f * dt;
+
+	coordsText.setText(std::format(
+		"Pos: A:{:+.1f} B:{:+.1f} C:{:+.1f} D:{:+.1f} E:{:+.1f}\n"
+		"Left: A:{:+.1f} B:{:+.1f} C:{:+.1f} D:{:+.1f} E:{:+.1f}\n"
+		"Up: A:{:+.1f} B:{:+.1f} C:{:+.1f} D:{:+.1f} E:{:+.1f}\n"
+		"Forward: A:{:+.1f} B:{:+.1f} C:{:+.1f} D:{:+.1f} E:{:+.1f}\n"
+		"Over: A:{:+.1f} B:{:+.1f} C:{:+.1f} D:{:+.1f} E:{:+.1f}\n"
+		"Yonder: A:{:+.1f} B:{:+.1f} C:{:+.1f} D:{:+.1f} E:{:+.1f}\n",
+		cam.pos.a, cam.pos.b, cam.pos.c, cam.pos.d, cam.pos.e,
+		cam.left.a, cam.left.b, cam.left.c, cam.left.d, cam.left.e,
+		cam.up.a, cam.up.b, cam.up.c, cam.up.d, cam.up.e,
+		cam.forward.a, cam.forward.b, cam.forward.c, cam.forward.d, cam.forward.e,
+		cam.over.a, cam.over.b, cam.over.c, cam.over.d, cam.over.e,
+		cam.yonder.a, cam.yonder.b, cam.yonder.c, cam.yonder.d, cam.yonder.e
+	));
 }
 
 void StateGame::render(StateManager& s)
