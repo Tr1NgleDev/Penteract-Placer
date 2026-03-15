@@ -25,6 +25,7 @@ public:
 	void mouseButtonInput(StateManager& s, int button, int action, int mods) override;
 	void keyInput(StateManager&, int key, int scancode, int action, int mods) override;
 	void windowResize(StateManager&, int width, int height) override;
+	void charInput(StateManager& s, uint32_t codepoint) override;
 
 	// creates a world with a given edge length,
 	// returning a pointer so the caller can initialize the world data.
@@ -47,6 +48,7 @@ private:
 		uint32_t _pad6[3]{ 0 };
 	};
 
+	glm::mat4 projection3D;
 	m5::rotor5 orientation;
 	Camera cam;
 	GPUBuffer cameraBuf;
@@ -93,6 +95,32 @@ private:
 	ui::page ui;
 	ui::text fpsText;
 	ui::text coordsText;
+
+	struct
+	{
+		inline static constexpr int height = 300;
+		inline static constexpr int maxLines = height / 8 - 1;
+		QuadRenderer qr;
+		bool open = true;
+		bool blockCharInput = true;
+
+		ui::page ui;
+
+		ui::text logText;
+		ui::text inputText;
+
+		std::string log = "";
+		std::string input = "";
+
+		int cursorPos = 0;
+
+		int historyIndex = 0;
+		int historyCount = 0;
+		std::array<std::string, 64> history{ "" };
+	} console;
+	void updateConsoleInput();
+	void print(std::string_view message);
+	void exec(std::string_view cmd);
 
 	void updateRendererData();
 };

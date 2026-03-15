@@ -426,6 +426,10 @@ void ui::text::setText(std::string_view value)
 	text = value;
 }
 
+int ui::text::getSize() const
+{
+	return this->size;
+}
 void ui::text::setSize(uint32_t size)
 {
 	this->size = size;
@@ -480,7 +484,7 @@ void ui::text::getBoundSize(int* w, int* h)
 
 	*w = wrapWidth;
 
-	if (text.length() * charWidth <= wrapWidth)
+	if (text.length() * charWidth <= wrapWidth && !text.contains('\n'))
 	{
 		*h = charHeight;
 		return;
@@ -521,9 +525,19 @@ void ui::text::getBoundSize(int* w, int* h)
 
 void ui::text::renderText(page* p, std::string_view text, int x, int y, bool align)
 {
+	if (text.empty())
+	{
+		return;
+	}
+
 	while (text[0] == '\n' || text[0] == '\r')
 	{
 		text = text.substr(1);
+
+		if (text.empty())
+		{
+			return;
+		}
 	}
 
 	tr.setText(text);

@@ -20,103 +20,133 @@ void StateGame::init(StateManager& s)
 	cameraBuf.use(0);
 
 	cam.pos = { 18.0f, 3.5f, 3.5f, 3.5f, 3.5f };
-	cam.up		= m5::vec5::up();
-	cam.forward	= m5::vec5::forward();
-	cam.left	= m5::vec5::left();
-	cam.over	= m5::vec5::over();
-	cam.yonder	= m5::vec5::yonder();
+	cam.up = m5::vec5::up();
+	cam.forward = m5::vec5::forward();
+	cam.left = m5::vec5::left();
+	cam.over = m5::vec5::over();
+	cam.yonder = m5::vec5::yonder();
 	cam.vFov = glm::radians(90.0f);
 	orientation = {};
 
 	disableCursor(s.getWindow());
 
 	int wWidth, wHeight;
-	glfwGetWindowSize(s.getWindow(), &wWidth, &wHeight);
+	s.getSize(&wWidth, &wHeight);
 	windowResize(s, wWidth, wHeight);
 
-	pausedText.setText("Paused...");
-	pausedText.setSize(3);
-	pausedText.setShadow(true);
-	pausedText.setAlignX(ui::ALIGN_CENTER_X);
-	pausedText.setOffsetY(300);
+	{
+		pausedText.setText("Paused...");
+		pausedText.setSize(3);
+		pausedText.setShadow(true);
+		pausedText.setAlignX(ui::ALIGN_CENTER_X);
+		pausedText.setOffsetY(300);
 
-	backToGameButton.setText("Back To Game");
-	backToGameButton.setAction([this, &s]()
-		{
-			disableCursor(s.getWindow());
-			s.setUiPage(nullptr);
-		}
-	);
-	backToGameButton.setSize(210, 50);
-	backToGameButton.setAlignX(ui::ALIGN_CENTER_X);
-	backToGameButton.setOffsetY(450);
+		backToGameButton.setText("Back To Game");
+		backToGameButton.setAction([this, &s]()
+			{
+				disableCursor(s.getWindow());
+				s.setUiPage(nullptr);
+			}
+		);
+		backToGameButton.setSize(210, 50);
+		backToGameButton.setAlignX(ui::ALIGN_CENTER_X);
+		backToGameButton.setOffsetY(450);
 
-	quitToTitleButton.setText("Quit To Title");
-	quitToTitleButton.setAction([this, &s]()
-		{
-			// TODO: save world data
-			s.setUiPage(nullptr);
-			s.changeState(StateTitleScreen::instance());
-		}
-	);
-	quitToTitleButton.setSize(230, 50);
-	quitToTitleButton.setAlignX(ui::ALIGN_CENTER_X);
-	quitToTitleButton.setOffsetY(550);
+		quitToTitleButton.setText("Quit To Title");
+		quitToTitleButton.setAction([this, &s]()
+			{
+				// TODO: save world data
+				s.setUiPage(nullptr);
+				s.changeState(StateTitleScreen::instance());
+			}
+		);
+		quitToTitleButton.setSize(230, 50);
+		quitToTitleButton.setAlignX(ui::ALIGN_CENTER_X);
+		quitToTitleButton.setOffsetY(550);
 
-	// TODO: change these into checkboxes maybe
-	toggleShadowsButton.setText(std::format("Shadows: {}", shadows ? "On" : "Off"));
-	toggleShadowsButton.setAction([this, &s]()
-		{
-			shadows = !shadows;
-			toggleShadowsButton.setText(std::format("Shadows: {}", shadows ? "On" : "Off"));
-		});
-	toggleShadowsButton.setSize(210, 50);
-	toggleShadowsButton.setAlignX(ui::ALIGN_LEFT);
-	toggleShadowsButton.setAlignY(ui::ALIGN_BOTTOM);
-	toggleShadowsButton.setOffsetX(10);
-	toggleShadowsButton.setOffsetY(-80);
+		// TODO: change these into checkboxes maybe
+		toggleShadowsButton.setText(std::format("Shadows: {}", shadows ? "On" : "Off"));
+		toggleShadowsButton.setAction([this, &s]()
+			{
+				shadows = !shadows;
+				toggleShadowsButton.setText(std::format("Shadows: {}", shadows ? "On" : "Off"));
+			});
+		toggleShadowsButton.setSize(210, 50);
+		toggleShadowsButton.setAlignX(ui::ALIGN_LEFT);
+		toggleShadowsButton.setAlignY(ui::ALIGN_BOTTOM);
+		toggleShadowsButton.setOffsetX(10);
+		toggleShadowsButton.setOffsetY(-80);
 
-	toggleAOButton.setText(std::format("AO: {}", ambientOcclusion ? "On" : "Off"));
-	toggleAOButton.setAction([this, &s]()
-		{
-			ambientOcclusion = !ambientOcclusion;
-			toggleAOButton.setText(std::format("AO: {}", ambientOcclusion ? "On" : "Off"));
-		});
-	toggleAOButton.setSize(210, 50);
-	toggleAOButton.setAlignX(ui::ALIGN_LEFT);
-	toggleAOButton.setAlignY(ui::ALIGN_BOTTOM);
-	toggleAOButton.setOffsetX(10);
-	toggleAOButton.setOffsetY(-10);
+		toggleAOButton.setText(std::format("AO: {}", ambientOcclusion ? "On" : "Off"));
+		toggleAOButton.setAction([this, &s]()
+			{
+				ambientOcclusion = !ambientOcclusion;
+				toggleAOButton.setText(std::format("AO: {}", ambientOcclusion ? "On" : "Off"));
+			});
+		toggleAOButton.setSize(210, 50);
+		toggleAOButton.setAlignX(ui::ALIGN_LEFT);
+		toggleAOButton.setAlignY(ui::ALIGN_BOTTOM);
+		toggleAOButton.setOffsetX(10);
+		toggleAOButton.setOffsetY(-10);
 
-	pauseMenu.clear();
-	pauseMenu.addElem(&pausedText);
-	pauseMenu.addElem(&backToGameButton);
-	pauseMenu.addElem(&quitToTitleButton);
-	pauseMenu.addElem(&toggleShadowsButton);
-	pauseMenu.addElem(&toggleAOButton);
+		pauseMenu.clear();
+		pauseMenu.addElem(&pausedText);
+		pauseMenu.addElem(&backToGameButton);
+		pauseMenu.addElem(&quitToTitleButton);
+		pauseMenu.addElem(&toggleShadowsButton);
+		pauseMenu.addElem(&toggleAOButton);
+	}
 
-	fpsText.setText("");
-	fpsText.setSize(2);
-	fpsText.setShadow(true);
-	fpsText.setAlignX(ui::ALIGN_LEFT);
-	fpsText.setAlignY(ui::ALIGN_TOP);
-	fpsText.setOffsetX(5);
-	fpsText.setOffsetY(5);
+	{
+		fpsText.setText("");
+		fpsText.setSize(2);
+		fpsText.setShadow(true);
+		fpsText.setAlignX(ui::ALIGN_LEFT);
+		fpsText.setAlignY(ui::ALIGN_TOP);
+		fpsText.setOffsetX(5);
+		fpsText.setOffsetY(5);
 
-	coordsText.setText("");
-	coordsText.setSize(1);
-	coordsText.setShadow(true);
-	coordsText.setAlignX(ui::ALIGN_LEFT);
-	coordsText.setAlignY(ui::ALIGN_TOP);
-	coordsText.setOffsetX(5);
-	coordsText.setOffsetY(25);
+		coordsText.setText("");
+		coordsText.setSize(1);
+		coordsText.setShadow(true);
+		coordsText.setAlignX(ui::ALIGN_LEFT);
+		coordsText.setAlignY(ui::ALIGN_TOP);
+		coordsText.setOffsetX(5);
+		coordsText.setOffsetY(25);
 
-	ui.clear();
-	ui.addElem(&fpsText);
-	ui.addElem(&coordsText);
-	ui.init(s.getWindow());
+		ui.clear();
+		ui.addElem(&fpsText);
+		ui.addElem(&coordsText);
+		ui.init(s.getWindow());
+	}
 
-	createWorld(6);
+	{
+		console.qr = QuadRenderer{ Shader::get("quad") };
+		console.qr.init();
+
+		console.inputText.setShadow(false);
+		console.inputText.setAlignX(ui::ALIGN_LEFT);
+		console.inputText.setAlignY(ui::ALIGN_TOP);
+		console.inputText.setOffsetX(5);
+		console.inputText.setOffsetY(console.height - 8 - 5);
+		console.inputText.setSize(1);
+
+		console.logText.setShadow(false);
+		console.logText.setAlignX(ui::ALIGN_LEFT);
+		console.logText.setAlignY(ui::ALIGN_TOP);
+		console.logText.setOffsetX(5);
+		console.logText.setOffsetY(console.height - 8 * 2 - 5);
+		console.logText.setSize(1);
+		console.logText.setWrapWidth(wWidth);
+
+		updateConsoleInput();
+
+		console.ui.clear();
+		console.ui.addElem(&console.inputText);
+		console.ui.addElem(&console.logText);
+	}
+
+	createWorld(2);
 
 	cam.pos = {
 		32.0f,
@@ -228,10 +258,25 @@ void StateGame::update(StateManager& s, double dt)
 		cam.over.a, cam.over.b, cam.over.c, cam.over.d, cam.over.e,
 		cam.yonder.a, cam.yonder.b, cam.yonder.c, cam.yonder.d, cam.yonder.e
 	));
+
+	if (console.open)
+	{
+		if (glfwGetInputMode(s.getWindow(), GLFW_CURSOR) == GLFW_CURSOR_DISABLED)
+		{
+			enableCursor(s.getWindow());
+		}
+		if (s.getUiPage() != &console.ui)
+		{
+			s.setUiPage(&console.ui);
+		}
+	}
 }
 
 void StateGame::render(StateManager& s)
 {
+	int wW, wH;
+	s.getSize(&wW, &wH);
+
 	static double lastTime = glfwGetTime();
 	double curTime = glfwGetTime();
 	double dt = curTime - lastTime;
@@ -240,10 +285,10 @@ void StateGame::render(StateManager& s)
 	double fps = 1.0 / dt;
 	fpsText.setText(std::format("FPS: {:.1f}", fps));
 
-	glDisable(GL_DEPTH_TEST);
-	
 	glClearColor(0, 0, 0, 0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	glDisable(GL_DEPTH_TEST);
 
 	cameraBuf.uploadData<Camera>(&cam);
 
@@ -254,9 +299,35 @@ void StateGame::render(StateManager& s)
 	rendererShader->setUniform("shadows", shadows);
 	rendererShader->setUniform("ambientOcclusion", ambientOcclusion);
 	rendererShader->setUniform("lightDir", lightDir);
+	rendererShader->setUniform("time", (float)glfwGetTime());
 	QuadRendererBasic::render();
 
+	glDisable(GL_DEPTH_TEST);
 	ui.render();
+
+	if (console.open)
+	{
+		console.qr.setMode(QuadRenderer::MODE_FILL);
+		console.qr.setPos(0, 0, wW, console.height);
+		console.qr.setColor({ 0.05f, 0.01f, 0.05f, 0.8f });
+		console.qr.render();
+
+		console.qr.setMode(QuadRenderer::MODE_LINES);
+		console.qr.setPos(1, 1, wW - 1, console.height - 1);
+		console.qr.setColor({ 1.0f, 1.0f, 1.0f, 0.8f });
+		console.qr.render();
+
+		int size = console.inputText.getSize();
+		int x = 0, y = 0, w = 0, h = 0;
+		console.inputText.getBounds(&console.ui, &x, &y, &w, &h);
+		console.qr.setPos(x + 8 * (console.cursorPos + 2) * size, y, 7 * size, 8 * size);
+		console.qr.render();
+
+		x = 0; y = 0; w = 0; h = 0;
+		console.logText.setWrapWidth(wW);
+		console.logText.getBounds(&console.ui, &x, &y, &w, &h);
+		console.logText.setOffsetY(console.height - 8 - 5 - h);
+	}
 }
 
 void StateGame::mouseInput(StateManager& s, double xpos, double ypos)
@@ -307,6 +378,31 @@ void StateGame::mouseInput(StateManager& s, double xpos, double ypos)
 	cam.yonder	= m5::normalize(orientation.rotate(m5::vec5::yonder()));
 }
 
+void StateGame::charInput(StateManager& s, uint32_t codepoint)
+{
+	if (console.open)
+	{
+		if (console.blockCharInput)
+		{
+			console.blockCharInput = false;
+			return;
+		}
+
+		if (codepoint >= 1 && codepoint <= 127)
+		{
+			console.input.insert(console.cursorPos++, 1, (char)codepoint);
+		}
+
+		updateConsoleInput();
+	}
+
+}
+void StateGame::updateConsoleInput()
+{
+	console.inputText.setText("> " + (console.input.empty() ? "Enter a command. (\"help\" for a list of commands)" : console.input));
+	console.inputText.setColor(console.input.empty() ? glm::vec4{ 0.65f, 0.65f, 0.65f, 1.0f } : glm::vec4{ 1.0f });
+}
+
 void StateGame::scrollInput(StateManager& s, double xoff, double yoff)
 {
 
@@ -326,6 +422,105 @@ void StateGame::mouseButtonInput(StateManager& s, int button, int action, int mo
 
 void StateGame::keyInput(StateManager& s, int key, int scancode, int action, int mods)
 {
+	if (console.open)
+	{
+		if (action == GLFW_RELEASE) return;
+
+		switch (key)
+		{
+		case GLFW_KEY_BACKSPACE:
+		{
+			if (mods & GLFW_MOD_CONTROL)
+			{
+				size_t next = console.input.rfind(' ', console.cursorPos);
+				if (next == std::string::npos) next = 0;
+				console.input.erase(next, console.cursorPos - next);
+				console.cursorPos = next;
+			}
+			else
+			{
+				console.cursorPos = glm::clamp(console.cursorPos - 1, 0, (int)console.input.size());
+				console.input.erase(console.cursorPos, 1);
+			}
+		} break;
+		case GLFW_KEY_DELETE:
+		{
+			if (mods & GLFW_MOD_CONTROL)
+			{
+				size_t next = console.input.find_first_of(' ', glm::clamp(console.cursorPos + 1, 0, (int)console.input.size()));
+				if (next == std::string::npos) next = console.input.size();
+				console.input.erase(console.cursorPos, next - console.cursorPos);
+			}
+			else
+			{
+				console.input.erase(console.cursorPos, 1);
+			}
+		} break;
+		case GLFW_KEY_LEFT:
+		{
+			console.cursorPos = glm::clamp(console.cursorPos - 1, 0, (int)console.input.size());
+			if (mods & GLFW_MOD_CONTROL)
+			{
+				size_t next = console.input.rfind(' ', console.cursorPos);
+				if (next == std::string::npos) next = 0;
+				console.cursorPos = next;
+			}
+		} break;
+		case GLFW_KEY_RIGHT:
+		{
+			console.cursorPos = glm::clamp(console.cursorPos + 1, 0, (int)console.input.size());
+			if (mods & GLFW_MOD_CONTROL)
+			{
+				size_t next = console.input.find_first_of(' ', console.cursorPos);
+				if (next == std::string::npos) next = console.input.size();
+				console.cursorPos = next;
+			}
+		} break;
+		case GLFW_KEY_HOME:
+		{
+			console.cursorPos = 0;
+		} break;
+		case GLFW_KEY_END:
+		{
+			console.cursorPos = console.input.size();
+		} break;
+		case GLFW_KEY_ESCAPE:
+		{
+			if (action == GLFW_PRESS)
+			{
+				console.open = false;
+				disableCursor(s.getWindow());
+				s.setUiPage(nullptr);
+			}
+		} break;
+		case GLFW_KEY_ENTER:
+		{
+			exec(console.input);
+			console.input = "";
+			console.cursorPos = 0;
+		} break;
+		case GLFW_KEY_UP:
+		{
+			console.input = console.history[console.historyIndex];
+			console.cursorPos = console.input.size();
+
+			console.historyIndex = (console.historyIndex + 1) % console.historyCount;
+		} break;
+		case GLFW_KEY_DOWN:
+		{
+			if (console.historyIndex > 0)
+			{
+				console.historyIndex = (console.historyIndex - 1) % console.historyCount;
+
+				console.input = console.history[console.historyIndex];
+				console.cursorPos = console.input.size();
+			}
+		} break;
+		}
+		updateConsoleInput();
+		return;
+	}
+
 	if (action == GLFW_REPEAT) return;
 
 	switch (key)
@@ -358,25 +553,83 @@ void StateGame::keyInput(StateManager& s, int key, int scancode, int action, int
 	{
 		if (action == GLFW_PRESS)
 		{
-			if (s.getUiPage() == &pauseMenu)
-			{
-				disableCursor(s.getWindow());
-				s.setUiPage(nullptr);
-			}
-			else
+			console.open = false;
+			if (s.getUiPage() == nullptr)
 			{
 				enableCursor(s.getWindow());
 				s.setUiPage(&pauseMenu);
 			}
+			else
+			{
+				disableCursor(s.getWindow());
+				s.setUiPage(nullptr);
+			}
 		}
-		break;
+	} break;
+	case GLFW_KEY_GRAVE_ACCENT:
+	{
+		if (action == GLFW_PRESS)
+		{
+			console.open = !console.open;
+
+			if (console.open)
+			{
+				enableCursor(s.getWindow());
+				s.setUiPage(&console.ui);
+				console.blockCharInput = true;
+			}
+			else
+			{
+				disableCursor(s.getWindow());
+				s.setUiPage(nullptr);
+			}
+		}
+	} break;
 	}
+}
+
+void StateGame::exec(std::string_view cmd)
+{
+	if (cmd.empty())
+	{
+		return;
 	}
+
+	{
+		auto history = console.history;
+		std::move(history.begin(), history.end() - 1, console.history.begin() + 1);
+	}
+
+	console.history[0] = cmd;
+	console.historyIndex = 0;
+	console.historyCount = glm::min(console.historyCount + 1, (int)console.history.size());
+
+	if (cmd == "clear")
+	{
+		console.log.clear();
+		console.logText.setText(console.log);
+		return;
+	}
+
+	print(std::format("Unknown command \"{}\"! Use \"help\" for a list of commands.", cmd));
+}
+void StateGame::print(std::string_view message)
+{
+	console.log += '\n';
+	console.log += message;
+
+	console.logText.setText(console.log);
 }
 
 void StateGame::windowResize(StateManager&, int width, int height)
 {
-	rendererShader->setUniform("screenSize", (float)width, (float)height, 1.0f / width, 1.0f / height);
+	float w = width;
+	float h = height;
+	float invW = 1.0f / w;
+	float invH = 1.0f / h;
+	projection3D = glm::perspective(cam.vFov, w * invH, 0.03f, 1000.0f);
+
+	rendererShader->setUniform("screenSize", w, h, invW, invH);
 }
 
 World* StateGame::createWorld(uint8_t edgeLength)
