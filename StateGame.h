@@ -3,6 +3,7 @@
 #include "GPUBuffer.h"
 #include "Math5D.h"
 #include "World.h"
+#include "TextureBuffer.h"
 
 class Shader;
 
@@ -47,6 +48,12 @@ private:
 	Camera cam;
 	GPUBuffer cameraBuf;
 	Shader* rendererShader;
+	TextureBuffer chunksBuffer;
+	std::vector<TextureBuffer> blockDataBuffers;
+	std::vector<uint64_t> blockDataHandles;
+	GPUBuffer blockDataHandlesBuffer;
+	GPUBuffer blockTexturesBuffer;
+	GPUBuffer tileTextureHandles;
 
 	struct
 	{
@@ -76,4 +83,6 @@ private:
 	ui::text pausedText;
 	ui::button backToGameButton;
 	ui::button quitToTitleButton;
+
+	void updateRendererData();
 };

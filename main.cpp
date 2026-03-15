@@ -146,8 +146,17 @@ int main()
 	if (glewInit())
 	{
 		printf("Failed to initialize GLEW!\n");
-		glfwSetWindowShouldClose(window, true);
+		glfwDestroyWindow(window);
+		glfwTerminate();
 		return 3;
+	}
+
+	if (!GLEW_ARB_bindless_texture)
+	{
+		printf("The ARB_bindless_texture OpenGL extension is not supported!\n");
+		glfwDestroyWindow(window);
+		glfwTerminate();
+		return 4;
 	}
 
 #ifndef NDEBUG
@@ -173,7 +182,6 @@ int main()
 
 	QuadRendererBasic::init();
 
-	// idk where you want me to put this
 	Shader::load("quad", {
 		{ GL_VERTEX_SHADER, "assets/shaders/quad.vert" },
 		{ GL_FRAGMENT_SHADER, "assets/shaders/quad.frag" }
@@ -189,6 +197,10 @@ int main()
 		{ GL_VERTEX_SHADER, "assets/shaders/quadBasic.vert" },
 		{ GL_FRAGMENT_SHADER, "assets/shaders/tex.frag" }
 	});
+
+	Shader::load("renderer", {
+		{ GL_VERTEX_SHADER, "assets/shaders/renderer.vert" },
+		{ GL_FRAGMENT_SHADER, "assets/shaders/renderer.frag" } });
 
 	ui::element::renderInit();
 

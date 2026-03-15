@@ -21,19 +21,25 @@ namespace m5
 		union { T u{}; T f; };
 
 		Tvec6() {}
-		Tvec6(T v)
-			: x(v), y(v), z(v), w(v), v(v), u(v) {}
-		Tvec6(T x, T y, T z, T w, T v, T u)
-			: x(x), y(y), z(z), w(w), v(v), u(u) {}
-		Tvec6(const glm::vec<4, T>& xyzw, T v = {}, T u = {})
-			: x(xyzw.x), y(xyzw.y), z(xyzw.z), w(xyzw.w), v(v), u(u) {}
-		Tvec6(const Tvec5<T>& xyzwv, T u = {})
-			: x(xyzwv.x), y(xyzwv.y), z(xyzwv.z), w(xyzwv.w), v(xyzwv.v), u(u) {}
+		template<typename T2 = T>
+		Tvec6(T2 v)
+			: x((T)v), y((T)v), z((T)v), w((T)v), v((T)v), u((T)v) {}
+		template<typename T2 = T>
+		Tvec6(T2 x, T2 y, T2 z, T2 w, T2 v, T2 u)
+			: x((T)x), y((T)y), z((T)z), w((T)w), v((T)v), u((T)u) {}
+		template<typename T2 = T>
+		Tvec6(const glm::vec<4, T2>& xyzw, T2 v = {}, T2 u = {})
+			: x((T)xyzw.x), y((T)xyzw.y), z((T)xyzw.z), w((T)xyzw.w), v((T)v), u((T)u) {}
+		template<typename T2 = T>
+		Tvec6(const Tvec5<T2>& xyzwv, T2 u = {})
+			: x((T)xyzwv.x), y((T)xyzwv.y), z((T)xyzwv.z), w((T)xyzwv.w), v((T)xyzwv.v), u((T)u) {}
 
-		Tvec6(const Tvec6<T>& other)
-			: x(other.x), y(other.y), z(other.z), w(other.w), v(other.v), u(other.u) {}
-		Tvec6(Tvec6<T>&& other) noexcept
-			: x(other.x), y(other.y), z(other.z), w(other.w), v(other.v), u(other.u)
+		template<typename T2 = T>
+		Tvec6(const Tvec6<T2>& other)
+			: x((T)other.x), y((T)other.y), z((T)other.z), w((T)other.w), v((T)other.v), u((T)other.u) {}
+		template<typename T2 = T>
+		Tvec6(Tvec6<T2>&& other) noexcept
+			: x((T)other.x), y((T)other.y), z((T)other.z), w((T)other.w), v((T)other.v), u((T)other.u)
 		{
 			other.x = {};
 			other.y = {};
@@ -42,27 +48,29 @@ namespace m5
 			other.v = {};
 			other.u = {};
 		}
-		Tvec6<T>& operator=(const Tvec6<T>& other)
+		template<typename T2 = T>
+		Tvec6<T>& operator=(const Tvec6<T2>& other)
 		{
-			this->x = other.x;
-			this->y = other.y;
-			this->z = other.z;
-			this->w = other.w;
-			this->v = other.v;
-			this->u = other.u;
+			this->x = (T)other.x;
+			this->y = (T)other.y;
+			this->z = (T)other.z;
+			this->w = (T)other.w;
+			this->v = (T)other.v;
+			this->u = (T)other.u;
 
 			return *this;
 		}
-		Tvec6<T>& operator=(Tvec6<T>&& other) noexcept
+		template<typename T2 = T>
+		Tvec6<T>& operator=(Tvec6<T2>&& other) noexcept
 		{
 			if (this != &other)
 			{
-				this->x = other.x;
-				this->y = other.y;
-				this->z = other.z;
-				this->w = other.w;
-				this->v = other.v;
-				this->u = other.u;
+				this->x = (T)other.x;
+				this->y = (T)other.y;
+				this->z = (T)other.z;
+				this->w = (T)other.w;
+				this->v = (T)other.v;
+				this->u = (T)other.u;
 				other.x = {};
 				other.y = {};
 				other.z = {};
@@ -87,52 +95,56 @@ namespace m5
 			return (&x)[i];
 		}
 
-		Tvec6<T> operator+(const Tvec6<T>& other) const
+		template<typename T2 = T>
+		Tvec6<T> operator+(const Tvec6<T2>& other) const
 		{
 			return Tvec6<T>
 			{
-				this->x + other.x,
-				this->y + other.y,
-				this->z + other.z,
-				this->w + other.w,
-				this->v + other.v,
-				this->v + other.u
+				this->x + (T)other.x,
+				this->y + (T)other.y,
+				this->z + (T)other.z,
+				this->w + (T)other.w,
+				this->v + (T)other.v,
+				this->v + (T)other.u
 			};
 		}
-		Tvec6<T> operator+(T v) const
+		template<typename T2 = T>
+		Tvec6<T> operator+(T2 v) const
 		{
 			return Tvec6<T>
 			{
-				this->x + v,
-				this->y + v,
-				this->z + v,
-				this->w + v,
-				this->v + v,
-				this->u + v
+				this->x + (T)v,
+				this->y + (T)v,
+				this->z + (T)v,
+				this->w + (T)v,
+				this->v + (T)v,
+				this->u + (T)v
 			};
 		}
-		Tvec6<T> operator-(const Tvec6<T>& other) const
+		template<typename T2 = T>
+		Tvec6<T> operator-(const Tvec6<T2>& other) const
 		{
 			return Tvec6<T>
 			{
-				this->x - other.x,
-				this->y - other.y,
-				this->z - other.z,
-				this->w - other.w,
-				this->v - other.v,
-				this->u - other.u
+				this->x - (T)other.x,
+				this->y - (T)other.y,
+				this->z - (T)other.z,
+				this->w - (T)other.w,
+				this->v - (T)other.v,
+				this->u - (T)other.u
 			};
 		}
-		Tvec6<T> operator-(T v) const
+		template<typename T2 = T>
+		Tvec6<T> operator-(T2 v) const
 		{
 			return Tvec6<T>
 			{
-				this->x - v,
-				this->y - v,
-				this->z - v,
-				this->w - v,
-				this->v - v,
-				this->u - v
+				this->x - (T)v,
+				this->y - (T)v,
+				this->z - (T)v,
+				this->w - (T)v,
+				this->v - (T)v,
+				this->u - (T)v
 			};
 		}
 		Tvec6<T> operator-() const
@@ -147,45 +159,49 @@ namespace m5
 				-this->u
 			};
 		}
-		Tvec6<T> operator*(const Tvec6<T>& other) const
+		template<typename T2 = T>
+		Tvec6<T> operator*(const Tvec6<T2>& other) const
 		{
 			return Tvec6<T>
 			{
-				this->x * other.x,
-				this->y * other.y,
-				this->z * other.z,
-				this->w * other.w,
-				this->v * other.v,
-				this->u * other.u
+				this->x * (T)other.x,
+				this->y * (T)other.y,
+				this->z * (T)other.z,
+				this->w * (T)other.w,
+				this->v * (T)other.v,
+				this->u * (T)other.u
 			};
 		}
-		Tvec6<T> operator*(T v) const
+		template<typename T2 = T>
+		Tvec6<T> operator*(T2 v) const
 		{
 			return Tvec6<T>
 			{
-				this->x * v,
-				this->y * v,
-				this->z * v,
-				this->w * v,
-				this->v * v,
-				this->u * v
+				this->x * (T)v,
+				this->y * (T)v,
+				this->z * (T)v,
+				this->w * (T)v,
+				this->v * (T)v,
+				this->u * (T)v
 			};
 		}
-		Tvec6<T> operator/(const Tvec6<T>& other) const
+		template<typename T2 = T>
+		Tvec6<T> operator/(const Tvec6<T2>& other) const
 		{
 			return Tvec6<T>
 			{
-				this->x / other.x,
-				this->y / other.y,
-				this->z / other.z,
-				this->w / other.w,
-				this->v / other.v,
-				this->u / other.u
+				this->x / (T)other.x,
+				this->y / (T)other.y,
+				this->z / (T)other.z,
+				this->w / (T)other.w,
+				this->v / (T)other.v,
+				this->u / (T)other.u
 			};
 		}
-		Tvec6<T> operator/(T v) const
+		template<typename T2 = T>
+		Tvec6<T> operator/(T2 v) const
 		{
-			float invV = 1.0f / v;
+			double invV = 1.0 / v;
 			return Tvec6<T>
 			{
 				this->x * invV,
@@ -197,47 +213,57 @@ namespace m5
 			};
 		}
 
-		Tvec6<T>& operator+=(const Tvec6<T>& other)
+		template<typename T2 = T>
+		Tvec6<T>& operator+=(const Tvec6<T2>& other)
 		{
 			return *this = *this + other;
 		}
-		Tvec6<T>& operator+=(T v)
+		template<typename T2 = T>
+		Tvec6<T>& operator+=(T2 v)
 		{
 			return *this = *this + v;
 		}
-		Tvec6<T>& operator-=(const Tvec6<T>& other)
+		template<typename T2 = T>
+		Tvec6<T>& operator-=(const Tvec6<T2>& other)
 		{
 			return *this = *this - other;
 		}
-		Tvec6<T>& operator-=(T v)
+		template<typename T2 = T>
+		Tvec6<T>& operator-=(T2 v)
 		{
 			return *this = *this - v;
 		}
-		Tvec6<T>& operator*=(const Tvec6<T>& other)
+		template<typename T2 = T>
+		Tvec6<T>& operator*=(const Tvec6<T2>& other)
 		{
 			return *this = *this * other;
 		}
-		Tvec6<T>& operator*=(T v)
+		template<typename T2 = T>
+		Tvec6<T>& operator*=(T2 v)
 		{
 			return *this = *this * v;
 		}
-		Tvec6<T>& operator/=(const Tvec6<T>& other)
+		template<typename T2 = T>
+		Tvec6<T>& operator/=(const Tvec6<T2>& other)
 		{
 			return *this = *this / other;
 		}
-		Tvec6<T>& operator/=(T v)
+		template<typename T2 = T>
+		Tvec6<T>& operator/=(T2 v)
 		{
 			return *this = *this / v;
 		}
 
-		bool operator==(const Tvec6<T>& other) const
+		template<typename T2 = T>
+		bool operator==(const Tvec6<T2>& other) const
 		{
-			return this->x == other.x && this->y == other.y && this->z == other.z && this->w == other.w && this->v == other.v && this->u == other.u;
+			return this->x == (T)other.x && this->y == (T)other.y && this->z == (T)other.z && this->w == (T)other.w && this->v == (T)other.v && this->u == (T)other.u;
 		}
 
-		T dot(const Tvec6<T>& other) const
+		template<typename T2 = T>
+		T dot(const Tvec6<T2>& other) const
 		{
-			return x * other.x + y * other.y + z * other.z + w * other.w + v * other.v + u * other.u;
+			return x * (T)other.x + y * (T)other.y + z * (T)other.z + w * (T)other.w + v * (T)other.v + u * (T)other.u;
 		}
 		T length2() const
 		{
@@ -307,4 +333,35 @@ namespace m5
 	inline float length2(const vec6& v) { return v.length2(); }
 	inline float distance(const vec6& a, const vec6& b) { return (b - a).length(); }
 	inline float distance2(const vec6& a, const vec6& b) { return (b - a).length2(); }
+	template<typename T = float, typename T2 = T>
+	inline Tvec6<T> min(const Tvec6<T>& a, const Tvec6<T2>& b)
+	{
+		return Tvec6<T>
+		{
+			glm::min(a.a, (T)b.a),
+			glm::min(a.b, (T)b.b),
+			glm::min(a.c, (T)b.c),
+			glm::min(a.d, (T)b.d),
+			glm::min(a.e, (T)b.e),
+			glm::min(a.f, (T)b.f),
+		};
+	}
+	template<typename T = float, typename T2 = T>
+	inline Tvec6<T> max(const Tvec6<T>& a, const Tvec6<T2>& b)
+	{
+		return Tvec6<T>
+		{
+			glm::max(a.a, (T)b.a),
+			glm::max(a.b, (T)b.b),
+			glm::max(a.c, (T)b.c),
+			glm::max(a.d, (T)b.d),
+			glm::max(a.e, (T)b.e),
+			glm::max(a.f, (T)b.f),
+		};
+	}
+	template<typename T = float, typename T2 = T, typename T3 = T>
+	inline Tvec6<T> clamp(const Tvec6<T>& v, const Tvec6<T2>& min, const Tvec6<T3>& max)
+	{
+		return m5::min(m5::max(v, min), max);
+	}
 }

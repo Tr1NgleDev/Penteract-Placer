@@ -516,3 +516,9 @@ void Shader::setUniform(int loc, const m5::uvec5& v) const
 {
 	setUniform(loc, 5, &v[0]);
 }
+void Shader::setUniform(int loc, uint64_t handle) const
+{
+	if (!ID) return;
+	if (loc <= -1) return;
+	glProgramUniformHandleui64ARB(ID, loc, handle);
+}

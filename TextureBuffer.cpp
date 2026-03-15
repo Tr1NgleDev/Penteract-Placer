@@ -179,10 +179,13 @@ void TextureBuffer::setWrapMode(WrapMode x, WrapMode y, WrapMode z)
 
 void TextureBuffer::cleanup()
 {
-	if (ID)
+	if (handle)
 	{
 		glMakeTextureHandleNonResidentARB(handle);
 		handle = NULL;
+	}
+	if (ID)
+	{
 		glDeleteTextures(1, &ID);
 		ID = NULL;
 		dimensions = 1;
@@ -211,6 +214,9 @@ void TextureBuffer::init(size_t x, TextureFormat type, const void* data, int mip
 
 	setWrapMode(WrapMode::CLAMP);
 	setFilters(MinFilter::NEAREST, MagFilter::NEAREST);
+
+	handle = glGetTextureHandleARB(ID);
+	glMakeTextureHandleResidentARB(handle);
 
 	if (data != nullptr)
 	{

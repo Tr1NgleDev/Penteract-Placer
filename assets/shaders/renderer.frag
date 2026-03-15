@@ -1,5 +1,11 @@
 #version 450 core
 
+#extension GL_ARB_bindless_texture : require
+#extension GL_ARB_gpu_shader_int64 : enable
+
+const float EPS = 1e-6;
+const float INF = 1e30;
+
 struct vec5
 {
 	vec4 abcd;
@@ -18,6 +24,96 @@ float length5(in vec5 v) { return sqrt(dot5(v, v)); }
 vec5 normalize5(in vec5 v) { return div(v, sqrt(dot5(v, v))); }
 vec4 abcd(in vec5 v) { return v.abcd; }
 vec4 bcde(in vec5 v) { return vec4(v.abcd.yzw, v.e); }
+struct ivec5
+{
+	ivec4 abcd;
+	int e;
+};
+ivec5 add(in ivec5 a, in ivec5 b) { return ivec5(a.abcd + b.abcd, a.e + b.e); }
+ivec5 sub(in ivec5 a, in ivec5 b) { return ivec5(a.abcd - b.abcd, a.e - b.e); }
+ivec5 mul(in ivec5 a, in ivec5 b) { return ivec5(a.abcd * b.abcd, a.e * b.e); }
+ivec5 div(in ivec5 a, in ivec5 b) { return ivec5(a.abcd / b.abcd, a.e / b.e); }
+ivec5 add(in ivec5 a, in int b) { return ivec5(a.abcd + ivec4(b), a.e + b); }
+ivec5 sub(in ivec5 a, in int b) { return ivec5(a.abcd - ivec4(b), a.e - b); }
+ivec5 mul(in ivec5 a, in int b) { return ivec5(a.abcd * ivec4(b), a.e * b); }
+ivec5 div(in ivec5 a, in int b) { return ivec5(a.abcd / ivec4(b), a.e / b); }
+ivec4 abcd(in ivec5 v) { return v.abcd; }
+ivec4 bcde(in ivec5 v) { return ivec4(v.abcd.yzw, v.e); }
+
+vec5 min5(in vec5 a, in vec5 b) { return vec5(min(a.abcd, b.abcd), min(a.e, b.e)); }
+vec5 max5(in vec5 a, in vec5 b) { return vec5(max(a.abcd, b.abcd), max(a.e, b.e)); }
+vec5 abs5(in vec5 v) { return vec5(abs(v.abcd), abs(v.e)); }
+vec5 sign5(in vec5 v) { return vec5(sign(v.abcd), sign(v.e)); }
+vec5 floor5(in vec5 v) { return vec5(floor(v.abcd), floor(v.e)); }
+vec5 round5(in vec5 v) { return vec5(round(v.abcd), round(v.e)); }
+vec5 mix5(in vec5 a, in vec5 b, float t) { return vec5(mix(a.abcd, b.abcd, t), mix(a.e, b.e, t)); }
+vec5 fract5(in vec5 v) { return vec5(fract(v.abcd), fract(v.e)); }
+vec5 clamp5(in vec5 v, in vec5 a, in vec5 b) { return vec5(clamp(v.abcd, a.abcd, b.abcd), clamp(v.e, a.e, b.e)); }
+
+struct bvec5
+{
+	bvec4 abcd;
+	bool e;
+};
+bvec5 lessThan5(in vec5 a, in vec5 b) { return bvec5(lessThan(a.abcd, b.abcd), a.e < b.e); }
+bvec5 greaterThan5(in vec5 a, in vec5 b) { return bvec5(greaterThan(a.abcd, b.abcd), a.e > b.e); }
+bvec5 greaterThanEqual5(in vec5 a, in vec5 b) { return bvec5(greaterThanEqual(a.abcd, b.abcd), a.e >= b.e); }
+bvec5 lessThan5(in ivec5 a, in ivec5 b) { return bvec5(lessThan(a.abcd, b.abcd), a.e < b.e); }
+bvec5 greaterThan5(in ivec5 a, in ivec5 b) { return bvec5(greaterThan(a.abcd, b.abcd), a.e > b.e); }
+bvec5 greaterThanEqual5(in ivec5 a, in ivec5 b) { return bvec5(greaterThanEqual(a.abcd, b.abcd), a.e >= b.e); }
+bool any5(in bvec5 v) { return any(v.abcd) || v.e; }
+
+vec5 mix5(in vec5 a, in vec5 b, in bvec5 t) { return vec5(mix(a.abcd, b.abcd, t.abcd), mix(a.e, b.e, t.e)); }
+
+vec5 vec5_ivec5(in ivec5 v) { return vec5(vec4(v.abcd), float(v.e)); }
+ivec5 ivec5_vec5(in vec5 v) { return ivec5(ivec4(v.abcd), int(v.e)); }
+
+float ind_get(in vec5 v, int i)
+{
+	switch (i)
+	{
+	case 0: return v.abcd.x;
+	case 1: return v.abcd.y;
+	case 2: return v.abcd.z;
+	case 3: return v.abcd.w;
+	case 4: return v.e;
+	}
+	return v.abcd.x;
+}
+int ind_get(in ivec5 v, int i)
+{
+	switch (i)
+	{
+	case 0: return v.abcd.x;
+	case 1: return v.abcd.y;
+	case 2: return v.abcd.z;
+	case 3: return v.abcd.w;
+	case 4: return v.e;
+	}
+	return v.abcd.x;
+}
+void ind_set(inout vec5 v, int i, float value)
+{
+	switch (i)
+	{
+	case 0: v.abcd.x = value; break;
+	case 1: v.abcd.y = value; break;
+	case 2: v.abcd.z = value; break;
+	case 3: v.abcd.w = value; break;
+	case 4: v.e = value; break;
+	}
+}
+void ind_set(inout ivec5 v, int i, int value)
+{
+	switch (i)
+	{
+	case 0: v.abcd.x = value; break;
+	case 1: v.abcd.y = value; break;
+	case 2: v.abcd.z = value; break;
+	case 3: v.abcd.w = value; break;
+	case 4: v.e = value; break;
+	}
+}
 
 out vec4 color;
 
@@ -34,52 +130,241 @@ struct Camera
 	vec5 yonder;
 	float vFov;
 };
-layout(std430, binding = 0) buffer CameraBuf
+layout(std430, binding = 0) readonly buffer CameraBuf
 {
 	Camera cam;
 };
 uniform vec5 lightDir;
 
-vec3 sky5D(in vec5 rd)
+layout(std430, binding = 1) readonly buffer BlockDataHandles
 {
-	float y = rd.abcd.x;
-	float ay = abs(y);
+	uint64_t blockData[];
+};
+uniform usampler3D chunks;
+uniform ivec4 chunksMinBound;
+uniform ivec4 chunksSize; // = maxBound - minBound
 
-	if (ay < 1e-6)
-		return vec3(0.0);
+layout(std430, binding = 2) readonly buffer BlockTexturesBuffer
+{
+	int textures[];
+};
 
-	float planeY = (y > 0.0) ? 1.0 : -1.0;
+layout(std430, binding = 3) readonly buffer TileTexturesBuffer
+{
+	uint64_t tiles[];
+};
 
-	float t = planeY / y;
+uint getBlock(uint64_t handle, ivec5 v)
+{
+	usampler3D tex = usampler3D(handle);
+	
+	int texX = v.abcd.y;
+	int texY = v.abcd.z;
+	int texZ = v.abcd.w + v.e * 8;
+	
+	uvec4 col = texelFetch(tex, ivec3(texX, texY, texZ), 0);
+	
+	uint c = uint(v.abcd.x) >> 3u;
+	uint shift = (uint(v.abcd.x) & 7u) << 2u;
+	
+	return (col[int(c)] >> shift) & 15u;
+}
 
-	vec5 p5 = mul(rd, t);
+struct RayHit
+{
+	bool hit;
+	vec5 pos;
+	vec5 normal;
+	vec4 texCoord;
+	float dist;
+	uint id;
+};
 
-	vec4 p = bcde(p5);
+vec4 computeTexCoord(in vec5 p, in vec5 n)
+{
+	vec4 texCoord;
 
-	const float cellSize   = 1.0;
-	const float lineWidth  = 0.025;
-	const float fogDensity = 0.25;
+	if (abs(n.abcd.y) > 0.5)
+	{
+		texCoord = vec4(p.abcd.z, 1.0 - p.abcd.x, p.abcd.w, p.e);
+	}
+	else if (abs(n.abcd.x) > 0.5)
+	{
+		texCoord = vec4(p.abcd.y, 1.0 - p.abcd.z, p.abcd.w, p.e);
+	}
+	else if (abs(n.abcd.z) > 0.5)
+	{
+		texCoord = vec4(p.abcd.y, 1.0 - p.abcd.x, p.abcd.w, p.e);
+	}
+	else if (abs(n.abcd.w) > 0.5)
+	{
+		texCoord = vec4(p.abcd.z, 1.0 - p.abcd.x, p.abcd.y, p.e);
+	}
+	else
+	{
+		texCoord = vec4(p.abcd.z, 1.0 - p.abcd.x, p.abcd.w, p.abcd.y);
+	}
 
-	vec4 q = p / cellSize + vec4(0.5);
+	return fract(texCoord);
+}
 
-	vec4 a = abs(fract(q) - 0.5);
+int minAxis5(vec5 v)
+{
+	float m = v.abcd.x;
+	int axis = 0;
 
-	float edge = max(max(a.x, a.y), max(a.z, a.w));
+	if (v.abcd.y < m) { m = v.abcd.y; axis = 1; }
+	if (v.abcd.z < m) { m = v.abcd.z; axis = 2; }
+	if (v.abcd.w < m) { m = v.abcd.w; axis = 3; }
+	if (v.e < m) { axis = 4; }
 
-	float w = lineWidth / cellSize;
-	float line = step(0.5 - w, edge);
+	return axis;
+}
 
-	vec3 col = mix(vec3(1.0), vec3(0.2), line);
+RayHit trace5D(in vec5 ro, in vec5 rd, float maxDist, out vec4 tileColor)
+{
+	RayHit result;
+	result.hit = false;
+	result.pos = ro;
+	result.normal = vec5(vec4(0.0), 0.0);
+	result.texCoord = vec4(0.0);
+	result.dist = maxDist;
+	result.id = 0u;
+	
+	const ivec5 CHUNK_SIZE_I = ivec5(ivec4(32, 8, 8, 8), 8);
+	const vec5 CHUNK_SIZE = vec5(vec4(32.0, 8.0, 8.0, 8.0), 8.0);
+	const vec5 ONE = vec5(vec4(1.0), 1.0);
+	const ivec5 ONE_I = ivec5(ivec4(1), 1);
+	const vec5 ZERO = vec5(vec4(0.0), 0.0);
+	const ivec5 ZERO_I = ivec5(ivec4(0), 0);
+	
+	ivec5 step = ivec5_vec5(sign5(rd));
+	vec5 stepF = vec5_ivec5(step);
+	vec5 invRd = div(ONE, max5(abs5(rd), vec5(vec4(EPS, EPS, EPS, EPS), EPS)));
+	vec5 tDelta = invRd;
+	
+	// DDA into chunks
+	vec5 tDeltaC = mul(invRd, CHUNK_SIZE);
+	vec5 roChunk = div(ro, CHUNK_SIZE);
+	ivec5 vC = ivec5_vec5(floor5(roChunk));
+	vec5 tMaxC = mul(mix5(fract5(roChunk), sub(ONE, fract5(roChunk)), greaterThan5(stepF, ZERO)), tDeltaC);
+	
+	for (int i = 0; i < 5; ++i)
+	{
+		if (ind_get(step, i) == 0)
+		{
+			ind_set(tDelta, i, INF);
+			ind_set(tDeltaC, i, INF);
+			ind_set(tMaxC, i, INF);
+		}
+	}
 
-	float fog = exp(-fogDensity * (t - 1.0));
+	float t = 0.0;
+	int axisC = -1;
+	bool checkBackSide = false;
 
-	float horizonFade = smoothstep(0.0, 0.08, ay);
+	int maxChunkSteps = 4 + chunksSize.x + chunksSize.y + chunksSize.z + chunksSize.w + 8;
 
-	col *= fog * horizonFade;
+	for (int chunkI = 0; chunkI < maxChunkSteps && t < maxDist; ++chunkI)
+	{
+		// early bounds check
+		ivec4 rel4 = bcde(vC) - chunksMinBound;
+		if (any(lessThan(rel4, ivec4(0))) || any(greaterThanEqual(rel4, chunksSize)) || 
+			vC.abcd.x < 0 || vC.abcd.x >= 4)
+		{
+			axisC = minAxis5(tMaxC);
+			t = ind_get(tMaxC, axisC);
+			ind_set(tMaxC, axisC, ind_get(tMaxC, axisC) + ind_get(tDeltaC, axisC));
+			ind_set(vC, axisC, ind_get(vC, axisC) + ind_get(step, axisC));
+			continue;
+		}
+		
+		uint chunkDataIdx = texelFetch(chunks, ivec3(rel4.x, rel4.y, rel4.z + rel4.w * chunksSize.z), 0)[vC.abcd.x];
+		if (chunkDataIdx == 0u) // empty chunk
+		{
+			axisC = minAxis5(tMaxC);
+			t = ind_get(tMaxC, axisC);
+			ind_set(tMaxC, axisC, ind_get(tMaxC, axisC) + ind_get(tDeltaC, axisC));
+			ind_set(vC, axisC, ind_get(vC, axisC) + ind_get(step, axisC));
+			continue;
+		}
+		
+		--chunkDataIdx;
+		
+		// DDA into blocks
+		vec5 l_ro = sub(add(ro, mul(rd, t)), mul(vec5_ivec5(vC), CHUNK_SIZE));
+		ivec5 v = ivec5_vec5(clamp5(floor5(l_ro), ZERO, sub(CHUNK_SIZE, 1.0)));
+		vec5 vF = vec5_ivec5(v);
+		vec5 tMax = mul(mix5(sub(l_ro, vF), sub(ONE, sub(l_ro, vF)), greaterThan5(stepF, ZERO)), tDelta);
+		
+		for (int i = 0; i < 5; ++i)
+		{
+			if (ind_get(step, i) == 0)
+			{
+				ind_set(tMax, i, INF);
+			}
+		}
 
-	if (y > 0.0) col *= 0.85;
+		int axis5 = (axisC >= 0) ? axisC : minAxis5(tMax);
+		float t5 = 0.0;
+		checkBackSide = false;
+		
+		for (int blockI = 0; blockI < 128 && t + t5 < maxDist; ++blockI)
+		{
+			if (any5(lessThan5(v, ZERO_I)) || any5(greaterThanEqual5(v, CHUNK_SIZE_I))) break;
+			
+			uint blockId = getBlock(blockData[int(chunkDataIdx)], v);
 
-	return col;
+			if (blockId != 0u)
+			{
+				result.dist = t + t5;
+				result.pos = add(ro, mul(rd, result.dist));
+				result.normal = vec5(vec4(0.0), 0.0);
+				ind_set(result.normal, axis5, -ind_get(stepF, axis5));
+				result.texCoord = computeTexCoord(result.pos, result.normal);
+				
+				result.id = blockId;
+				
+				int side = axis5 * 2 + (ind_get(result.normal, axis5) < 0.0 ? 0 : 1);
+
+				float slice = floor(result.texCoord.w * 16.0);
+				vec3 texUVW = vec3(
+					result.texCoord.x,
+					result.texCoord.y,
+					(slice + result.texCoord.z) / 16.0
+				);
+
+				tileColor = texture(sampler3D(tiles[textures[int(blockId) * 10 + side]]), texUVW);
+				
+				if (tileColor.a > 0.001)
+				{
+					result.hit = true;
+					return result;
+				}
+
+				if (!checkBackSide)
+				{
+					checkBackSide = true;
+					axis5 = minAxis5(tMax);
+					t5 = ind_get(tMax, axis5);
+					continue;
+				}
+				checkBackSide = false;
+			}
+			
+			axis5 = minAxis5(tMax);
+			t5 = ind_get(tMax, axis5);
+			ind_set(tMax, axis5, ind_get(tMax, axis5) + ind_get(tDelta, axis5));
+			ind_set(v, axis5, ind_get(v, axis5) + ind_get(step, axis5));
+		}
+		
+		axisC = minAxis5(tMaxC);
+		t = ind_get(tMaxC, axisC);
+		ind_set(tMaxC, axisC, ind_get(tMaxC, axisC) + ind_get(tDeltaC, axisC));
+		ind_set(vC, axisC, ind_get(vC, axisC) + ind_get(step, axisC));
+	}
+	
+	return result;
 }
 
 void main()
@@ -97,7 +382,14 @@ void main()
 		)
 	);
 
-	color = vec4(rd.abcd.xyz, 1.0); // ???
-	//color = vec4(uv, 0.0, 1.0);
-	color = vec4(sky5D(rd), 1.0);
+	//color = vec4(vec3(abs(sin(rd.abcd.x) + sin(rd.abcd.y) + sin(rd.abcd.z) + sin(rd.abcd.w) + sin(rd.e))), 1.0);
+	
+	color = vec4(vec3(0.0), 1.0);
+
+	vec4 tileColor = vec4(0.0);
+	RayHit hit = trace5D(ro, rd, 128.0, tileColor);
+	if (hit.hit)
+	{
+		color = vec4(tileColor.rgb, 1.0);
+	}
 }

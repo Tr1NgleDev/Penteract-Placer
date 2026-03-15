@@ -8,17 +8,23 @@
 Texture::Texture(Texture&& other) noexcept
 {
 	ID = other.ID;
+	handle = other.handle;
 	target = other.target;
 
 	other.ID = 0;
+	other.handle = 0;
 	other.target = 0;
 }
 Texture& Texture::operator=(Texture&& other) noexcept
 {
+	if (this == &other) return *this;
+
 	ID = other.ID;
+	handle = other.handle;
 	target = other.target;
 
 	other.ID = 0;
+	other.handle = 0;
 	other.target = 0;
 
 	return *this;
@@ -73,6 +79,11 @@ void Texture::writeDataArray(const void* data, Texture::Format format, int index
 // 1D
 bool Texture::init(const void* data, Texture::Format format, int w, bool linearFilter)
 {
+	if (handle)
+	{
+		glMakeTextureHandleNonResidentARB(handle);
+		handle = 0;
+	}
 	if (ID)
 	{
 		glDeleteTextures(1, &ID);
@@ -97,11 +108,19 @@ bool Texture::init(const void* data, Texture::Format format, int w, bool linearF
 	size =
 	{ w, 1, 1, 1, 1 };
 
+	handle = glGetTextureHandleARB(ID);
+	glMakeTextureHandleResidentARB(handle);
+
 	return ID;
 }
 // 2D
 bool Texture::init(const void* data, Texture::Format format, int w, int h, bool linearFilter)
 {
+	if (handle)
+	{
+		glMakeTextureHandleNonResidentARB(handle);
+		handle = 0;
+	}
 	if (ID)
 	{
 		glDeleteTextures(1, &ID);
@@ -127,11 +146,19 @@ bool Texture::init(const void* data, Texture::Format format, int w, int h, bool 
 	size =
 	{ w, h, 1, 1, 1 };
 
+	handle = glGetTextureHandleARB(ID);
+	glMakeTextureHandleResidentARB(handle);
+
 	return ID;
 }
 // 3D
 bool Texture::init(const void* data, Texture::Format format, int w, int h, int d, bool linearFilter)
 {
+	if (handle)
+	{
+		glMakeTextureHandleNonResidentARB(handle);
+		handle = 0;
+	}
 	if (ID)
 	{
 		glDeleteTextures(1, &ID);
@@ -158,11 +185,19 @@ bool Texture::init(const void* data, Texture::Format format, int w, int h, int d
 	size =
 	{ w, h, d, 1, 1 };
 
+	handle = glGetTextureHandleARB(ID);
+	glMakeTextureHandleResidentARB(handle);
+
 	return ID;
 }
 // 2D_ARRAY
 bool Texture::initArray(const void* data, Texture::Format format, int w, int h, int cols, int rows, bool linearFilter)
 {
+	if (handle)
+	{
+		glMakeTextureHandleNonResidentARB(handle);
+		handle = 0;
+	}
 	if (ID)
 	{
 		glDeleteTextures(1, &ID);
@@ -206,6 +241,9 @@ bool Texture::initArray(const void* data, Texture::Format format, int w, int h, 
 
 	size =
 	{ w / cols, h / rows, cols, rows, 1 };
+
+	handle = glGetTextureHandleARB(ID);
+	glMakeTextureHandleResidentARB(handle);
 
 	return ID;
 }
@@ -283,6 +321,11 @@ bool Texture::initArray(const float* data, int channels, int w, int h, int cols,
 
 Texture::~Texture()
 {
+	if (handle)
+	{
+		glMakeTextureHandleNonResidentARB(handle);
+		handle = 0;
+	}
 	if (ID)
 	{
 		glDeleteTextures(1, &ID);

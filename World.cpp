@@ -29,12 +29,15 @@ const Chunk* World::getChunks() const
 
 Chunk* World::getChunk(glm::u8vec4 chunkPos)
 {
-	assert(glm::max(chunkPos, glm::u8vec4{ (uint8_t)(edgeLength - 1) }) == glm::u8vec4{ (uint8_t)(edgeLength - 1) });
+	if (glm::max(chunkPos, glm::u8vec4{ (uint8_t)(edgeLength - 1) }) != glm::u8vec4{ (uint8_t)(edgeLength - 1) })
+	{
+		return nullptr;
+	}
 
 	size_t index =
-		(size_t)chunkPos.x + (edgeLength * edgeLength * edgeLength) +
-		(size_t)chunkPos.y + (edgeLength * edgeLength) +
-		(size_t)chunkPos.z + (edgeLength) +
+		(size_t)chunkPos.x * (edgeLength * edgeLength * edgeLength) +
+		(size_t)chunkPos.y * (edgeLength * edgeLength) +
+		(size_t)chunkPos.z * (edgeLength) +
 		(size_t)chunkPos.w;
 
 	return &chunks[index];
@@ -42,13 +45,90 @@ Chunk* World::getChunk(glm::u8vec4 chunkPos)
 
 const Chunk* World::getChunk(glm::u8vec4 chunkPos) const
 {
-	assert(glm::max(chunkPos, glm::u8vec4{ (uint8_t)(edgeLength - 1) }) == glm::u8vec4{ (uint8_t)(edgeLength - 1) });
+	if (glm::max(chunkPos, glm::u8vec4{ (uint8_t)(edgeLength - 1) }) != glm::u8vec4{ (uint8_t)(edgeLength - 1) })
+	{
+		return nullptr;
+	}
 
 	size_t index =
-		(size_t)chunkPos.x + (edgeLength * edgeLength * edgeLength) +
-		(size_t)chunkPos.y + (edgeLength * edgeLength) +
-		(size_t)chunkPos.z + (edgeLength)+
+		(size_t)chunkPos.x * (edgeLength * edgeLength * edgeLength) +
+		(size_t)chunkPos.y * (edgeLength * edgeLength) +
+		(size_t)chunkPos.z * (edgeLength)+
 		(size_t)chunkPos.w;
 
 	return &chunks[index];
+}
+
+Chunk* World::getChunkFromCoords(const glm::vec4& pos)
+{
+	glm::u8vec4 chunkPos = glm::floor(pos / (float)Chunk::SIZE);
+	return getChunk(chunkPos);
+}
+const Chunk* World::getChunkFromCoords(const glm::vec4& pos) const
+{
+	glm::u8vec4 chunkPos = glm::floor(pos / (float)Chunk::SIZE);
+	return getChunk(chunkPos);
+}
+
+uint8_t World::getBlock(const m5::uvec5& block) const
+{
+	if (m5::max(block, (getSize() - 1)) != (getSize() - 1))
+	{
+		return 0;
+	}
+
+	if (block.a >= Chunk::HEIGHT)
+	{
+		return 0;
+	}
+
+	const Chunk* c = getChunkFromCoords(block.b, block.c, block.d, block.e);
+	if (c)
+	{
+		// coords must be floats
+		m5::vec5 coords = block;
+
+		m5::uvec5 b
+		{
+			coords.a,
+			coords.b - (glm::floor(coords.b / Chunk::SIZE) * Chunk::SIZE),
+			coords.c - (glm::floor(coords.c / Chunk::SIZE) * Chunk::SIZE),
+			coords.d - (glm::floor(coords.d / Chunk::SIZE) * Chunk::SIZE),
+			coords.e - (glm::floor(coords.e / Chunk::SIZE) * Chunk::SIZE),
+		};
+
+		return c->getBlock(b);
+	}
+
+	return Block::AIR;
+}
+void World::setBlock(const m5::uvec5& block, uint8_t value)
+{
+	if (m5::max(block, (getSize() - 1)) != (getSize() - 1))
+	{
+		return;
+	}
+
+	if (block.a >= Chunk::HEIGHT)
+	{
+		return;
+	}
+
+	Chunk* c = getChunkFromCoords(block.b, block.c, block.d, block.e);
+	if (c)
+	{
+		// coords must be floats
+		m5::vec5 coords = block;
+
+		m5::uvec5 b
+		{
+			coords.a,
+			coords.b - (glm::floor(coords.b / Chunk::SIZE) * Chunk::SIZE),
+			coords.c - (glm::floor(coords.c / Chunk::SIZE) * Chunk::SIZE),
+			coords.d - (glm::floor(coords.d / Chunk::SIZE) * Chunk::SIZE),
+			coords.e - (glm::floor(coords.e / Chunk::SIZE) * Chunk::SIZE),
+		};
+
+		c->setBlock(b, value);
+	}
 }

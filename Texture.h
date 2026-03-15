@@ -21,6 +21,7 @@ public:
 
 private:
 	uint32_t ID = 0;
+	uint64_t handle = 0;
 	GLenum target = 0;
 	std::string name = "";
 	m5::ivec5 size{ 1 };
@@ -82,6 +83,7 @@ public:
 	~Texture();
 
 	uint32_t id() const { return ID; }
+	uint64_t getHandle() const { return handle; }
 	GLenum getTarget() const { return target; }
 	void use(uint32_t unit = 0) const { if (ID) glBindTextureUnit(unit, ID); }
 

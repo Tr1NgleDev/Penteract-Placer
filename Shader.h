@@ -89,6 +89,7 @@ public:
 	void setUniform(int loc, const m5::vec6& v) const;
 	void setUniform(int loc, const m5::ivec6& v) const;
 	void setUniform(int loc, const m5::uvec6& v) const;
+	void setUniform(int loc, uint64_t handle) const;
 
 	void setUniform(const std::string& name, int count, const float* v) const
 	{
@@ -261,5 +262,9 @@ public:
 	void setUniform(const std::string& name, const m5::uvec6& v) const
 	{
 		setUniform(getUniformLocation(name), v);
+	}
+	void setUniform(const std::string& name, uint64_t handle) const
+	{
+		setUniform(getUniformLocation(name), handle);
 	}
 };
