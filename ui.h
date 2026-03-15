@@ -80,6 +80,7 @@ namespace ui
 		void windowResize(int width, int height);
 		// returns nullptr if there is no focused element
 		element* getFocusedElem();
+		element* getMouseDownElem();
 
 	private:
 
@@ -281,6 +282,8 @@ namespace ui
 		bool mouseButtonInput(window* win, double xpos, double ypos, int button, int action, int mods) override;
 		bool keyInput(window* win, int key, int scancode, int action, int mods) override;
 		bool charInput(window* win, uint32_t codepoint) override;
+
+		void mouseDownCancel() override;
 
 		void focus() override;
 		void defocus() override;
