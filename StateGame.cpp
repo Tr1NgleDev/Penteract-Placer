@@ -5,6 +5,7 @@
 #include "TextureBuffer.h"
 #include "QuadRendererBasic.h"
 #include "Directory.h"
+#include "utils.h"
 
 StateGame StateGame::instanceObj;
 StateGame* StateGame::instance()
@@ -590,10 +591,81 @@ void StateGame::keyInput(StateManager& s, int key, int scancode, int action, int
 	} break;
 	}
 }
+std::optional<m5::vec5> StateGame::positionArg(const std::vector<std::string>& args, int& cursor)
+{
+	if (cursor + 5 > args.size())
+	{
+		return std::nullopt;
+	}
 
+	m5::vec5 result{};
+
+	try
+	{
+		for (int i = 0; i < 5; ++i)
+		{
+			const std::string& arg = args[cursor + i];
+			if (arg[0] == '~')
+			{
+				result[i] = cam.pos[i];
+
+				if (arg.size() > 2 && (arg[1] == '+' || arg[1] == '-'))
+				{
+					float x = std::stof(arg.substr(2));
+					result[i] += x * (arg[1] == '+' ? 1 : -1);
+				}
+			}
+			else
+			{
+				float x = std::stof(arg);
+				result[i] = x;
+			}
+		}
+	}
+	catch (const std::exception&)
+	{
+		return std::nullopt;
+	}
+
+	cursor += 5;
+
+	return result;
+}
+std::optional<int64_t> StateGame::intArg(const std::vector<std::string>& args, int& cursor, int64_t min, int64_t max)
+{
+	if (cursor + 1 > args.size())
+	{
+		return std::nullopt;
+	}
+
+	int64_t result;
+
+	try
+	{
+		const std::string& arg = args[cursor];
+		int64_t x = std::stoll(arg);
+		result = x;
+	}
+	catch (const std::exception&)
+	{
+		return std::nullopt;
+	}
+
+	if (result < min || result > max)
+	{
+		return std::nullopt;
+	}
+
+	cursor += 1;
+
+	return result;
+}
 void StateGame::exec(std::string_view cmd)
 {
-	if (cmd.empty())
+	std::string c = std::string{ cmd };
+	utils::trim(c);
+
+	if (c.empty())
 	{
 		return;
 	}
@@ -603,14 +675,97 @@ void StateGame::exec(std::string_view cmd)
 		std::move(history.begin(), history.end() - 1, console.history.begin() + 1);
 	}
 
-	console.history[0] = cmd;
+	console.history[0] = c;
 	console.historyIndex = 0;
 	console.historyCount = glm::min(console.historyCount + 1, (int)console.history.size());
 
-	if (cmd == "clear")
+	auto args = utils::splitStr(c, ' ');
+	std::remove_if(args.begin(), args.end(), [](const std::string& str) { return str.empty(); });
+
+	// switch(string) at home:
+	std::unordered_map<std::string, std::function<bool()>> commands
 	{
-		console.log.clear();
-		console.logText.setText(console.log);
+		{ "help", [&]()
+		{
+			print(
+				"- help - Outputs this list.\n"
+				"- clear - Clears the log.\n"
+				"- setBlock <pos> <id> - Sets a block at a position.\n"
+				"- fill <posA> <posB> <id> - Fills a region with a block."
+			);
+			return true;
+		}},
+		{ "clear", [&]()
+		{
+			console.log.clear();
+			console.logText.setText(console.log);
+			return true;
+		}},
+		{ "setBlock", [&]()
+		{
+			int cursor = 1;
+
+			auto pos = positionArg(args, cursor);
+			if (!pos.has_value())
+			{
+				return false;
+			}
+			auto id = intArg(args, cursor, 0, Block::COUNT - 1);
+			if (!id.has_value())
+			{
+				return false;
+			}
+
+			world.setBlock(pos.value(), id.value());
+			updateRendererData();
+
+			return true;
+		}},
+		{ "fill", [&]()
+		{
+			int cursor = 1;
+
+			auto posA = positionArg(args, cursor);
+			if (!posA.has_value())
+			{
+				return false;
+			}
+			auto posB = positionArg(args, cursor);
+			if (!posB.has_value())
+			{
+				return false;
+			}
+			auto id = intArg(args, cursor, 0, Block::COUNT - 1);
+			if (!id.has_value())
+			{
+				return false;
+			}
+
+			int minA = glm::min(posA.value().a, posB.value().a); int maxA = glm::max(posA.value().a, posB.value().a);
+			int minB = glm::min(posA.value().b, posB.value().b); int maxB = glm::max(posA.value().b, posB.value().b);
+			int minC = glm::min(posA.value().c, posB.value().c); int maxC = glm::max(posA.value().c, posB.value().c);
+			int minD = glm::min(posA.value().d, posB.value().d); int maxD = glm::max(posA.value().d, posB.value().d);
+			int minE = glm::min(posA.value().e, posB.value().e); int maxE = glm::max(posA.value().e, posB.value().e);
+			for (int e = minE; e <= maxE; ++e)
+				for (int d = minD; d <= maxD; ++d)
+					for (int c = minC; c <= maxC; ++c)
+						for (int b = minB; b <= maxB; ++b)
+							for (int a = minA; a <= maxA; ++a)
+							{
+								world.setBlock({ a,b,c,d,e }, id.value());
+							}
+			updateRendererData();
+
+			return true;
+		}},
+	};
+
+	if (commands.contains(args[0]))
+	{
+		if (!commands[args[0]]())
+		{
+			print(std::format("Failed to execute \"{}\".", cmd));
+		}
 		return;
 	}
 

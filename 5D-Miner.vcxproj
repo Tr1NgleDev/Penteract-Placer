@@ -145,6 +145,7 @@
     <ClInclude Include="Texture.h" />
     <ClInclude Include="TextureBuffer.h" />
     <ClInclude Include="tuple_hash.h" />
+    <ClInclude Include="utils.h" />
     <ClInclude Include="vec5.h" />
     <ClInclude Include="vec6.h" />
     <ClInclude Include="World.h" />

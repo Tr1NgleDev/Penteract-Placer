@@ -4,6 +4,7 @@
 #include "Math5D.h"
 #include "World.h"
 #include "TextureBuffer.h"
+#include <optional>
 
 class Shader;
 
@@ -119,6 +120,8 @@ private:
 		std::array<std::string, 64> history{ "" };
 	} console;
 	void updateConsoleInput();
+	std::optional<m5::vec5> positionArg(const std::vector<std::string>& args, int& cursor);
+	std::optional<int64_t> intArg(const std::vector<std::string>& args, int& cursor, int64_t min = INT_MIN, int64_t max = INT_MAX);
 	void print(std::string_view message);
 	void exec(std::string_view cmd);
 
