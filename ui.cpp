@@ -198,17 +198,9 @@ void ui::page::windowResize(int width, int height)
 	);
 
 	// update the projection matrices for all of the shaders
-	const Shader* quadShader = Shader::get("quad");
-	quadShader->use();
-	quadShader->setUniform("P", projection2D);
-
-	const Shader* textShader = Shader::get("text");
-	textShader->use();
-	textShader->setUniform("P", projection2D);
-
-	const Shader* texShader = Shader::get("tex");
-	texShader->use();
-	texShader->setUniform("proj", projection2D);
+	Shader::get("quad")->setUniform("P", projection2D);
+	Shader::get("text")->setUniform("P", projection2D);
+	Shader::get("tex")->setUniform("proj", projection2D);
 
 	for (auto elem : elems)
 	{
@@ -529,6 +521,11 @@ void ui::text::getBoundSize(int* w, int* h)
 
 void ui::text::renderText(page* p, std::string_view text, int x, int y, bool align)
 {
+	while (text[0] == '\n' || text[0] == '\r')
+	{
+		text = text.substr(1);
+	}
+
 	tr.setText(text);
 	tr.align(false);
 	tr.setFontSize(size);
