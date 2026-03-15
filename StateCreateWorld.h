@@ -8,6 +8,8 @@ public:
 
 	static StateCreateWorld* instance();
 
+	bool shouldRenderPrevState() { return true; }
+
 	void init(StateManager& s) override;
 	void close(StateManager& s) override;
 	void update(StateManager& s, double dt) override;
@@ -33,9 +35,10 @@ private:
 	ui::button createButton;
 	ui::checkbox flatCheckbox;
 	ui::checkbox cavesCheckbox;
-	ui::text worldSizeText;
-	ui::button worldSizeIncButton;
+	ui::text worldSizeLabelText;
+	ui::text worldSizeValueText;
 	ui::button worldSizeDecButton;
+	ui::button worldSizeIncButton;
 	int worldSize = 3;
 
 	ui::page loadingPage;

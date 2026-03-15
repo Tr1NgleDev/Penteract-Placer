@@ -1070,6 +1070,11 @@ void ui::checkbox::setText(std::string_view text)
 	this->text = text;
 }
 
+void ui::checkbox::setChecked(bool checked)
+{
+	this->checked = checked;
+}
+
 void ui::text_input::render(window* win)
 {
 	int x, y, w, h;

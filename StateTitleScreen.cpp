@@ -25,7 +25,7 @@ void StateTitleScreen::init(StateManager& s)
 	logo.setScale(2.0f, 2.0f);
 
 	newWorldButton.setText("New World");
-	newWorldButton.setAction([this, &s]() { s.changeState(StateCreateWorld::instance()); });
+	newWorldButton.setAction([this, &s]() { s.pushState(StateCreateWorld::instance()); });
 	newWorldButton.setSize(160, 50);
 	newWorldButton.setAlignX(ui::ALIGN_CENTER_X);
 	newWorldButton.setOffsetY(350);
@@ -55,6 +55,16 @@ void StateTitleScreen::init(StateManager& s)
 void StateTitleScreen::close(StateManager& s)
 {
 	s.setUiPage(nullptr);
+}
+
+void StateTitleScreen::pause(StateManager& s)
+{
+	s.setUiPage(nullptr);
+}
+
+void StateTitleScreen::resume(StateManager& s)
+{
+	s.setUiPage(&page);
 }
 
 void StateTitleScreen::update(StateManager& s, double dt)
