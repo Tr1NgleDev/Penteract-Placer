@@ -68,7 +68,7 @@ void StateGame::init(StateManager& s)
 	pauseMenu.addElem(&backToGameButton);
 	pauseMenu.addElem(&quitToTitleButton);
 
-	createWorld(8);
+	createWorld(6);
 
 	cam.pos = {
 		32.0f,
