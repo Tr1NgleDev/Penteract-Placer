@@ -911,10 +911,7 @@ void ui::text_input::render(window* win)
 	int x, y, w, h;
 	getBounds(win, &x, &y, &w, &h);
 
-	// update the viewport
-	win->changeViewport({ x, y, width, height }, {});
-
-	qr.setPos(1, 1, width - 1 - 1, height - 1 - 1);
+	qr.setPos(x, y, w, h);
 	qr.setMode(QuadRenderer::MODE_FILL);
 	qr.setColor({ 0, 0, 0, 0.5 });
 	qr.render();
@@ -1017,14 +1014,6 @@ void ui::text_input::render(window* win)
 			qr.render();
 		}
 	}
-
-	// update the viewport
-	win->changeViewport({ x, y, width, height }, {});
-
-	qr.setMode(QuadRenderer::MODE_LINES);
-	qr.setPos(1, 1, width - 1 - 1, height - 1 - 1);
-	qr.setColor({ 1, 0, 1, 0.7 });
-	qr.render();
 }
 
 void ui::text_input::getBounds(window* win, int* x, int* y, int* w, int* h)
