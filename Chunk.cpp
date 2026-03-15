@@ -34,4 +34,5 @@ void Chunk::setBlock(const m5::uvec5& block, uint8_t value)
 	assert(m5::max(block, (CHUNK_SIZE - 1)) == (CHUNK_SIZE - 1));
 
 	blocks[block.e][block.d][block.c][block.b].setBlock(block.a, value);
+	shouldUpdateRenderer[block.a / 32] = true;
 }

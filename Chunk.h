@@ -27,6 +27,10 @@ public:
 	using BlockArr = std::array<std::array<std::array<std::array<BlockColumn, SIZE>, SIZE>, SIZE>, SIZE>;
 	BlockArr blocks{ {} };
 
+	std::atomic<bool> shouldUpdateRenderer[4]{ true };
+	size_t rendererHandleIndices[4]{ 0 };
+	size_t rendererTexIndices[4]{ 0 };
+
 	Chunk() {}
 	~Chunk() {}
 

@@ -68,8 +68,15 @@ void StateGame::init(StateManager& s)
 	pauseMenu.addElem(&backToGameButton);
 	pauseMenu.addElem(&quitToTitleButton);
 
-	createWorld(4);
+	createWorld(8);
 
+	cam.pos = {
+		32.0f,
+		world.getEdgeLength() * Chunk::SIZE / 2.0f,
+		world.getEdgeLength() * Chunk::SIZE / 2.0f,
+		world.getEdgeLength() * Chunk::SIZE / 2.0f,
+		world.getEdgeLength() * Chunk::SIZE / 2.0f
+	};
 	for (int e = 0; e < world.getEdgeLength() * Chunk::SIZE; ++e)
 	{
 		for (int d = 0; d < world.getEdgeLength() * Chunk::SIZE; ++d)
@@ -316,19 +323,17 @@ void StateGame::disableCursor(GLFWwindow* window)
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 }
 
+constexpr uint8_t SECTIONS = 4u; // RGBA channels
+constexpr uint8_t SECTION_HEIGHT = Chunk::HEIGHT / SECTIONS;
+constexpr uint8_t BLOCK_BITS = 4u;
+constexpr uint8_t BLOCKS_VERTICAL = 32u / BLOCK_BITS;
+constexpr uint32_t CHUNK_BLOCKS = Chunk::SIZE * SECTION_HEIGHT * Chunk::SIZE * Chunk::SIZE * Chunk::SIZE / BLOCKS_VERTICAL;
+using BlockArray = std::array<uint32_t, CHUNK_BLOCKS>;
+
 void StateGame::updateRendererData()
 {
-	constexpr uint8_t SECTIONS = 4u; // RGBA channels
-	constexpr uint8_t SECTION_HEIGHT = Chunk::HEIGHT / SECTIONS;
-	constexpr uint8_t BLOCK_BITS = 4u;
-	constexpr uint8_t BLOCKS_VERTICAL = 32u / BLOCK_BITS;
-	constexpr uint32_t CHUNK_BLOCKS = Chunk::SIZE * SECTION_HEIGHT * Chunk::SIZE * Chunk::SIZE * Chunk::SIZE / BLOCKS_VERTICAL;
-	using BlockArray = std::array<uint32_t, CHUNK_BLOCKS>;
-
 	glm::ivec4 minC{ 0 }, maxC{ (int)world.getEdgeLength() - 1 };
 	glm::ivec4 size = maxC - minC + 1;
-
-	blockDataHandles.clear();
 
 	uint32_t sectionSize = size.x * size.y * size.z * size.w;
 	uint32_t* chunks = new uint32_t[sectionSize * SECTIONS](0);
@@ -355,6 +360,11 @@ void StateGame::updateRendererData()
 		{
 			BlockArray blocks{ 0 };
 			bool empty = true;
+			if (!chunk->shouldUpdateRenderer[s])
+			{
+				chunks[ind * SECTIONS + s] = chunk->rendererHandleIndices[s];
+				continue;
+			}
 			for (int ab = 0; ab < Chunk::SIZE; ++ab)
 			{
 				for (int ac = 0; ac < Chunk::SIZE; ++ac)
@@ -403,22 +413,29 @@ void StateGame::updateRendererData()
 			}
 			if (!empty)
 			{
-				if (tex >= blockDataBuffers.size())
+				if (chunk->rendererTexIndices[s] && chunk->rendererHandleIndices[s] && chunk->rendererTexIndices[s] <= blockDataBuffers.size() && chunk->rendererHandleIndices[s] <= blockDataHandles.size())
 				{
-					blockDataBuffers.emplace_back(TextureBuffer{ Chunk::SIZE, Chunk::SIZE, Chunk::SIZE * Chunk::SIZE, TextureFormat::RGBA32u, blocks.data() });
+					blockDataBuffers[chunk->rendererTexIndices[s] - 1].uploadData(Chunk::SIZE, Chunk::SIZE, Chunk::SIZE * Chunk::SIZE, blocks.data());
+					blockDataHandles[chunk->rendererHandleIndices[s] - 1] = blockDataBuffers[chunk->rendererTexIndices[s] - 1].getHandle();
+					//printf("updated %llu:%llu\n", chunk->rendererTexIndices[s] - 1, chunk->rendererHandleIndices[s] - 1);
 				}
 				else
 				{
-					blockDataBuffers[tex].uploadData(Chunk::SIZE, Chunk::SIZE, Chunk::SIZE * Chunk::SIZE, blocks.data());
+					blockDataBuffers.emplace_back(TextureBuffer{ Chunk::SIZE, Chunk::SIZE, Chunk::SIZE * Chunk::SIZE, TextureFormat::RGBA32u, blocks.data() });
+					blockDataHandles.emplace_back(blockDataBuffers.back().getHandle());
+					chunk->rendererTexIndices[s] = blockDataBuffers.size(); // index + 1
+					chunk->rendererHandleIndices[s] = blockDataHandles.size(); // index + 1
+					//printf("added %llu:%llu\n", chunk->rendererTexIndices[s] - 1, chunk->rendererHandleIndices[s] - 1);
 				}
-
-				blockDataHandles.emplace_back(blockDataBuffers[tex++].getHandle());
-				chunks[ind * SECTIONS + s] = blockDataHandles.size(); // index + 1
 			}
 			else
 			{
-				chunks[ind * SECTIONS + s] = 0u; // empty
+				chunk->rendererTexIndices[s] = 0;
+				chunk->rendererHandleIndices[s] = 0;
 			}
+
+			chunks[ind * SECTIONS + s] = chunk->rendererHandleIndices[s];
+			chunk->shouldUpdateRenderer[s] = false;
 		}
 	}
 
