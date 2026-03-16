@@ -64,6 +64,7 @@ Chunk* World::getChunkFromCoords(const glm::vec4& pos)
 	glm::u8vec4 chunkPos = glm::floor(pos / (float)Chunk::SIZE);
 	return getChunk(chunkPos);
 }
+
 const Chunk* World::getChunkFromCoords(const glm::vec4& pos) const
 {
 	glm::u8vec4 chunkPos = glm::floor(pos / (float)Chunk::SIZE);
@@ -102,6 +103,7 @@ uint8_t World::getBlock(const m5::uvec5& block) const
 
 	return Block::AIR;
 }
+
 void World::setBlock(const m5::uvec5& block, uint8_t value)
 {
 	if (m5::max(block, (getSize() - 1)) != (getSize() - 1))

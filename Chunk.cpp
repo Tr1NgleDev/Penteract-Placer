@@ -27,12 +27,13 @@ uint8_t Chunk::getBlock(const m5::uvec5& block) const
 {
 	assert(m5::max(block, (CHUNK_SIZE - 1)) == (CHUNK_SIZE - 1));
 
-	return blocks[block.e][block.d][block.c][block.b].getBlock(block.a);
+	return blocks[block.b][block.c][block.d][block.e].getBlock(block.a);
 }
+
 void Chunk::setBlock(const m5::uvec5& block, uint8_t value)
 {
 	assert(m5::max(block, (CHUNK_SIZE - 1)) == (CHUNK_SIZE - 1));
 
-	blocks[block.e][block.d][block.c][block.b].setBlock(block.a, value);
+	blocks[block.b][block.c][block.d][block.e].setBlock(block.a, value);
 	shouldUpdateRenderer[block.a / 32] = true;
 }

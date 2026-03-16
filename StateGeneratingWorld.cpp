@@ -58,7 +58,7 @@ void StateGeneratingWorld::init(StateManager& s)
 				for (int e = 0; e < size; ++e)
 				{
 					glm::u8vec4 chunkPos{ b, c, d, e };
-					Chunk* chunk = world->getChunk({ b, c, d, e });
+					Chunk* chunk = world->getChunk(chunkPos);
 					if (flat)
 					{
 						pool.addTask([this, chunk, chunkPos]
@@ -182,6 +182,8 @@ void StateGeneratingWorld::setDetails(std::string_view worldName, std::string_vi
 
 void StateGeneratingWorld::generateChunk(Chunk* chunk, glm::u8vec4 chunkPos)
 {
+	constexpr double NOISE_SCALE = 0.1;
+
 	glm::dvec4 chunkCorner = glm::dvec4{ chunkPos } * (double)Chunk::SIZE;
 
 	for (int b = 0; b < Chunk::SIZE; ++b)
@@ -193,8 +195,6 @@ void StateGeneratingWorld::generateChunk(Chunk* chunk, glm::u8vec4 chunkPos)
 				for (int e = 0; e < Chunk::SIZE; ++e)
 				{
 					Chunk::BlockColumn& column = chunk->blocks[b][c][d][e];
-
-					constexpr double NOISE_SCALE = 0.1;
 
 					glm::dvec4 pos = chunkCorner + glm::dvec4{ b, c, d, e };
 					pos *= NOISE_SCALE;
