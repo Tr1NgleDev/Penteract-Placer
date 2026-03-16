@@ -193,7 +193,7 @@ namespace ui
 		uint32_t size = 2;
 		uint32_t wrapWidth = 0;
 		glm::vec4 color{ 1.0f };
-		bool shadow = false;
+		bool shadow = true;
 
 		void getBoundSize(int* w, int* h);
 

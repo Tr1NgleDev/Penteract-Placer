@@ -54,7 +54,7 @@ private:
 
 	std::string text;
 
-	glm::ivec2 charSize{ 8, 8 };
+	glm::ivec2 charSize{ 8, 11 };
 	int fontSize = 1;
 	glm::ivec2 pos{ 0, 0 };
 	glm::vec4 color{ 1, 1, 1, 1 };
