@@ -186,6 +186,8 @@ void StateGeneratingWorld::generateChunk(Chunk* chunk, glm::u8vec4 chunkPos)
 
 	glm::dvec4 chunkCorner = glm::dvec4{ chunkPos } * (double)Chunk::SIZE;
 
+	int highestRenderer = 0;
+
 	for (int b = 0; b < Chunk::SIZE; ++b)
 	{
 		for (int c = 0; c < Chunk::SIZE; ++c)
@@ -201,6 +203,8 @@ void StateGeneratingWorld::generateChunk(Chunk* chunk, glm::u8vec4 chunkPos)
 
 					float noiseVal = (noise->Evaluate(pos.x, pos.y, pos.z, pos.w) * 0.5f) + 0.5f;
 					int h = glm::round((noiseVal * 20.0f) + 20.0f);
+
+					highestRenderer = glm::max<int>(highestRenderer, h / (Chunk::HEIGHT / 4));
 
 					constexpr auto getBlockType = [](int surfaceDist)
 						{
@@ -250,6 +254,11 @@ void StateGeneratingWorld::generateChunk(Chunk* chunk, glm::u8vec4 chunkPos)
 			}
 		}
 	}
+
+	for (int i = 0; i <= highestRenderer; ++i)
+	{
+		chunk->shouldUpdateRenderer[i] = true;
+	}
 }
 
 void StateGeneratingWorld::generateChunkFlat(Chunk* chunk, glm::u8vec4 chunkPos)
@@ -274,4 +283,7 @@ void StateGeneratingWorld::generateChunkFlat(Chunk* chunk, glm::u8vec4 chunkPos)
 			}
 		}
 	}
+
+	// all blocks should be in the bottom section
+	chunk->shouldUpdateRenderer[0] = true;
 }

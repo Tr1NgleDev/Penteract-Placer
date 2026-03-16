@@ -413,6 +413,7 @@ void StateGame::charInput(StateManager& s, uint32_t codepoint)
 	}
 
 }
+
 void StateGame::updateConsoleInput()
 {
 	console.inputText.setText("> " + (console.input.empty() ? "Enter a command. (\"help\" for a list of commands)" : console.input));
@@ -606,6 +607,7 @@ void StateGame::keyInput(StateManager& s, int key, int scancode, int action, int
 	} break;
 	}
 }
+
 std::optional<m5::vec5> StateGame::positionArg(const std::vector<std::string>& args, int& cursor)
 {
 	if (cursor + 5 > args.size())
@@ -646,6 +648,7 @@ std::optional<m5::vec5> StateGame::positionArg(const std::vector<std::string>& a
 
 	return result;
 }
+
 std::optional<int64_t> StateGame::intArg(const std::vector<std::string>& args, int& cursor, int64_t min, int64_t max)
 {
 	if (cursor + 1 > args.size())
@@ -675,6 +678,7 @@ std::optional<int64_t> StateGame::intArg(const std::vector<std::string>& args, i
 
 	return result;
 }
+
 void StateGame::exec(std::string_view cmd)
 {
 	std::string c = std::string{ cmd };
