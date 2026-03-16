@@ -540,7 +540,7 @@ void main()
 	color = vec4(vec3(0.0), 1.0);
 
 	vec4 tileColor = vec4(0.0);
-	RayHit hit = trace5D(ro, rd, 64.0, tileColor);
+	RayHit hit = trace5D(ro, rd, 128.0, tileColor);
 	if (hit.hit)
 	{
 		float lighting = max(dot5(hit.normal, lightDir), 0.0);
