@@ -872,31 +872,15 @@ void StateGame::updateRendererData()
 				chunks[ind * SECTIONS + s] = chunk->rendererHandleIndices[s];
 				continue;
 			}
-			for (int ae = 0; ae < Chunk::SIZE; ++ae)
-				for (int ad = 0; ad < Chunk::SIZE; ++ad)
-					for (int ac = 0; ac < Chunk::SIZE; ++ac)
-						for (int ab = 0; ab < Chunk::SIZE; ++ab)
+			for (int ab = 0; ab < Chunk::SIZE; ++ab)
+				for (int ac = 0; ac < Chunk::SIZE; ++ac)
+					for (int ad = 0; ad < Chunk::SIZE; ++ad)
+						for (int ae = 0; ae < Chunk::SIZE; ++ae)
 						{
-							uint32_t packed[SECTIONS]{ 0 };
-							bool colNonEmpty = false;
+							uint32_t packed[4]{ 0 };
+							std::memcpy(packed, &chunk->blocks[ab][ac][ad][ae].blockData[s * SECTION_HEIGHT / 2], sizeof(packed));
 
-							for (int c = 0; c < SECTIONS; ++c)
-							{
-								uint32_t v = 0;
-
-								for (int i = 0; i < BLOCKS_VERTICAL; ++i)
-								{
-									int aa = c * BLOCKS_VERTICAL + i;
-									uint32_t blockID = chunk->getBlock({ aa + s * SECTION_HEIGHT, ab, ac, ad, ae });
-
-									v |= (blockID & 0xFu) << (i * BLOCK_BITS);
-								}
-
-								packed[c] = v;
-								colNonEmpty |= (v != 0);
-							}
-
-							if (colNonEmpty)
+							if (packed[0] || packed[1] || packed[2] || packed[3])
 							{
 								empty = false;
 
@@ -906,10 +890,7 @@ void StateGame::updateRendererData()
 
 								uint32_t indB = texX + texY * Chunk::SIZE + texZ * Chunk::SIZE * Chunk::SIZE;
 
-								blocks[indB * 4 + 0] = packed[0];
-								blocks[indB * 4 + 1] = packed[1];
-								blocks[indB * 4 + 2] = packed[2];
-								blocks[indB * 4 + 3] = packed[3];
+								std::memcpy(&blocks[indB * 4], packed, sizeof(packed));
 							}
 						}
 
