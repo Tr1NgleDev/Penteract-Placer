@@ -27,7 +27,7 @@ public:
 	using BlockArr = std::array<std::array<std::array<std::array<BlockColumn, SIZE>, SIZE>, SIZE>, SIZE>;
 	BlockArr blocks{ {} };
 
-	std::atomic<bool> shouldUpdateRenderer[4]{ true };
+	std::atomic<bool> shouldUpdateRenderer[4]{ false, false, false, false };
 	size_t rendererHandleIndices[4]{ 0 };
 	size_t rendererTexIndices[4]{ 0 };
 
