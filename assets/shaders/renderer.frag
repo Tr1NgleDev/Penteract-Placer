@@ -557,6 +557,9 @@ void main()
 		{
 			lighting *= computeAO(hit.blockPos, hit.normal, hit.texCoord) * 0.5 + 0.5;
 		}
-		color = vec4(tileColor.rgb * (lighting * 0.8 + 0.2), 1.0);
+		float fogStart = 30.0f;
+		float fogEnd = 40.0f;
+		float fog = 1.0f - ((clamp(length5(sub(hit.pos, cam.pos)), fogStart, fogEnd) - fogStart) / (fogEnd - fogStart));
+		color = vec4(tileColor.rgb * (lighting * 0.8 + 0.2) * fog, 1.0);
 	}
 }
