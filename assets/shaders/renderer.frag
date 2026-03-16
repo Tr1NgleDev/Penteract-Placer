@@ -403,6 +403,8 @@ RayHit trace5D(in vec5 ro, in vec5 rd, float maxDist, out vec4 tileColor)
 		ind_set(vC, axisC, ind_get(vC, axisC) + ind_get(step, axisC));
 	}
 	
+	result.dist = t;
+	result.pos = add(ro, mul(rd, result.dist));
 	return result;
 }
 
@@ -559,7 +561,73 @@ void main()
 		}
 		float fogStart = 30.0f;
 		float fogEnd = 40.0f;
-		float fog = 1.0f - ((clamp(length5(sub(hit.pos, cam.pos)), fogStart, fogEnd) - fogStart) / (fogEnd - fogStart));
+		float fog = 1.0f - ((clamp(length5(sub(hit.pos, ro)), fogStart, fogEnd) - fogStart) / (fogEnd - fogStart));
 		color = vec4(tileColor.rgb * (lighting * 0.8 + 0.2) * fog, 1.0);
+	}
+	
+	if (rd.abcd.x > 0)
+	{
+		return;
+	}
+
+	// water at maximum wave height
+	float waterHeight = 30.75f;
+	
+	vec5 intersection = add(ro, mul(rd, ((waterHeight - ro.abcd.x) / rd.abcd.x)));
+
+	if (intersection.abcd.x < hit.pos.abcd.x)
+	{
+		return;
+	}
+
+	float waveHeight = 0.3f;
+	float waveScaleH = 7.0f;
+	float timeOffset = time * 0.25f;
+
+	// higher step count results in smoother waves
+	int stepCount = 64;
+	vec5 step = mul(rd, ((-waveHeight / float(stepCount)) / rd.abcd.x));
+	for (int i = 0; i < stepCount; ++i)
+	{
+		float aOffset =
+			sin((intersection.abcd.y + timeOffset) * waveScaleH) *
+			cos((intersection.abcd.z + timeOffset) * waveScaleH) *
+			sin((intersection.abcd.w + timeOffset) * waveScaleH) *
+			cos((intersection.e + timeOffset) * waveScaleH);
+		aOffset = (aOffset * 0.5f) - 0.5f;
+		aOffset *= waveHeight;
+
+		if (intersection.abcd.x - waterHeight < aOffset)
+		{
+			//intersection.abcd.x = waterHeight + aOffset;
+			break;
+		}
+		intersection = add(intersection, step);
+	}
+
+	//if (length5(sub(intersection, ro)) > length5(sub(hit.pos, ro)))
+	if (intersection.abcd.x < hit.pos.abcd.x)
+	{
+		return;
+	}
+
+	// make the water texture move
+	intersection.abcd.y += timeOffset;
+
+	vec4 waterTexCoord = computeTexCoord(intersection, vec5(vec4(1, 0, 0, 0), 0));
+
+	float slice = floor(waterTexCoord.w * 16.0);
+	vec3 texUVW = vec3(
+		waterTexCoord.x,
+		waterTexCoord.y,
+		(slice + waterTexCoord.z) / 16.0
+	);
+
+	vec3 waterColor = texture(sampler3D(tiles[8]), texUVW).rgb * 0.7f;
+	float waterAlpha = 0.25f;
+
+	if (ro.abcd.x < waterHeight || hit.pos.abcd.x < waterHeight)
+	{
+		color.rgb = (color.rgb * (1.0f - waterAlpha)) + (waterColor * waterAlpha);
 	}
 }

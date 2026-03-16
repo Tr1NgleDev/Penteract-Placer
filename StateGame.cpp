@@ -204,6 +204,7 @@ void StateGame::init(StateManager& s)
 	Texture::load("assets/textures/blocks/woodTop.ndtf", 4, false, "blocks.woodTop", true); // 5
 	Texture::load("assets/textures/blocks/glass.ndtf", 4, false, "blocks.glass", true); // 6
 	Texture::load("assets/textures/blocks/bricks.ndtf", 4, false, "blocks.bricks", true); // 7
+	Texture::load("assets/textures/blocks/water.ndtf", 4, false, "blocks.water", true); // 8
 	textures.emplace_back(Texture::get("blocks.dirt")->getHandle());
 	textures.emplace_back(Texture::get("blocks.grassSide")->getHandle());
 	textures.emplace_back(Texture::get("blocks.grassTop")->getHandle());
@@ -212,6 +213,7 @@ void StateGame::init(StateManager& s)
 	textures.emplace_back(Texture::get("blocks.woodTop")->getHandle());
 	textures.emplace_back(Texture::get("blocks.glass")->getHandle());
 	textures.emplace_back(Texture::get("blocks.bricks")->getHandle());
+	textures.emplace_back(Texture::get("blocks.water")->getHandle());
 	tileTextureHandles = GPUBuffer{ sizeof(uint64_t) * textures.size(), textures.data() };
 
 	updateRendererData();
