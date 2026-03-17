@@ -39,7 +39,7 @@ private:
 	std::vector<std::string> worldPaths;
 	std::vector<std::unique_ptr<ui::button>> worldButtons;
 
-	static constexpr int PAGE_SIZE = 15;
+	static constexpr int PAGE_SIZE = 7;
 	int currentPageIndex = 0;
 	int pageCount = 0;
 

@@ -174,7 +174,7 @@ void StateLoadWorld::updatePage(StateManager& s)
 	page.addElem(&nextPageButton);
 
 	int start = currentPageIndex * PAGE_SIZE;
-	int end = glm::min<int>(worldPaths.size(), currentPageIndex + PAGE_SIZE);
+	int end = glm::min<int>(worldPaths.size(), start + PAGE_SIZE);
 	for (int i = start; i < end; ++i)
 	{
 		std::string worldPath = worldPaths[i];
