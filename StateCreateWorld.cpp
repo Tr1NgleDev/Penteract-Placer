@@ -3,6 +3,11 @@
 #include "StateGeneratingWorld.h"
 #include "StateManager.h"
 #include <iostream>
+#include <filesystem>
+// sorry
+#include <Windows.h>
+#undef min;
+#undef max;
 
 StateCreateWorld StateCreateWorld::instanceObj;
 StateCreateWorld* StateCreateWorld::instance()
@@ -99,7 +104,20 @@ void StateCreateWorld::init(StateManager& s)
 	createButton.setText("Create New World!");
 	createButton.setAction([this, &s]()
 		{
-			StateGeneratingWorld::instance()->setDetails(worldNameInput.getText(), worldSeedInput.getText(), worldSize, flatCheckbox.getChecked(), cavesCheckbox.getChecked());
+			std::string worldName = worldNameInput.getText();
+
+			if (worldName.empty())
+			{
+				MessageBox(
+					NULL,
+					(LPCWSTR)L"Error: you must enter a world name!!!!!",
+					(LPCWSTR)L"Error",
+					MB_ICONWARNING | MB_OK
+				);
+				return;
+			}
+
+			StateGeneratingWorld::instance()->setDetails(worldName, worldSeedInput.getText(), worldSize, flatCheckbox.getChecked(), cavesCheckbox.getChecked());
 			s.pushState(StateGeneratingWorld::instance());
 		}
 	);

@@ -6,6 +6,7 @@
 #include <atomic>
 
 struct Chunk;
+class World;
 class StateGeneratingWorld : public State
 {
 public:
@@ -53,6 +54,7 @@ private:
 	int size = 3;
 	bool flat = false;
 	bool caves = false;
+	World* world;
 
 	MashPool pool{ glm::max<unsigned int>(1, std::thread::hardware_concurrency() - 1) };
 	std::atomic_int taskCount = 0;

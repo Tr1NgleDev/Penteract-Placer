@@ -3,6 +3,7 @@
 #include "Block.h"
 #include <random>
 #include <boost/lexical_cast.hpp>
+#include <fstream>
 
 StateGeneratingWorld StateGeneratingWorld::instanceObj;
 StateGeneratingWorld* StateGeneratingWorld::instance()
@@ -39,7 +40,7 @@ void StateGeneratingWorld::init(StateManager& s)
 	s.setUiPage(&page);
 
 	StateGame* game = StateGame::instance();
-	World* world = game->createWorld(size);
+	world = game->createWorld(size);
 
 	taskCountTotal = size * size * size * size;
 	taskCount = taskCountTotal;
@@ -87,6 +88,52 @@ void StateGeneratingWorld::update(StateManager& s, double dt)
 {
 	if (taskCount == 0)
 	{
+		// only use valid characters for the path name
+		std::string worldPath = "worlds/";
+		if (!std::filesystem::is_directory(worldPath))
+		{
+			std::filesystem::create_directory(worldPath);
+		}
+
+		for (int i = 0; i < worldName.length(); ++i)
+		{
+			char c = tolower(worldName[i]);
+			if (isalnum(c) || c == '-' || c == ' ')
+			{
+				worldPath.push_back(c);
+			}
+			else
+			{
+				worldPath.push_back('_');
+			}
+		}
+
+		int counter = 0;
+		std::string worldPathBaseName = worldPath;
+
+		while (std::filesystem::exists(worldPath))
+		{
+			++counter;
+			worldPath = worldPathBaseName;
+			worldPath.push_back('(');
+			worldPath.append(std::to_string(counter));
+			worldPath.push_back(')');
+		}
+		worldPath.push_back('/');
+
+		// now we have the final directory name
+		std::filesystem::create_directory(worldPath);
+
+		// laziest file operations
+		std::ofstream{ worldPath + "info.json" } << nlohmann::json{ { "name" , worldName} };
+
+		size_t edgeLength = world->getEdgeLength();
+		std::ofstream{ worldPath + "data.bin", std::ios::binary }.write(
+			reinterpret_cast<const char*>(world->getChunks()),
+			sizeof(Chunk) * edgeLength * edgeLength * edgeLength * edgeLength
+		);
+
+		// why not
 		noise = nullptr;
 
 		// StateGeneratingWorld
