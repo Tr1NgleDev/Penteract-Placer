@@ -196,4 +196,5 @@ inline void MashPool::cancelAllQueuedTasks()
 	std::scoped_lock lock{ queueMutex };
 	decltype(tasks) tmp;
 	std::swap(tasks, tmp);
+	taskCount -= tmp.size();
 }
