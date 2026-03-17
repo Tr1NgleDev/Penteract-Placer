@@ -268,9 +268,12 @@ void StateGame::close(StateManager& s)
 	}
 }
 
+#include <iostream>
 void StateGame::update(StateManager& s, double dt)
 {
 	audio::updateBgm();
+
+	std::cout << (int)world.dda(cam.pos, cam.forward, 1000.0f).blockId << std::endl;
 
 	m5::vec5 moveDir{ 0 };
 
@@ -583,7 +586,7 @@ void StateGame::keyInput(StateManager& s, int key, int scancode, int action, int
 	{
 		if (action == GLFW_PRESS)
 		{
-			world.setBlock(cam.pos, key - GLFW_KEY_0);
+			world.setBlock(world.dda(cam.pos, cam.forward, 1000.0f).pos, key - GLFW_KEY_0);
 			updateRendererData();
 		}
 	} break;

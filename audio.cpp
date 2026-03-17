@@ -127,6 +127,7 @@ void audio::clearBgm()
 {
 	stopBgm();
 	bgmList.clear();
+	bgmNextIndex = 0;
 }
 
 void audio::setGlobalVolume(float volume)
