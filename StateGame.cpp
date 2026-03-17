@@ -268,12 +268,9 @@ void StateGame::close(StateManager& s)
 	}
 }
 
-#include <iostream>
 void StateGame::update(StateManager& s, double dt)
 {
 	audio::updateBgm();
-
-	std::cout << (int)world.dda(cam.pos, cam.forward, 1000.0f).blockId << std::endl;
 
 	m5::vec5 moveDir{ 0 };
 
@@ -290,7 +287,7 @@ void StateGame::update(StateManager& s, double dt)
 
 	moveDir = m5::normalize(moveDir);
 
-	cam.pos += moveDir * 4.0f * dt;
+	cam.pos += moveDir * 7.0f * dt;
 
 	if (keys.space) cam.pos.a += 7.0f * dt;
 	if (keys.shift) cam.pos.a -= 7.0f * dt;
@@ -462,7 +459,17 @@ void StateGame::mouseButtonInput(StateManager& s, int button, int action, int mo
 
 	switch (button)
 	{
-	case GLFW_MOUSE_BUTTON_LEFT: keys.lmb = (action == GLFW_PRESS); break;
+	case GLFW_MOUSE_BUTTON_LEFT:
+	{
+		keys.lmb = (action == GLFW_PRESS);
+		if (keys.lmb)
+		{
+			auto collision = world.dda(cam.pos, cam.forward, 1000.0f);
+			world.setBlock(collision.pos, Block::AIR);
+			updateRendererData();
+		}
+		break;
+	}
 	case GLFW_MOUSE_BUTTON_MIDDLE: keys.mmb = (action == GLFW_PRESS); break;
 	case GLFW_MOUSE_BUTTON_RIGHT: keys.rmb = (action == GLFW_PRESS); break;
 	}
@@ -586,7 +593,8 @@ void StateGame::keyInput(StateManager& s, int key, int scancode, int action, int
 	{
 		if (action == GLFW_PRESS)
 		{
-			world.setBlock(world.dda(cam.pos, cam.forward, 1000.0f).pos, key - GLFW_KEY_0);
+			auto collision = world.dda(cam.pos, cam.forward, 1000.0f);
+			world.setBlock(collision.pos + collision.normal, key - GLFW_KEY_0);
 			updateRendererData();
 		}
 	} break;
