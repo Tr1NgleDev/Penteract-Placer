@@ -6,6 +6,7 @@
 #include "QuadRendererBasic.h"
 #include "Directory.h"
 #include "utils.h"
+#include "audio.h"
 
 StateGame StateGame::instanceObj;
 StateGame* StateGame::instance()
@@ -249,6 +250,12 @@ void StateGame::init(StateManager& s)
 			s.setUiPage(&console.ui);
 		}
 	}
+
+	audio::clearBgm();
+	audio::loadSound("music/ambient_major.mp3");
+	audio::addToBgmList("music/ambient_major.mp3");
+	audio::loadSound("music/spooky oooo.mp3");
+	audio::addToBgmList("music/spooky oooo.mp3");
 }
 
 void StateGame::close(StateManager& s)
@@ -263,6 +270,8 @@ void StateGame::close(StateManager& s)
 
 void StateGame::update(StateManager& s, double dt)
 {
+	audio::updateBgm();
+
 	m5::vec5 moveDir{ 0 };
 
 	if (keys.w) moveDir += cam.forward;
