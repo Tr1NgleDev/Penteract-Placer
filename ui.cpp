@@ -224,9 +224,10 @@ bool ui::page::mouseButtonInput(int button, int action, int mods)
 	mx = xpos;
 	my = ypos;
 
-	for (auto it = elems.begin(); it != elems.end(); ++it)
+	// use indices in case an element callback modifies the contents of this page
+	for (int i = 0; i < elems.size(); ++i)
 	{
-		element* elem = *it;
+		element* elem = elems[i];
 		if (!elem->clickable())
 		{
 			continue;
@@ -252,7 +253,7 @@ bool ui::page::mouseButtonInput(int button, int action, int mods)
 				elem->focus();
 			}
 
-			focusIndex = it - elems.begin();
+			focusIndex = i;
 
 			if (mouseDownIndex != focusIndex)
 			{

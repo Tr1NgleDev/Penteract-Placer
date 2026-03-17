@@ -125,9 +125,13 @@ void StateGeneratingWorld::update(StateManager& s, double dt)
 		std::filesystem::create_directory(worldPath);
 
 		// laziest file operations
-		std::ofstream{ worldPath + "info.json" } << nlohmann::json{ { "name" , worldName} };
-
 		size_t edgeLength = world->getEdgeLength();
+
+		std::ofstream{ worldPath + "info.json" } << nlohmann::json{
+			{ "name" , worldName },
+			{ "size" , edgeLength },
+		};
+
 		std::ofstream{ worldPath + "data.bin", std::ios::binary }.write(
 			reinterpret_cast<const char*>(world->getChunks()),
 			sizeof(Chunk) * edgeLength * edgeLength * edgeLength * edgeLength

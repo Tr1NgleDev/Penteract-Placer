@@ -31,6 +31,10 @@ void StateManager::update(double dt)
 		int index = states.size();
 		do
 		{
+			if (index == 0)
+			{
+				break;
+			}
 			--index;
 		} while (states[index]->shouldUpdatePrevState());
 
@@ -48,6 +52,10 @@ void StateManager::render()
 		auto it = states.end();
 		do
 		{
+			if (it == states.begin())
+			{
+				break;
+			}
 			--it;
 		} while ((*it)->shouldRenderPrevState());
 

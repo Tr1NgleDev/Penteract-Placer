@@ -91,6 +91,7 @@
     <ClCompile Include="File.cpp" />
     <ClCompile Include="StateCreateWorld.cpp" />
     <ClCompile Include="StateGeneratingWorld.cpp" />
+    <ClCompile Include="StateLoadWorld.cpp" />
     <ClCompile Include="TextRenderer.cpp" />
     <ClCompile Include="Framebuffer.cpp" />
     <ClCompile Include="GPUBuffer.cpp" />
@@ -130,6 +131,7 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="StateCreateWorld.h" />
     <ClInclude Include="StateGeneratingWorld.h" />
+    <ClInclude Include="StateLoadWorld.h" />
     <ClInclude Include="TextRenderer.h" />
     <ClInclude Include="Framebuffer.h" />
     <ClInclude Include="GPUBuffer.h" />

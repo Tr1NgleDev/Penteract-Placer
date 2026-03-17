@@ -1,6 +1,6 @@
 #include "StateTitleScreen.h"
 #include "StateCreateWorld.h"
-#include "StateGame.h"
+#include "StateLoadWorld.h"
 #include <iostream>
 
 StateTitleScreen StateTitleScreen::instanceObj;
@@ -31,7 +31,7 @@ void StateTitleScreen::init(StateManager& s)
 	newWorldButton.setOffsetY(350);
 
 	loadWorldButton.setText("Load World");
-	loadWorldButton.setAction([this, &s]() { s.changeState(StateGame::instance()); });
+	loadWorldButton.setAction([this, &s]() { s.pushState(StateLoadWorld::instance()); });
 	loadWorldButton.setSize(180, 50);
 	loadWorldButton.setAlignX(ui::ALIGN_CENTER_X);
 	loadWorldButton.setOffsetY(450);
