@@ -17,6 +17,11 @@ size_t World::getEdgeLength() const
 	return edgeLength;
 }
 
+size_t World::getDataSize() const
+{
+	return sizeof(Chunk) * edgeLength * edgeLength * edgeLength * edgeLength;
+}
+
 Chunk* World::getChunks()
 {
 	return chunks.get();

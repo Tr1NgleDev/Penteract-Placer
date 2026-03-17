@@ -71,7 +71,8 @@ void StateGame::init(StateManager& s)
 			{
 				shadows = !shadows;
 				toggleShadowsButton.setText(std::format("Shadows: {}", shadows ? "On" : "Off"));
-			});
+			}
+		);
 		toggleShadowsButton.setSize(210, 50);
 		toggleShadowsButton.setAlignX(ui::ALIGN_LEFT);
 		toggleShadowsButton.setAlignY(ui::ALIGN_BOTTOM);
@@ -83,7 +84,8 @@ void StateGame::init(StateManager& s)
 			{
 				ambientOcclusion = !ambientOcclusion;
 				toggleAOButton.setText(std::format("AO: {}", ambientOcclusion ? "On" : "Off"));
-			});
+			}
+		);
 		toggleAOButton.setSize(210, 50);
 		toggleAOButton.setAlignX(ui::ALIGN_LEFT);
 		toggleAOButton.setAlignY(ui::ALIGN_BOTTOM);
@@ -149,13 +151,31 @@ void StateGame::init(StateManager& s)
 
 	//createWorld(3);
 
-	cam.pos = {
-		32.0f,
-		world.getEdgeLength() * Chunk::SIZE / 2.0f,
-		world.getEdgeLength() * Chunk::SIZE / 2.0f,
-		world.getEdgeLength() * Chunk::SIZE / 2.0f,
-		world.getEdgeLength() * Chunk::SIZE / 2.0f
-	};
+	// load player save data if it exists
+	{
+		std::filesystem::path playerPath = worldPath / "player.json";
+		if (std::filesystem::is_regular_file(playerPath))
+		{
+			nlohmann::json j;
+			std::ifstream{ playerPath } >> j;
+
+			cam.pos = j["pos"];
+			orientation = j["orientation"];
+		}
+		else
+		{
+			cam.pos = {
+				32.0f,
+				world.getEdgeLength() * Chunk::SIZE / 2.0f,
+				world.getEdgeLength() * Chunk::SIZE / 2.0f,
+				world.getEdgeLength() * Chunk::SIZE / 2.0f,
+				world.getEdgeLength() * Chunk::SIZE / 2.0f
+			};
+			orientation = {};
+		}
+		updateCamDirs();
+	}
+
 	//for (int e = 0; e < world.getEdgeLength() * Chunk::SIZE; ++e)
 	//{
 	//	for (int d = 0; d < world.getEdgeLength() * Chunk::SIZE; ++d)
@@ -233,6 +253,7 @@ void StateGame::init(StateManager& s)
 
 void StateGame::close(StateManager& s)
 {
+	save();
 	if (s.getUiPage() != nullptr)
 	{
 		enableCursor(s.getWindow());
@@ -389,11 +410,7 @@ void StateGame::mouseInput(StateManager& s, double xpos, double ypos)
 		}
 	}
 
-	cam.up		= m5::normalize(orientation.rotate(m5::vec5::up()));
-	cam.forward	= m5::normalize(orientation.rotate(m5::vec5::forward()));
-	cam.left	= m5::normalize(orientation.rotate(m5::vec5::left()));
-	cam.over	= m5::normalize(orientation.rotate(m5::vec5::over()));
-	cam.yonder	= m5::normalize(orientation.rotate(m5::vec5::yonder()));
+	updateCamDirs();
 }
 
 void StateGame::charInput(StateManager& s, uint32_t codepoint)
@@ -562,7 +579,15 @@ void StateGame::keyInput(StateManager& s, int key, int scancode, int action, int
 		}
 	} break;
 	case GLFW_KEY_W: keys.w = (action == GLFW_PRESS); break;
-	case GLFW_KEY_S: keys.s = (action == GLFW_PRESS); break;
+	case GLFW_KEY_S:
+	{
+		keys.s = (action == GLFW_PRESS);
+		if (keys.s && (mods & GLFW_MOD_CONTROL))
+		{
+			save();
+		}
+		break;
+	}
 	case GLFW_KEY_A: keys.a = (action == GLFW_PRESS); break;
 	case GLFW_KEY_D: keys.d = (action == GLFW_PRESS); break;
 	case GLFW_KEY_Q: keys.q = (action == GLFW_PRESS); break;
@@ -713,6 +738,7 @@ void StateGame::exec(std::string_view cmd)
 				"- clear - Clears the log.\n"
 				"- setBlock <pos> <id> - Sets a block at a position.\n"
 				"- fill <posA> <posB> <id> - Fills a region with a block."
+				"- tp <pos> - Teleports the player to a position."
 			);
 			return true;
 		}},
@@ -779,6 +805,20 @@ void StateGame::exec(std::string_view cmd)
 
 			return true;
 		}},
+		{ "tp", [&]()
+		{
+			int cursor = 1;
+
+			auto pos = positionArg(args, cursor);
+			if (!pos.has_value())
+			{
+				return false;
+			}
+
+			cam.pos = pos.value();
+
+			return true;
+		}},
 	};
 
 	if (commands.contains(args[0]))
@@ -817,6 +857,21 @@ World* StateGame::createWorld(uint8_t edgeLength)
 	return &world;
 }
 
+void StateGame::setWorldPath(std::filesystem::path path)
+{
+	worldPath = path;
+}
+
+void StateGame::updateCamDirs()
+{
+	// it's probably faster to convert to a matrix to get the vectors
+	cam.up = m5::normalize(orientation.rotate(m5::vec5::up()));
+	cam.forward = m5::normalize(orientation.rotate(m5::vec5::forward()));
+	cam.left = m5::normalize(orientation.rotate(m5::vec5::left()));
+	cam.over = m5::normalize(orientation.rotate(m5::vec5::over()));
+	cam.yonder = m5::normalize(orientation.rotate(m5::vec5::yonder()));
+}
+
 void StateGame::enableCursor(GLFWwindow* window)
 {
 	glfwSetCursorPos(window, lastMousePos.x, lastMousePos.y);
@@ -829,6 +884,19 @@ void StateGame::disableCursor(GLFWwindow* window)
 
 	//glfwSetCursorPos(window, 0.0, 0.0);
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+}
+
+void StateGame::save()
+{
+	std::ofstream{ worldPath / "player.json" } << nlohmann::json{
+		{ "pos", cam.pos.toJson() },
+		{ "orientation", orientation.toJson() },
+	};
+
+	std::ofstream{ worldPath / "data.bin", std::ios::binary }.write(
+		reinterpret_cast<const char*>(world.getChunks()),
+		world.getDataSize()
+	);
 }
 
 constexpr uint8_t SECTIONS = 4u; // RGBA channels

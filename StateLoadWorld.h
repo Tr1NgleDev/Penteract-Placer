@@ -36,7 +36,7 @@ private:
 	ui::button prevPageButton;
 	ui::button nextPageButton;
 
-	std::vector<std::string> worldPaths;
+	std::vector<std::filesystem::path> worldPaths;
 	std::vector<std::unique_ptr<ui::button>> worldButtons;
 
 	static constexpr int PAGE_SIZE = 7;

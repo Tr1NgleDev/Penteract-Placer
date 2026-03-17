@@ -12,6 +12,8 @@ public:
 
 	size_t getEdgeLength() const;
 
+	size_t getDataSize() const;
+
 	// returns a pointer to the 4d array of chunks
 	Chunk* getChunks();
 	const Chunk* getChunks() const;
