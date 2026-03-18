@@ -580,15 +580,16 @@ void main()
 		{
 			lighting *= computeAO(hit.blockPos, hit.normal, hit.texCoord) * 0.5 + 0.5;
 		}
-		float fogStart = 30.0f;
-		float fogEnd = 40.0f;
-		float fog = 1.0f - ((clamp(length5(sub(hit.pos, ro)), fogStart, fogEnd) - fogStart) / (fogEnd - fogStart));
-		color = vec4(tileColor.rgb * (lighting * 0.8 + 0.2) * fog, 1.0);
 	}
 	
 	{
 		float fog = ((clamp(hit.dist, fogStart, fogEnd) - fogStart) / (fogEnd - fogStart));
 		color.rgb = mix(color.rgb, color.rgb * fogColor, clamp(fog, 0.0, 1.0));
+	}
+
+	if (!water)
+	{
+		return;
 	}
 
 	// water at maximum wave height
