@@ -2,6 +2,7 @@
 
 #extension GL_ARB_bindless_texture : require
 #extension GL_ARB_gpu_shader_int64 : enable
+precision mediump float;
 
 const float EPS = 1e-6;
 const float INF = 1e30;
@@ -58,10 +59,13 @@ struct bvec5
 bvec5 lessThan5(in vec5 a, in vec5 b) { return bvec5(lessThan(a.abcd, b.abcd), a.e < b.e); }
 bvec5 greaterThan5(in vec5 a, in vec5 b) { return bvec5(greaterThan(a.abcd, b.abcd), a.e > b.e); }
 bvec5 greaterThanEqual5(in vec5 a, in vec5 b) { return bvec5(greaterThanEqual(a.abcd, b.abcd), a.e >= b.e); }
+bvec5 equal5(in vec5 a, in vec5 b) { return bvec5(equal(a.abcd, b.abcd), a.e == b.e); }
 bvec5 lessThan5(in ivec5 a, in ivec5 b) { return bvec5(lessThan(a.abcd, b.abcd), a.e < b.e); }
 bvec5 greaterThan5(in ivec5 a, in ivec5 b) { return bvec5(greaterThan(a.abcd, b.abcd), a.e > b.e); }
 bvec5 greaterThanEqual5(in ivec5 a, in ivec5 b) { return bvec5(greaterThanEqual(a.abcd, b.abcd), a.e >= b.e); }
+bvec5 equal5(in ivec5 a, in ivec5 b) { return bvec5(equal(a.abcd, b.abcd), a.e == b.e); }
 bool any5(in bvec5 v) { return any(v.abcd) || v.e; }
+bool all5(in bvec5 v) { return all(v.abcd) && v.e; }
 
 vec5 mix5(in vec5 a, in vec5 b, in bvec5 t) { return vec5(mix(a.abcd, b.abcd, t.abcd), mix(a.e, b.e, t.e)); }
 
@@ -154,6 +158,14 @@ layout(std430, binding = 3) readonly buffer TileTexturesBuffer
 	uint64_t tiles[];
 };
 
+struct Target
+{
+	bool targeting;
+	ivec5 blockPos;
+	int side;
+};
+uniform Target target;
+
 uint getBlock(uint64_t handle, ivec5 v)
 {
 	usampler3D tex = usampler3D(handle);
@@ -179,6 +191,7 @@ struct RayHit
 	float dist;
 	uint id;
 	ivec5 blockPos;
+	int side;
 };
 
 vec4 computeTexCoord(in vec5 p, in vec5 n)
@@ -365,6 +378,7 @@ RayHit trace5D(in vec5 ro, in vec5 rd, float maxDist, out vec4 tileColor)
 				result.id = blockId;
 				
 				int side = axis5 * 2 + (ind_get(result.normal, axis5) < 0.0 ? 0 : 1);
+				result.side = side;
 
 				float slice = floor(result.texCoord.w * 16.0);
 				vec3 texUVW = vec3(
@@ -525,7 +539,6 @@ uniform bool shadows;
 uniform bool ambientOcclusion;
 uniform bool water;
 
-
 float waterWave(in vec5 p, float timeOffset, float waveScaleH, float waveHeight)
 {
 	float aOffset =
@@ -570,7 +583,7 @@ void main()
 		if (shadows)
 		{
 			vec4 shadowTile = vec4(0.0);
-			RayHit hitShadow = trace5D(add(hit.pos, mul(hit.normal, 0.001)), lightDir, 64.0, shadowTile);
+			RayHit hitShadow = trace5D(add(hit.pos, mul(hit.normal, 0.001)), lightDir, 32.0, shadowTile);
 			if (hitShadow.hit)
 			{
 				lighting *= 0.4;
@@ -581,6 +594,14 @@ void main()
 			lighting *= computeAO(hit.blockPos, hit.normal, hit.texCoord) * 0.5 + 0.5;
 		}
 		color = vec4(tileColor.rgb * (lighting * 0.8 + 0.2), 1.0);
+		if (target.targeting && all5(equal5(target.blockPos, hit.blockPos)))
+		{
+			color.rgb += vec3(0.1 + sin(time * 2.4) * 0.05);
+			if (target.side == hit.side)
+			{
+				color.rgb += vec3(0.12);
+			}
+		}
 	}
 	
 	{
@@ -611,7 +632,7 @@ void main()
 	}
 
 	vec5 intersection = add(ro, mul(rd, 0.001));
-	const int stepCount = 24;
+	const int stepCount = 16;
 	bool hitWater = false;
 	float waterDist = 0.001;
 	for (int i = 0; i < stepCount && waterDist < fogEnd; ++i)
