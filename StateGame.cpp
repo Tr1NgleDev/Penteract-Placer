@@ -293,6 +293,8 @@ void StateGame::update(StateManager& s, double dt)
 {
 	audio::updateBgm();
 
+	float speed = keys.ctrl ? 12.0f : 7.0f;
+
 	m5::vec5 moveDir{ 0 };
 
 	if (keys.w) moveDir += cam.forward;
@@ -308,10 +310,10 @@ void StateGame::update(StateManager& s, double dt)
 
 	moveDir = m5::normalize(moveDir);
 
-	cam.pos += moveDir * 7.0f * dt;
+	cam.pos += moveDir * speed * dt;
 
-	if (keys.space) cam.pos.a += 7.0f * dt;
-	if (keys.shift) cam.pos.a -= 7.0f * dt;
+	if (keys.space) cam.pos.a += speed * dt;
+	if (keys.shift) cam.pos.a -= speed * dt;
 
 	coordsText.setText(std::format(
 		"Pos: A:{:+.1f} B:{:+.1f} C:{:+.1f} D:{:+.1f} E:{:+.1f}\n"
@@ -339,6 +341,8 @@ void StateGame::update(StateManager& s, double dt)
 			s.setUiPage(&console.ui);
 		}
 	}
+
+	target = world.dda(cam.pos, cam.forward, 100.0);
 }
 
 void StateGame::render(StateManager& s)
@@ -370,6 +374,9 @@ void StateGame::render(StateManager& s)
 	rendererShader->setUniform("water", waterCheckbox.getChecked());
 	rendererShader->setUniform("lightDir", lightDir);
 	rendererShader->setUniform("time", (float)glfwGetTime());
+	rendererShader->setUniform("target.targeting", target.blockId != 0);
+	rendererShader->setUniform("target.blockPos", target.pos);
+	rendererShader->setUniform("target.side", target.side);
 	QuadRendererBasic::render();
 
 	glDisable(GL_DEPTH_TEST);
@@ -441,7 +448,7 @@ void StateGame::mouseInput(StateManager& s, double xpos, double ypos)
 	}
 	else
 	{
-		if (!keys.shift)
+		if (!keys.alt)
 		{
 			m5::rotor5 rotH{ m5::wedge(cam.over, cam.left), hAngleDelta }; // CD
 			m5::rotor5 rotV{ m5::wedge(pd, cam.over), vAngleDelta }; // BD
@@ -502,8 +509,7 @@ void StateGame::mouseButtonInput(StateManager& s, int button, int action, int mo
 		keys.lmb = (action == GLFW_PRESS);
 		if (keys.lmb)
 		{
-			auto collision = world.dda(cam.pos, cam.forward, 1000.0f);
-			world.setBlock(collision.pos, Block::AIR);
+			world.setBlock(target.pos, Block::AIR);
 			updateRendererData();
 		}
 		break;
@@ -631,8 +637,7 @@ void StateGame::keyInput(StateManager& s, int key, int scancode, int action, int
 	{
 		if (action == GLFW_PRESS)
 		{
-			auto collision = world.dda(cam.pos, cam.forward, 1000.0f);
-			world.setBlock(collision.pos + collision.normal, key - GLFW_KEY_0);
+			world.setBlock(target.pos + target.normal, key - GLFW_KEY_0);
 			updateRendererData();
 		}
 	} break;
@@ -654,6 +659,8 @@ void StateGame::keyInput(StateManager& s, int key, int scancode, int action, int
 	case GLFW_KEY_F: keys.f = (action == GLFW_PRESS); break;
 	case GLFW_KEY_SPACE: keys.space = (action == GLFW_PRESS); break;
 	case GLFW_KEY_LEFT_SHIFT: keys.shift = (action == GLFW_PRESS); break;
+	case GLFW_KEY_LEFT_CONTROL: keys.ctrl = (action == GLFW_PRESS); break;
+	case GLFW_KEY_LEFT_ALT: keys.alt = (action == GLFW_PRESS); break;
 	case GLFW_KEY_ESCAPE:
 	{
 		if (action == GLFW_PRESS)
@@ -716,7 +723,7 @@ std::optional<m5::vec5> StateGame::positionArg(const std::vector<std::string>& a
 				if (arg.size() > 2 && (arg[1] == '+' || arg[1] == '-'))
 				{
 					float x = std::stof(arg.substr(2));
-					result[i] += x * (arg[1] == '+' ? 1 : -1);
+					result[i] += x * (arg[1] == '-' ? 1 : -1);
 				}
 			}
 			else
@@ -797,8 +804,9 @@ void StateGame::exec(std::string_view cmd)
 				"- help - Outputs this list.\n"
 				"- clear - Clears the log.\n"
 				"- setBlock <pos> <id> - Sets a block at a position.\n"
-				"- fill <posA> <posB> <id> - Fills a region with a block."
-				"- tp <pos> - Teleports the player to a position."
+				"- fill <posA> <posB> <id> - Fills a region with a block.\n"
+				"- tp <pos> - Teleports the player to a position.\n"
+				"- save - Saves the world."
 			);
 			return true;
 		}},
@@ -879,6 +887,12 @@ void StateGame::exec(std::string_view cmd)
 
 			return true;
 		}},
+		{ "save", [&]()
+		{
+			save();
+
+			return true;
+		}},
 	};
 
 	if (commands.contains(args[0]))
@@ -894,7 +908,15 @@ void StateGame::exec(std::string_view cmd)
 }
 void StateGame::print(std::string_view message)
 {
+	time_t t = time(0);
+	tm tm;
+	localtime_s(&tm, &t);
+	
+	std::stringstream timeStr;
+	timeStr << std::put_time(&tm, "%H:%M:%S");
+
 	console.log += '\n';
+	console.log += std::format("[{}]: ", timeStr.str());
 	console.log += message;
 
 	console.logText.setText(console.log);
@@ -957,6 +979,8 @@ void StateGame::save()
 		reinterpret_cast<const char*>(world.getChunks()),
 		world.getDataSize()
 	);
+
+	print("Saved the world.");
 }
 
 constexpr uint8_t SECTIONS = 4u; // RGBA channels

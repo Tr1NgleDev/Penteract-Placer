@@ -49,6 +49,7 @@ private:
 		uint32_t _pad6[3]{ 0 };
 	};
 
+	World::Collision target;
 	glm::mat4 projection3D;
 	m5::rotor5 orientation;
 	Camera cam;
@@ -75,6 +76,8 @@ private:
 		bool f;
 		bool space;
 		bool shift;
+		bool ctrl;
+		bool alt;
 		bool lmb;
 		bool mmb;
 		bool rmb;
