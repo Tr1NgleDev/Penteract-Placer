@@ -205,7 +205,8 @@ int main()
 
 	Shader::load("renderer", {
 		{ GL_VERTEX_SHADER, "assets/shaders/renderer.vert" },
-		{ GL_FRAGMENT_SHADER, "assets/shaders/renderer.frag" } });
+		{ GL_FRAGMENT_SHADER, "assets/shaders/renderer.frag" }
+	});
 
 	ui::element::renderInit();
 

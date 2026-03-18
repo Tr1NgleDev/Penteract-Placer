@@ -148,8 +148,9 @@ private:
 		std::array<std::string, 64> history{ "" };
 	} console;
 	void updateConsoleInput();
-	std::optional<m5::vec5> positionArg(const std::vector<std::string>& args, int& cursor);
+	std::optional<std::string> strArg(const std::vector<std::string>& args, int& cursor);
 	std::optional<int64_t> intArg(const std::vector<std::string>& args, int& cursor, int64_t min = INT_MIN, int64_t max = INT_MAX);
+	std::optional<m5::vec5> posArg(const std::vector<std::string>& args, int& cursor);
 	void print(std::string_view message, bool includeTime = true);
 	void exec(std::string_view cmd);
 

@@ -864,43 +864,16 @@ void StateGame::keyInput(StateManager& s, int key, int scancode, int action, int
 	}
 }
 
-std::optional<m5::vec5> StateGame::positionArg(const std::vector<std::string>& args, int& cursor)
+std::optional<std::string> StateGame::strArg(const std::vector<std::string>& args, int& cursor)
 {
-	if (cursor + 5 > args.size())
+	if (cursor + 1 > args.size())
 	{
 		return std::nullopt;
 	}
 
-	m5::vec5 result{};
+	std::string result = args[cursor];
 
-	try
-	{
-		for (int i = 0; i < 5; ++i)
-		{
-			const std::string& arg = args[cursor + i];
-			if (arg[0] == '~')
-			{
-				result[i] = cam.pos[i];
-
-				if (arg.size() > 2 && (arg[1] == '+' || arg[1] == '-'))
-				{
-					float x = std::stof(arg.substr(2));
-					result[i] += x * (arg[1] == '-' ? -1 : 1);
-				}
-			}
-			else
-			{
-				float x = std::stof(arg);
-				result[i] = x;
-			}
-		}
-	}
-	catch (const std::exception&)
-	{
-		return std::nullopt;
-	}
-
-	cursor += 5;
+	cursor += 1;
 
 	return result;
 }
@@ -935,6 +908,73 @@ std::optional<int64_t> StateGame::intArg(const std::vector<std::string>& args, i
 	return result;
 }
 
+std::optional<m5::vec5> StateGame::posArg(const std::vector<std::string>& args, int& cursor)
+{
+	if (cursor + 5 > args.size())
+	{
+		return std::nullopt;
+	}
+
+	m5::vec5 result{};
+
+	try
+	{
+		for (int i = 0; i < 5; ++i)
+		{
+			const std::string& arg = args[cursor + i];
+			if (arg[0] == '~')
+			{
+				result[i] = cam.pos[i];
+
+				if (arg.size() > 2 && (arg[1] == '+' || arg[1] == '-'))
+				{
+					try
+					{
+						float x = std::stof(arg.substr(2));
+						result[i] += x * (arg[1] == '-' ? -1 : 1);
+					}
+					catch (const std::exception&)
+					{
+						return std::nullopt;
+					}
+				}
+				else
+				{
+					try
+					{
+						float x = std::stof(arg.substr(1));
+						result[i] += x;
+					}
+					catch (const std::exception&)
+					{
+						return std::nullopt;
+					}
+				}
+			}
+			else
+			{
+				try
+				{
+					float x = std::stof(arg.substr(1));
+					result[i] = x;
+				}
+				catch (const std::exception&)
+				{
+					return std::nullopt;
+				}
+			}
+		}
+	}
+	catch (const std::exception&)
+	{
+		return std::nullopt;
+	}
+
+	cursor += 5;
+
+	return result;
+}
+
 void StateGame::exec(std::string_view cmd)
 {
 	std::string c = std::string{ cmd };
@@ -965,9 +1005,10 @@ void StateGame::exec(std::string_view cmd)
 			print(
 				"- help - Outputs this list.\n"
 				"- clear - Clears the log.\n"
-				"- setBlock <pos> <id> - Sets a block at a position.\n"
+				"- setBlock <pos> <id> - Sets a block at a position, e.g. \"setBlock ~0 ~1 ~0 ~0 ~0 3\".\n"
 				"- fill <posA> <posB> <id> - Fills a region with a block.\n"
-				"- tp <pos> - Teleports the player to a position.\n"
+				"- tp <pos> - Teleports the player to a position, e.g. \"tp 0 32 0 0 0\".\n"
+				"- align <compA> <compB> - Aligns the player to the plane \"A<compA><compB>\", e.g. \"align BC\".\n"
 				"- save - Saves the world."
 				, false
 			);
@@ -983,7 +1024,7 @@ void StateGame::exec(std::string_view cmd)
 		{
 			int cursor = 1;
 
-			auto pos = positionArg(args, cursor);
+			auto pos = posArg(args, cursor);
 			if (!pos.has_value())
 			{
 				return false;
@@ -1003,12 +1044,12 @@ void StateGame::exec(std::string_view cmd)
 		{
 			int cursor = 1;
 
-			auto posA = positionArg(args, cursor);
+			auto posA = posArg(args, cursor);
 			if (!posA.has_value())
 			{
 				return false;
 			}
-			auto posB = positionArg(args, cursor);
+			auto posB = posArg(args, cursor);
 			if (!posB.has_value())
 			{
 				return false;
@@ -1040,13 +1081,78 @@ void StateGame::exec(std::string_view cmd)
 		{
 			int cursor = 1;
 
-			auto pos = positionArg(args, cursor);
+			auto pos = posArg(args, cursor);
 			if (!pos.has_value())
 			{
 				return false;
 			}
 
 			cam.pos = pos.value();
+
+			return true;
+		}},
+		{ "align", [&]()
+		{
+			int cursor = 1;
+
+			// get the plane string as one or two arguments
+			std::string s;
+			do
+			{
+				auto arg = strArg(args, cursor);
+				if (!arg.has_value())
+				{
+					// fewer than two chars parsed
+					return false;
+				}
+
+				s += arg.value();
+
+				if (s.length() > 2)
+				{
+					// more than two chars parsed
+					return false;
+				}
+			} while (s.length() < 2);
+
+			// to lower case
+			std::transform(s.begin(), s.end(), s.begin(),
+				[](unsigned char c) { return std::tolower(c); });
+
+			if (s[0] == s[1] ||
+				s[0] < 'b' || s[0] > 'e' ||
+				s[1] < 'b' || s[1] > 'e')
+			{
+				return false;
+			}
+
+			int compA = s[0] - 'a';
+			int compB = s[1] - 'a';
+
+			if (compA > compB)
+			{
+				std::swap(compA, compB);
+			}
+
+			orientation = {};
+
+			if (compA != 1)
+			{
+				m5::vec5 srcA{ 0, 1, 0, 0, 0 };
+				m5::vec5 dstA{ 0.0f };
+				dstA[compA] = 1.0f;
+				orientation = m5::rotor5{ srcA, dstA } * orientation;
+			}
+
+			if (compB != 2)
+			{
+				m5::vec5 srcB = orientation.rotate({ 0, 0, 1, 0, 0 });
+				m5::vec5 dstB{ 0.0f };
+				dstB[compB] = 1.0f;
+				orientation = m5::rotor5{ srcB, dstB } * orientation;
+			}
+
+			updateCamDirs();
 
 			return true;
 		}},
