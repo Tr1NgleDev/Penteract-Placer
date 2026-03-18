@@ -1,10 +1,6 @@
 #pragma once
 #include "StateManager.h"
 #include "QuadRenderer.h"
-#include "Shader.h"
-#include "Texture.h"
-#include "TextureBuffer.h"
-#include "GPUBuffer.h"
 #include "ui.h"
 
 class StateTitleScreen : public State
@@ -22,8 +18,8 @@ public:
 	void mouseInput(StateManager& s, double xpos, double ypos) override;
 	void scrollInput(StateManager& s, double xoff, double yoff) override;
 	void mouseButtonInput(StateManager& s, int button, int action, int mods) override;
-	void keyInput(StateManager&, int key, int scancode, int action, int mods) override;
-	void windowResize(StateManager&, int width, int height) override;
+	void keyInput(StateManager& s, int key, int scancode, int action, int mods) override;
+	void windowResize(StateManager& s, int width, int height) override;
 
 private:
 	
