@@ -12,9 +12,6 @@ class StateGame : public State
 {
 public:
 
-	bool shadows = true;
-	bool ambientOcclusion = true;
-
 	static StateGame* instance();
 
 	void init(StateManager& s) override;
@@ -97,8 +94,9 @@ private:
 	ui::text pausedText;
 	ui::button backToGameButton;
 	ui::button quitToTitleButton;
-	ui::button toggleShadowsButton;
-	ui::button toggleAOButton;
+	ui::checkbox shadowsCheckbox;
+	ui::checkbox ambientOcclusionCheckbox;
+	ui::checkbox waterCheckbox;
 
 	ui::page ui;
 	ui::text fpsText;

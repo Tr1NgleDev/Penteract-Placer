@@ -289,7 +289,7 @@ void StateGeneratingWorld::generateChunk(Chunk* chunk, glm::u8vec4 chunkPos)
 							float noiseB = (0.5f * noise->Evaluate(aCave, pos.y, pos.z, pos.w)) + 0.5f;
 
 							float caveVal = noiseA * noiseB;
-							if (caveVal < 0.1f)
+							if (caveVal < 0.2f)
 							{
 								blockType = Block::AIR;
 							}

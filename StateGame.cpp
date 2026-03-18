@@ -66,39 +66,34 @@ void StateGame::init(StateManager& s)
 		quitToTitleButton.setAlignX(ui::ALIGN_CENTER_X);
 		quitToTitleButton.setOffsetY(550);
 
-		// TODO: change these into checkboxes maybe
-		toggleShadowsButton.setText(std::format("Shadows: {}", shadows ? "On" : "Off"));
-		toggleShadowsButton.setAction([this, &s]()
-			{
-				shadows = !shadows;
-				toggleShadowsButton.setText(std::format("Shadows: {}", shadows ? "On" : "Off"));
-			}
-		);
-		toggleShadowsButton.setSize(210, 50);
-		toggleShadowsButton.setAlignX(ui::ALIGN_LEFT);
-		toggleShadowsButton.setAlignY(ui::ALIGN_BOTTOM);
-		toggleShadowsButton.setOffsetX(10);
-		toggleShadowsButton.setOffsetY(-80);
+		shadowsCheckbox.setText("Shadows");
+		shadowsCheckbox.setChecked("true");
+		shadowsCheckbox.setAlignX(ui::ALIGN_LEFT);
+		shadowsCheckbox.setAlignY(ui::ALIGN_BOTTOM);
+		shadowsCheckbox.setOffsetX(10);
+		shadowsCheckbox.setOffsetY(-75);
 
-		toggleAOButton.setText(std::format("AO: {}", ambientOcclusion ? "On" : "Off"));
-		toggleAOButton.setAction([this, &s]()
-			{
-				ambientOcclusion = !ambientOcclusion;
-				toggleAOButton.setText(std::format("AO: {}", ambientOcclusion ? "On" : "Off"));
-			}
-		);
-		toggleAOButton.setSize(210, 50);
-		toggleAOButton.setAlignX(ui::ALIGN_LEFT);
-		toggleAOButton.setAlignY(ui::ALIGN_BOTTOM);
-		toggleAOButton.setOffsetX(10);
-		toggleAOButton.setOffsetY(-10);
+		ambientOcclusionCheckbox.setText("Ambient Occlusion");
+		ambientOcclusionCheckbox.setChecked("true");
+		ambientOcclusionCheckbox.setAlignX(ui::ALIGN_LEFT);
+		ambientOcclusionCheckbox.setAlignY(ui::ALIGN_BOTTOM);
+		ambientOcclusionCheckbox.setOffsetX(10);
+		ambientOcclusionCheckbox.setOffsetY(-50);
+
+		waterCheckbox.setText("Water");
+		waterCheckbox.setChecked("true");
+		waterCheckbox.setAlignX(ui::ALIGN_LEFT);
+		waterCheckbox.setAlignY(ui::ALIGN_BOTTOM);
+		waterCheckbox.setOffsetX(10);
+		waterCheckbox.setOffsetY(-25);
 
 		pauseMenu.clear();
 		pauseMenu.addElem(&pausedText);
 		pauseMenu.addElem(&backToGameButton);
 		pauseMenu.addElem(&quitToTitleButton);
-		pauseMenu.addElem(&toggleShadowsButton);
-		pauseMenu.addElem(&toggleAOButton);
+		pauseMenu.addElem(&shadowsCheckbox);
+		pauseMenu.addElem(&ambientOcclusionCheckbox);
+		pauseMenu.addElem(&waterCheckbox);
 	}
 
 	{
@@ -344,8 +339,9 @@ void StateGame::render(StateManager& s)
 	blockDataHandlesBuffer.use(1);
 	blockTexturesBuffer.use(2);
 	tileTextureHandles.use(3);
-	rendererShader->setUniform("shadows", shadows);
-	rendererShader->setUniform("ambientOcclusion", ambientOcclusion);
+	rendererShader->setUniform("shadows", shadowsCheckbox.getChecked());
+	rendererShader->setUniform("ambientOcclusion", ambientOcclusionCheckbox.getChecked());
+	rendererShader->setUniform("water", waterCheckbox.getChecked());
 	rendererShader->setUniform("lightDir", lightDir);
 	rendererShader->setUniform("time", (float)glfwGetTime());
 	QuadRendererBasic::render();

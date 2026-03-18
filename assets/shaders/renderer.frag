@@ -523,6 +523,7 @@ float computeAO(ivec5 blockPos, in vec5 normal, in vec4 texCoord)
 
 uniform bool shadows;
 uniform bool ambientOcclusion;
+uniform bool water;
 
 void main()
 {
@@ -567,6 +568,11 @@ void main()
 		color = vec4(tileColor.rgb * (lighting * 0.8 + 0.2) * fog, 1.0);
 	}
 	
+	if (!water)
+	{
+		return;
+	}
+
 	// water at maximum wave height
 	float waterHeight = 30.75f;
 	float waterAlpha = 0.25f;
