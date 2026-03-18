@@ -16,6 +16,8 @@ public:
 
 	void init(StateManager& s) override;
 	void close(StateManager& s) override;
+	void pause(StateManager& s) override;
+	void resume(StateManager& s) override;
 	void update(StateManager& s, double dt) override;
 	void render(StateManager& s) override;
 	void mouseInput(StateManager& s, double xpos, double ypos) override;
@@ -100,10 +102,12 @@ private:
 	m5::vec5 lightDir = m5::normalize({ 7.0f, 2.0f, 1.5f, 1.0f, 1.0f });
 	
 	ui::page pauseMenu;
+	bool paused = false;
 	
 	ui::text pausedText;
 	ui::button backToGameButton;
 	ui::button quitToTitleButton;
+	ui::button controlsButton;
 	ui::checkbox shadowsCheckbox;
 	ui::checkbox ambientOcclusionCheckbox;
 	ui::checkbox waterCheckbox;
@@ -111,6 +115,8 @@ private:
 	ui::page ui;
 	ui::text fpsText;
 	ui::text coordsText;
+
+	QuadRenderer qr;
 
 	struct
 	{

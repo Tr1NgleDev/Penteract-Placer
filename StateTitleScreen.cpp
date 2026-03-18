@@ -110,10 +110,10 @@ void StateTitleScreen::mouseButtonInput(StateManager& s, int button, int action,
 {
 }
 
-void StateTitleScreen::keyInput(StateManager&, int key, int scancode, int action, int mods)
+void StateTitleScreen::keyInput(StateManager& s, int key, int scancode, int action, int mods)
 {
 }
 
-void StateTitleScreen::windowResize(StateManager&, int width, int height)
+void StateTitleScreen::windowResize(StateManager& s, int width, int height)
 {
 }

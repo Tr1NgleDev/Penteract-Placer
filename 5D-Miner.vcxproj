@@ -92,6 +92,7 @@
     <ClCompile Include="Chunk.cpp" />
     <ClCompile Include="Directory.cpp" />
     <ClCompile Include="File.cpp" />
+    <ClCompile Include="StateControls.cpp" />
     <ClCompile Include="StateCreateWorld.cpp" />
     <ClCompile Include="StateGeneratingWorld.cpp" />
     <ClCompile Include="StateLoadWorld.cpp" />
@@ -133,6 +134,7 @@
     <ClInclude Include="MashPool.h" />
     <ClInclude Include="OpenSimplexNoise.hpp" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="StateControls.h" />
     <ClInclude Include="StateCreateWorld.h" />
     <ClInclude Include="StateGeneratingWorld.h" />
     <ClInclude Include="StateLoadWorld.h" />

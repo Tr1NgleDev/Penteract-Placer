@@ -1,5 +1,6 @@
 #include "StateGame.h"
 #include "StateTitleScreen.h"
+#include "StateControls.h"
 #include "Shader.h"
 #include "Texture.h"
 #include "TextureBuffer.h"
@@ -16,6 +17,9 @@ StateGame* StateGame::instance()
 
 void StateGame::init(StateManager& s)
 {
+	qr = QuadRenderer{ Shader::get("quad") };
+	qr.init();
+
 	rendererShader = Shader::get("renderer");
 
 	cameraBuf = GPUBuffer{ sizeof(Camera) };
@@ -41,24 +45,33 @@ void StateGame::init(StateManager& s)
 		pausedText.setSize(3);
 		pausedText.setShadow(true);
 		pausedText.setAlignX(ui::ALIGN_CENTER_X);
-		pausedText.setOffsetY(300);
+		pausedText.setOffsetY(200);
 
 		backToGameButton.setText("Back To Game");
 		backToGameButton.setAction([this, &s]()
 			{
 				disableCursor(s.getWindow());
 				s.setUiPage(nullptr);
+				paused = false;
 			}
 		);
 		backToGameButton.setSize(210, 50);
 		backToGameButton.setAlignX(ui::ALIGN_CENTER_X);
-		backToGameButton.setOffsetY(450);
+		backToGameButton.setOffsetY(350);
+
+		controlsButton.setText("Controls");
+		controlsButton.setAction([this, &s]()
+			{
+				s.pushState(StateControls::instance());
+			}
+		);
+		controlsButton.setSize(230, 50);
+		controlsButton.setAlignX(ui::ALIGN_CENTER_X);
+		controlsButton.setOffsetY(450);
 
 		quitToTitleButton.setText("Quit To Title");
 		quitToTitleButton.setAction([this, &s]()
 			{
-				// TODO: save world data
-				s.setUiPage(nullptr);
 				s.changeState(StateTitleScreen::instance());
 			}
 		);
@@ -90,10 +103,13 @@ void StateGame::init(StateManager& s)
 		pauseMenu.clear();
 		pauseMenu.addElem(&pausedText);
 		pauseMenu.addElem(&backToGameButton);
+		pauseMenu.addElem(&controlsButton);
 		pauseMenu.addElem(&quitToTitleButton);
 		pauseMenu.addElem(&shadowsCheckbox);
 		pauseMenu.addElem(&ambientOcclusionCheckbox);
 		pauseMenu.addElem(&waterCheckbox);
+
+		paused = false;
 	}
 
 	{
@@ -247,10 +263,10 @@ void StateGame::init(StateManager& s)
 	}
 
 	audio::clearBgm();
-	audio::loadSound("music/ambient_major.mp3");
-	audio::addToBgmList("music/ambient_major.mp3");
-	audio::loadSound("music/spooky oooo.mp3");
-	audio::addToBgmList("music/spooky oooo.mp3");
+	audio::loadSound("music/Not spook.mp3");
+	audio::addToBgmList("music/Not spook.mp3");
+	audio::loadSound("music/Spook ambient.mp3");
+	audio::addToBgmList("music/Spook ambient.mp3");
 }
 
 void StateGame::close(StateManager& s)
@@ -260,6 +276,18 @@ void StateGame::close(StateManager& s)
 	{
 		enableCursor(s.getWindow());
 		s.setUiPage(nullptr);
+	}
+}
+
+void StateGame::pause(StateManager& s)
+{
+}
+
+void StateGame::resume(StateManager& s)
+{
+	if (paused)
+	{
+		s.setUiPage(&pauseMenu);
 	}
 }
 
@@ -495,6 +523,22 @@ void StateGame::render(StateManager& s)
 		console.logText.setWrapWidth(wW);
 		console.logText.getBounds(&console.ui, &x, &y, &w, &h);
 		console.logText.setOffsetY(console.height - 8 - 5 - h);
+	}
+
+	if (paused)
+	{
+		int wW, wH;
+		s.getSize(&wW, &wH);
+
+		qr.setMode(QuadRenderer::MODE_FILL);
+		qr.setColors({
+			glm::vec4{ 0.15f,	0.07f,	0.17f,	0.7f },
+			glm::vec4{ 0.0f,	0.0f,	0.0f,	0.7f },
+			glm::vec4{ 0.0f,	0.0f,	0.0f,	0.7f },
+			glm::vec4{ 0.15f,	0.07f,	0.17f,	0.7f },
+		});
+		qr.setPos(0, 0, wW, wH);
+		qr.render();
 	}
 }
 
@@ -734,6 +778,10 @@ void StateGame::keyInput(StateManager& s, int key, int scancode, int action, int
 	case GLFW_KEY_S:
 	{
 		keys.s = (action == GLFW_PRESS);
+		if (keys.s && (mods & GLFW_MOD_CONTROL) && (mods & GLFW_MOD_SHIFT))
+		{
+			save();
+		}
 		break;
 	}
 	case GLFW_KEY_A: keys.a = (action == GLFW_PRESS); break;
@@ -755,11 +803,13 @@ void StateGame::keyInput(StateManager& s, int key, int scancode, int action, int
 			{
 				enableCursor(s.getWindow());
 				s.setUiPage(&pauseMenu);
+				paused = true;
 			}
 			else
 			{
 				disableCursor(s.getWindow());
 				s.setUiPage(nullptr);
+				paused = false;
 			}
 		}
 	} break;
@@ -989,6 +1039,7 @@ void StateGame::exec(std::string_view cmd)
 
 	print(std::format("Unknown command \"{}\"! Use \"help\" for a list of commands.", cmd));
 }
+
 void StateGame::print(std::string_view message)
 {
 	time_t t = time(0);
