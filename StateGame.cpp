@@ -59,16 +59,6 @@ void StateGame::init(StateManager& s)
 		backToGameButton.setAlignX(ui::ALIGN_CENTER_X);
 		backToGameButton.setOffsetY(350);
 
-		quitToTitleButton.setText("Quit To Title");
-		quitToTitleButton.setAction([this, &s]()
-			{
-				s.changeState(StateTitleScreen::instance());
-			}
-		);
-		quitToTitleButton.setSize(230, 50);
-		quitToTitleButton.setAlignX(ui::ALIGN_CENTER_X);
-		quitToTitleButton.setOffsetY(450);
-
 		controlsButton.setText("Controls");
 		controlsButton.setAction([this, &s]()
 			{
@@ -77,7 +67,17 @@ void StateGame::init(StateManager& s)
 		);
 		controlsButton.setSize(230, 50);
 		controlsButton.setAlignX(ui::ALIGN_CENTER_X);
-		controlsButton.setOffsetY(550);
+		controlsButton.setOffsetY(450);
+
+		quitToTitleButton.setText("Quit To Title");
+		quitToTitleButton.setAction([this, &s]()
+			{
+				s.changeState(StateTitleScreen::instance());
+			}
+		);
+		quitToTitleButton.setSize(230, 50);
+		quitToTitleButton.setAlignX(ui::ALIGN_CENTER_X);
+		quitToTitleButton.setOffsetY(550);
 
 		shadowsCheckbox.setText("Shadows");
 		shadowsCheckbox.setChecked("true");
@@ -103,11 +103,13 @@ void StateGame::init(StateManager& s)
 		pauseMenu.clear();
 		pauseMenu.addElem(&pausedText);
 		pauseMenu.addElem(&backToGameButton);
-		pauseMenu.addElem(&quitToTitleButton);
 		pauseMenu.addElem(&controlsButton);
+		pauseMenu.addElem(&quitToTitleButton);
 		pauseMenu.addElem(&shadowsCheckbox);
 		pauseMenu.addElem(&ambientOcclusionCheckbox);
 		pauseMenu.addElem(&waterCheckbox);
+
+		paused = false;
 	}
 
 	{
@@ -645,7 +647,7 @@ void StateGame::keyInput(StateManager& s, int key, int scancode, int action, int
 	case GLFW_KEY_S:
 	{
 		keys.s = (action == GLFW_PRESS);
-		if (keys.s && (mods & GLFW_MOD_CONTROL))
+		if (keys.s && (mods & GLFW_MOD_CONTROL) && (mods & GLFW_MOD_SHIFT))
 		{
 			save();
 		}
@@ -906,6 +908,7 @@ void StateGame::exec(std::string_view cmd)
 
 	print(std::format("Unknown command \"{}\"! Use \"help\" for a list of commands.", cmd));
 }
+
 void StateGame::print(std::string_view message)
 {
 	time_t t = time(0);

@@ -85,6 +85,7 @@ void StateLoadWorld::init(StateManager& s)
 			int currentPage = index / PAGE_SIZE;
 
 			worldButton->setText(j["name"]);
+			worldButton->setSize(250, 50);
 			worldButton->setAlignX(ui::ALIGN_CENTER_X);
 			worldButton->setAlignY(ui::ALIGN_TOP);
 			worldButton->setOffsetY(100 + ((index % PAGE_SIZE) * 75));

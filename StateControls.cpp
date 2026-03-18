@@ -27,6 +27,7 @@ void StateControls::init(StateManager& s)
 		"Look ab/ac: mouse\n"
 		"Look bc/bd: middle-click + mouse\n"
 		"Open Console: \"`\" key (right next to the \"1\" key)\n"
+		"Save: CTRL+SHIFT+S\n"
 	);
 	controlsText.setAlignX(ui::ALIGN_CENTER_X);
 	controlsText.setOffsetY(150);
