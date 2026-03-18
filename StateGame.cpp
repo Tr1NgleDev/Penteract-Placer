@@ -129,9 +129,26 @@ void StateGame::init(StateManager& s)
 		coordsText.setOffsetX(5);
 		coordsText.setOffsetY(25);
 
+		selectedBlockText.setAlignX(ui::ALIGN_RIGHT);
+		selectedBlockText.setOffsetX(-100);
+		selectedBlockText.setAlignY(ui::ALIGN_BOTTOM);
+		selectedBlockText.setOffsetY(-45);
+
+		Texture::load("assets/textures/blockIcons.png", 0, false, "blockIcons.png");
+		selectedBlockImage.setScale(2, 2);
+		selectedBlockImage.setTexture(Texture::get("blockIcons.png"));
+		selectedBlockImage.setAlignX(ui::ALIGN_RIGHT);
+		selectedBlockImage.setOffsetX(-50);
+		selectedBlockImage.setAlignY(ui::ALIGN_BOTTOM);
+		selectedBlockImage.setOffsetY(-50);
+
+		selectBlock(Block::GRASS);
+
 		ui.clear();
 		ui.addElem(&fpsText);
 		ui.addElem(&coordsText);
+		ui.addElem(&selectedBlockText);
+		ui.addElem(&selectedBlockImage);
 		ui.init(s.getWindow());
 	}
 
@@ -614,7 +631,14 @@ void StateGame::updateConsoleInput()
 
 void StateGame::scrollInput(StateManager& s, double xoff, double yoff)
 {
-
+	if (yoff < 0)
+	{
+		selectBlock(selectedBlock < Block::COUNT - 1 ? selectedBlock + 1 : Block::AIR + 1);
+	}
+	else if (yoff > 0)
+	{
+		selectBlock(selectedBlock > Block::AIR + 1 ? selectedBlock - 1 : Block::COUNT - 1);
+	}
 }
 
 void StateGame::mouseButtonInput(StateManager& s, int button, int action, int mods)
@@ -631,10 +655,17 @@ void StateGame::mouseButtonInput(StateManager& s, int button, int action, int mo
 			world.setBlock(target.blockPos, Block::AIR);
 			updateRendererData();
 		}
-		break;
-	}
+	} break;
 	case GLFW_MOUSE_BUTTON_MIDDLE: keys.mmb = (action == GLFW_PRESS); break;
-	case GLFW_MOUSE_BUTTON_RIGHT: keys.rmb = (action == GLFW_PRESS); break;
+	case GLFW_MOUSE_BUTTON_RIGHT:
+	{
+		keys.rmb = (action == GLFW_PRESS);
+		if (keys.rmb)
+		{
+			world.setBlock(target.blockPos + target.normal, selectedBlock);
+			updateRendererData();
+		}
+	} break;
 	}
 }
 
@@ -746,7 +777,7 @@ void StateGame::keyInput(StateManager& s, int key, int scancode, int action, int
 
 	switch (key)
 	{
-	case GLFW_KEY_0:
+	//case GLFW_KEY_0:
 	case GLFW_KEY_1:
 	case GLFW_KEY_2:
 	case GLFW_KEY_3:
@@ -756,8 +787,7 @@ void StateGame::keyInput(StateManager& s, int key, int scancode, int action, int
 	{
 		if (action == GLFW_PRESS)
 		{
-			world.setBlock(target.blockPos + target.normal, key - GLFW_KEY_0);
-			updateRendererData();
+			selectBlock(key - GLFW_KEY_0);
 		}
 	} break;
 	case GLFW_KEY_V:
@@ -782,8 +812,7 @@ void StateGame::keyInput(StateManager& s, int key, int scancode, int action, int
 		{
 			save();
 		}
-		break;
-	}
+	} break;
 	case GLFW_KEY_A: keys.a = (action == GLFW_PRESS); break;
 	case GLFW_KEY_D: keys.d = (action == GLFW_PRESS); break;
 	case GLFW_KEY_Q: keys.q = (action == GLFW_PRESS); break;
@@ -1115,6 +1144,13 @@ void StateGame::save()
 	);
 
 	print("Saved the world.");
+}
+
+void StateGame::selectBlock(uint8_t blockId)
+{
+	selectedBlock = blockId;
+	selectedBlockText.setText("Selected Block: " + std::string{ Block::names[blockId] });
+	selectedBlockImage.setClip((float)(blockId - 1) / 16.0f, 0, 1.0f / 16.0f, 1.0f);
 }
 
 constexpr uint8_t SECTIONS = 4u; // RGBA channels

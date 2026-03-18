@@ -749,15 +749,22 @@ void ui::image::updateSize()
 	if (texture != nullptr)
 	{
 		auto& size = texture->getSize();
+		auto clip = renderer.getClip();
 		auto scale = renderer.getScale();
-		width = size.x * scale.x;
-		height = size.y * scale.y;
+		width = size.x * clip.z * scale.x;
+		height = size.y * clip.w * scale.y;
 	}
 }
 
 void ui::image::setTexture(const Texture* texture)
 {
 	renderer.setTexture(texture);
+	updateSize();
+}
+
+void ui::image::setClip(float x, float y, float w, float h)
+{
+	renderer.setClip({ x, y, w, h });
 	updateSize();
 }
 

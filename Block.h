@@ -1,7 +1,7 @@
 #pragma once
-
 #include <cstdint>
 #include <array>
+#include <string_view>
 
 namespace Block
 {
@@ -95,5 +95,16 @@ namespace Block
 			},
 			true
 		},
+	};
+
+	inline std::array<std::string_view, COUNT> names
+	{
+		"Air",
+		"Grass",
+		"Dirt",
+		"Stone",
+		"Wood",
+		"Glass",
+		"Bricks",
 	};
 }

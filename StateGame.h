@@ -101,6 +101,7 @@ private:
 
 	m5::vec5 lightDir = m5::normalize({ 7.0f, 2.0f, 1.5f, 1.0f, 1.0f });
 	
+	// TODO: possibly move this to it's own state, since it adds unnecessary complications to the game state
 	ui::page pauseMenu;
 	bool paused = false;
 	
@@ -115,6 +116,12 @@ private:
 	ui::page ui;
 	ui::text fpsText;
 	ui::text coordsText;
+
+	ui::text selectedBlockText;
+	ui::image selectedBlockImage;
+	uint8_t selectedBlock = Block::GRASS;
+
+	void selectBlock(uint8_t blockId);
 
 	QuadRenderer qr;
 

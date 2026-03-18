@@ -218,6 +218,7 @@ namespace ui
 		// ----------------------
 
 		void setTexture(const Texture* texture);
+		void setClip(float x, float y, float w, float h);
 		void setScale(float x, float y);
 
 	private:

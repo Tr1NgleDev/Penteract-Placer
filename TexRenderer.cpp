@@ -11,7 +11,7 @@ void TexRenderer::render()
 	if (!texture || !shader) return;
 
 	const auto& texSize = texture->getSize();
-	glm::vec2 texSizeV{ texSize[0], texSize[1] };
+	glm::vec2 texSizeV{ texSize[0] * clip.z, texSize[1] * clip.w };
 	glm::vec2 fullSize = scale * texSizeV;
 
 	if (updateModel)
@@ -33,6 +33,7 @@ void TexRenderer::render()
 
 	shader->use();
 	shader->setUniform("model", model);
+	shader->setUniform("clip", clip);
 	texture->use();
 	QuadRendererBasic::render();
 }
@@ -41,6 +42,12 @@ void TexRenderer::setPos(const glm::vec2& pos)
 {
 	if (this->pos == pos) return;
 	this->pos = pos;
+	updateModel = true;
+}
+void TexRenderer::setClip(const glm::vec4& clip)
+{
+	if (this->clip == clip) return;
+	this->clip = clip;
 	updateModel = true;
 }
 void TexRenderer::setScale(const glm::vec2& scale)
