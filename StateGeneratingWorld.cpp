@@ -89,52 +89,51 @@ void StateGeneratingWorld::update(StateManager& s, double dt)
 	if (taskCount == 0)
 	{
 		// only use valid characters for the path name
-		std::string worldPath = "worlds/";
+		std::filesystem::path worldPath = "worlds/";
 		if (!std::filesystem::is_directory(worldPath))
 		{
 			std::filesystem::create_directory(worldPath);
 		}
 
+		std::string worldFilename;
 		for (int i = 0; i < worldName.length(); ++i)
 		{
 			char c = tolower(worldName[i]);
 			if (isalnum(c) || c == '-' || c == ' ')
 			{
-				worldPath.push_back(c);
+				worldFilename.push_back(c);
 			}
 			else
 			{
-				worldPath.push_back('_');
+				worldFilename.push_back('_');
 			}
 		}
 
 		int counter = 0;
-		std::string worldPathBaseName = worldPath;
-
-		while (std::filesystem::exists(worldPath))
+		std::string worldFilenameBase = worldFilename;
+		while (std::filesystem::exists(worldPath / worldFilename))
 		{
 			++counter;
-			worldPath = worldPathBaseName;
-			worldPath.push_back('(');
-			worldPath.append(std::to_string(counter));
-			worldPath.push_back(')');
+			worldFilename = worldFilenameBase;
+			worldFilename.push_back('(');
+			worldFilename.append(std::to_string(counter));
+			worldFilename.push_back(')');
 		}
-		worldPath.push_back('/');
+		worldPath.append(worldFilename);
 
 		// now we have the final directory name
 		std::filesystem::create_directory(worldPath);
+		StateGame::instance()->setWorldPath(worldPath);
 
 		// laziest file operations
-		size_t edgeLength = world->getEdgeLength();
-
-		std::ofstream{ worldPath + "info.json" } << nlohmann::json{
+		std::ofstream{ worldPath / "info.json" } << nlohmann::json{
 			{ "name" , worldName },
-			{ "size" , edgeLength },
+			{ "size" , world->getEdgeLength() },
 		};
 
-		std::ofstream{ worldPath + "data.bin", std::ios::binary }.write(
+		std::ofstream{ worldPath / "data.bin", std::ios::binary }.write(
 			reinterpret_cast<const char*>(world->getChunks()),
-			sizeof(Chunk) * edgeLength * edgeLength * edgeLength * edgeLength
+			world->getDataSize()
 		);
 
 		// why not
@@ -290,7 +289,7 @@ void StateGeneratingWorld::generateChunk(Chunk* chunk, glm::u8vec4 chunkPos)
 							float noiseB = (0.5f * noise->Evaluate(aCave, pos.y, pos.z, pos.w)) + 0.5f;
 
 							float caveVal = noiseA * noiseB;
-							if (caveVal < 0.1f)
+							if (caveVal < 0.2f)
 							{
 								blockType = Block::AIR;
 							}

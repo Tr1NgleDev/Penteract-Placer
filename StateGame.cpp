@@ -6,6 +6,7 @@
 #include "QuadRendererBasic.h"
 #include "Directory.h"
 #include "utils.h"
+#include "audio.h"
 
 StateGame StateGame::instanceObj;
 StateGame* StateGame::instance()
@@ -65,37 +66,34 @@ void StateGame::init(StateManager& s)
 		quitToTitleButton.setAlignX(ui::ALIGN_CENTER_X);
 		quitToTitleButton.setOffsetY(550);
 
-		// TODO: change these into checkboxes maybe
-		toggleShadowsButton.setText(std::format("Shadows: {}", shadows ? "On" : "Off"));
-		toggleShadowsButton.setAction([this, &s]()
-			{
-				shadows = !shadows;
-				toggleShadowsButton.setText(std::format("Shadows: {}", shadows ? "On" : "Off"));
-			});
-		toggleShadowsButton.setSize(210, 50);
-		toggleShadowsButton.setAlignX(ui::ALIGN_LEFT);
-		toggleShadowsButton.setAlignY(ui::ALIGN_BOTTOM);
-		toggleShadowsButton.setOffsetX(10);
-		toggleShadowsButton.setOffsetY(-80);
+		shadowsCheckbox.setText("Shadows");
+		shadowsCheckbox.setChecked("true");
+		shadowsCheckbox.setAlignX(ui::ALIGN_LEFT);
+		shadowsCheckbox.setAlignY(ui::ALIGN_BOTTOM);
+		shadowsCheckbox.setOffsetX(10);
+		shadowsCheckbox.setOffsetY(-75);
 
-		toggleAOButton.setText(std::format("AO: {}", ambientOcclusion ? "On" : "Off"));
-		toggleAOButton.setAction([this, &s]()
-			{
-				ambientOcclusion = !ambientOcclusion;
-				toggleAOButton.setText(std::format("AO: {}", ambientOcclusion ? "On" : "Off"));
-			});
-		toggleAOButton.setSize(210, 50);
-		toggleAOButton.setAlignX(ui::ALIGN_LEFT);
-		toggleAOButton.setAlignY(ui::ALIGN_BOTTOM);
-		toggleAOButton.setOffsetX(10);
-		toggleAOButton.setOffsetY(-10);
+		ambientOcclusionCheckbox.setText("Ambient Occlusion");
+		ambientOcclusionCheckbox.setChecked("true");
+		ambientOcclusionCheckbox.setAlignX(ui::ALIGN_LEFT);
+		ambientOcclusionCheckbox.setAlignY(ui::ALIGN_BOTTOM);
+		ambientOcclusionCheckbox.setOffsetX(10);
+		ambientOcclusionCheckbox.setOffsetY(-50);
+
+		waterCheckbox.setText("Water");
+		waterCheckbox.setChecked("true");
+		waterCheckbox.setAlignX(ui::ALIGN_LEFT);
+		waterCheckbox.setAlignY(ui::ALIGN_BOTTOM);
+		waterCheckbox.setOffsetX(10);
+		waterCheckbox.setOffsetY(-25);
 
 		pauseMenu.clear();
 		pauseMenu.addElem(&pausedText);
 		pauseMenu.addElem(&backToGameButton);
 		pauseMenu.addElem(&quitToTitleButton);
-		pauseMenu.addElem(&toggleShadowsButton);
-		pauseMenu.addElem(&toggleAOButton);
+		pauseMenu.addElem(&shadowsCheckbox);
+		pauseMenu.addElem(&ambientOcclusionCheckbox);
+		pauseMenu.addElem(&waterCheckbox);
 	}
 
 	{
@@ -149,13 +147,31 @@ void StateGame::init(StateManager& s)
 
 	//createWorld(3);
 
-	cam.pos = {
-		32.0f,
-		world.getEdgeLength() * Chunk::SIZE / 2.0f,
-		world.getEdgeLength() * Chunk::SIZE / 2.0f,
-		world.getEdgeLength() * Chunk::SIZE / 2.0f,
-		world.getEdgeLength() * Chunk::SIZE / 2.0f
-	};
+	// load player save data if it exists
+	{
+		std::filesystem::path playerPath = worldPath / "player.json";
+		if (std::filesystem::is_regular_file(playerPath))
+		{
+			nlohmann::json j;
+			std::ifstream{ playerPath } >> j;
+
+			cam.pos = j["pos"];
+			orientation = j["orientation"];
+		}
+		else
+		{
+			cam.pos = {
+				32.0f,
+				world.getEdgeLength() * Chunk::SIZE / 2.0f,
+				world.getEdgeLength() * Chunk::SIZE / 2.0f,
+				world.getEdgeLength() * Chunk::SIZE / 2.0f,
+				world.getEdgeLength() * Chunk::SIZE / 2.0f
+			};
+			orientation = {};
+		}
+		updateCamDirs();
+	}
+
 	//for (int e = 0; e < world.getEdgeLength() * Chunk::SIZE; ++e)
 	//{
 	//	for (int d = 0; d < world.getEdgeLength() * Chunk::SIZE; ++d)
@@ -229,10 +245,17 @@ void StateGame::init(StateManager& s)
 			s.setUiPage(&console.ui);
 		}
 	}
+
+	audio::clearBgm();
+	audio::loadSound("music/ambient_major.mp3");
+	audio::addToBgmList("music/ambient_major.mp3");
+	audio::loadSound("music/spooky oooo.mp3");
+	audio::addToBgmList("music/spooky oooo.mp3");
 }
 
 void StateGame::close(StateManager& s)
 {
+	save();
 	if (s.getUiPage() != nullptr)
 	{
 		enableCursor(s.getWindow());
@@ -242,6 +265,8 @@ void StateGame::close(StateManager& s)
 
 void StateGame::update(StateManager& s, double dt)
 {
+	audio::updateBgm();
+
 	m5::vec5 moveDir{ 0 };
 
 	if (keys.w) moveDir += cam.forward;
@@ -257,7 +282,7 @@ void StateGame::update(StateManager& s, double dt)
 
 	moveDir = m5::normalize(moveDir);
 
-	cam.pos += moveDir * 4.0f * dt;
+	cam.pos += moveDir * 7.0f * dt;
 
 	if (keys.space) cam.pos.a += 7.0f * dt;
 	if (keys.shift) cam.pos.a -= 7.0f * dt;
@@ -314,8 +339,9 @@ void StateGame::render(StateManager& s)
 	blockDataHandlesBuffer.use(1);
 	blockTexturesBuffer.use(2);
 	tileTextureHandles.use(3);
-	rendererShader->setUniform("shadows", shadows);
-	rendererShader->setUniform("ambientOcclusion", ambientOcclusion);
+	rendererShader->setUniform("shadows", shadowsCheckbox.getChecked());
+	rendererShader->setUniform("ambientOcclusion", ambientOcclusionCheckbox.getChecked());
+	rendererShader->setUniform("water", waterCheckbox.getChecked());
 	rendererShader->setUniform("lightDir", lightDir);
 	rendererShader->setUniform("time", (float)glfwGetTime());
 	QuadRendererBasic::render();
@@ -389,11 +415,7 @@ void StateGame::mouseInput(StateManager& s, double xpos, double ypos)
 		}
 	}
 
-	cam.up		= m5::normalize(orientation.rotate(m5::vec5::up()));
-	cam.forward	= m5::normalize(orientation.rotate(m5::vec5::forward()));
-	cam.left	= m5::normalize(orientation.rotate(m5::vec5::left()));
-	cam.over	= m5::normalize(orientation.rotate(m5::vec5::over()));
-	cam.yonder	= m5::normalize(orientation.rotate(m5::vec5::yonder()));
+	updateCamDirs();
 }
 
 void StateGame::charInput(StateManager& s, uint32_t codepoint)
@@ -433,7 +455,17 @@ void StateGame::mouseButtonInput(StateManager& s, int button, int action, int mo
 
 	switch (button)
 	{
-	case GLFW_MOUSE_BUTTON_LEFT: keys.lmb = (action == GLFW_PRESS); break;
+	case GLFW_MOUSE_BUTTON_LEFT:
+	{
+		keys.lmb = (action == GLFW_PRESS);
+		if (keys.lmb)
+		{
+			auto collision = world.dda(cam.pos, cam.forward, 1000.0f);
+			world.setBlock(collision.pos, Block::AIR);
+			updateRendererData();
+		}
+		break;
+	}
 	case GLFW_MOUSE_BUTTON_MIDDLE: keys.mmb = (action == GLFW_PRESS); break;
 	case GLFW_MOUSE_BUTTON_RIGHT: keys.rmb = (action == GLFW_PRESS); break;
 	}
@@ -557,12 +589,21 @@ void StateGame::keyInput(StateManager& s, int key, int scancode, int action, int
 	{
 		if (action == GLFW_PRESS)
 		{
-			world.setBlock(cam.pos, key - GLFW_KEY_0);
+			auto collision = world.dda(cam.pos, cam.forward, 1000.0f);
+			world.setBlock(collision.pos + collision.normal, key - GLFW_KEY_0);
 			updateRendererData();
 		}
 	} break;
 	case GLFW_KEY_W: keys.w = (action == GLFW_PRESS); break;
-	case GLFW_KEY_S: keys.s = (action == GLFW_PRESS); break;
+	case GLFW_KEY_S:
+	{
+		keys.s = (action == GLFW_PRESS);
+		if (keys.s && (mods & GLFW_MOD_CONTROL))
+		{
+			save();
+		}
+		break;
+	}
 	case GLFW_KEY_A: keys.a = (action == GLFW_PRESS); break;
 	case GLFW_KEY_D: keys.d = (action == GLFW_PRESS); break;
 	case GLFW_KEY_Q: keys.q = (action == GLFW_PRESS); break;
@@ -713,6 +754,7 @@ void StateGame::exec(std::string_view cmd)
 				"- clear - Clears the log.\n"
 				"- setBlock <pos> <id> - Sets a block at a position.\n"
 				"- fill <posA> <posB> <id> - Fills a region with a block."
+				"- tp <pos> - Teleports the player to a position."
 			);
 			return true;
 		}},
@@ -779,6 +821,20 @@ void StateGame::exec(std::string_view cmd)
 
 			return true;
 		}},
+		{ "tp", [&]()
+		{
+			int cursor = 1;
+
+			auto pos = positionArg(args, cursor);
+			if (!pos.has_value())
+			{
+				return false;
+			}
+
+			cam.pos = pos.value();
+
+			return true;
+		}},
 	};
 
 	if (commands.contains(args[0]))
@@ -817,6 +873,21 @@ World* StateGame::createWorld(uint8_t edgeLength)
 	return &world;
 }
 
+void StateGame::setWorldPath(std::filesystem::path path)
+{
+	worldPath = path;
+}
+
+void StateGame::updateCamDirs()
+{
+	// it's probably faster to convert to a matrix to get the vectors
+	cam.up = m5::normalize(orientation.rotate(m5::vec5::up()));
+	cam.forward = m5::normalize(orientation.rotate(m5::vec5::forward()));
+	cam.left = m5::normalize(orientation.rotate(m5::vec5::left()));
+	cam.over = m5::normalize(orientation.rotate(m5::vec5::over()));
+	cam.yonder = m5::normalize(orientation.rotate(m5::vec5::yonder()));
+}
+
 void StateGame::enableCursor(GLFWwindow* window)
 {
 	glfwSetCursorPos(window, lastMousePos.x, lastMousePos.y);
@@ -829,6 +900,19 @@ void StateGame::disableCursor(GLFWwindow* window)
 
 	//glfwSetCursorPos(window, 0.0, 0.0);
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+}
+
+void StateGame::save()
+{
+	std::ofstream{ worldPath / "player.json" } << nlohmann::json{
+		{ "pos", cam.pos.toJson() },
+		{ "orientation", orientation.toJson() },
+	};
+
+	std::ofstream{ worldPath / "data.bin", std::ios::binary }.write(
+		reinterpret_cast<const char*>(world.getChunks()),
+		world.getDataSize()
+	);
 }
 
 constexpr uint8_t SECTIONS = 4u; // RGBA channels

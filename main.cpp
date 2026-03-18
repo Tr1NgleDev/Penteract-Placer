@@ -17,6 +17,8 @@
 #include "Shader.h"
 #include "ui.h"
 
+#include "audio.h"
+
 #include <Windows.h>
 
 #ifdef _WIN32
@@ -207,6 +209,8 @@ int main()
 
 	ui::element::renderInit();
 
+	audio::init();
+
 	stateManager.changeState(StateTitleScreen::instance());
 
 	int wW, wH;
@@ -242,6 +246,8 @@ int main()
 			stateManager.popState();
 		}
 	}
+
+	audio::deinit();
 
 	Texture::destroy();
 	Shader::destroy();

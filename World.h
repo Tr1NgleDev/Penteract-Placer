@@ -12,6 +12,8 @@ public:
 
 	size_t getEdgeLength() const;
 
+	size_t getDataSize() const;
+
 	// returns a pointer to the 4d array of chunks
 	Chunk* getChunks();
 	const Chunk* getChunks() const;
@@ -35,6 +37,18 @@ public:
 			Chunk::HEIGHT, size, size, size, size
 		};
 	}
+
+	struct Collision
+	{
+		uint8_t blockId;
+		float dist;
+		// signed in case the block is at the world edge
+		m5::ivec5 pos;
+		m5::vec5 normal;
+		int side;
+	};
+	Collision dda(const m5::vec5& pos, const m5::vec5& dir, float maxDist);
+
 private:
 
 	uint8_t edgeLength;

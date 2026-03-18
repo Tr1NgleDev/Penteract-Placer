@@ -12,9 +12,6 @@ class StateGame : public State
 {
 public:
 
-	bool shadows = true;
-	bool ambientOcclusion = true;
-
 	static StateGame* instance();
 
 	void init(StateManager& s) override;
@@ -31,6 +28,7 @@ public:
 	// creates a world with a given edge length,
 	// returning a pointer so the caller can initialize the world data.
 	World* createWorld(uint8_t edgeLength);
+	void setWorldPath(std::filesystem::path path);
 
 private:
 
@@ -61,6 +59,8 @@ private:
 	GPUBuffer blockTexturesBuffer;
 	GPUBuffer tileTextureHandles;
 
+	void updateCamDirs();
+
 	struct
 	{
 		bool w;
@@ -83,6 +83,10 @@ private:
 	void disableCursor(GLFWwindow* window);
 
 	World world;
+	std::filesystem::path worldPath;
+
+	void save();
+
 	m5::vec5 lightDir = m5::normalize({ 7.0f, 2.0f, 1.5f, 1.0f, 1.0f });
 	
 	ui::page pauseMenu;
@@ -90,8 +94,9 @@ private:
 	ui::text pausedText;
 	ui::button backToGameButton;
 	ui::button quitToTitleButton;
-	ui::button toggleShadowsButton;
-	ui::button toggleAOButton;
+	ui::checkbox shadowsCheckbox;
+	ui::checkbox ambientOcclusionCheckbox;
+	ui::checkbox waterCheckbox;
 
 	ui::page ui;
 	ui::text fpsText;

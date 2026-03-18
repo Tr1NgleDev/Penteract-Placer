@@ -177,7 +177,7 @@ void StateLoadWorld::updatePage(StateManager& s)
 	int end = glm::min<int>(worldPaths.size(), start + PAGE_SIZE);
 	for (int i = start; i < end; ++i)
 	{
-		std::string worldPath = worldPaths[i];
+		std::filesystem::path worldPath = worldPaths[i];
 		ui::button* worldButton = worldButtons[i].get();
 		worldButton->setAction([this, &s, worldPath]
 			{
@@ -188,16 +188,36 @@ void StateLoadWorld::updatePage(StateManager& s)
 				std::ifstream{ jsonPath.string() } >> j;
 
 				int edgeLength = j["size"].get<int>();
-
 				World* world = StateGame::instance()->createWorld(edgeLength);
+				StateGame::instance()->setWorldPath(worldPath);
 
 				std::filesystem::path dataPath = worldPath;
 				dataPath.append("data.bin");
 
-				std::ifstream{ dataPath.string() }.read(
+				std::ifstream{ dataPath, std::ios::binary }.read(
 					reinterpret_cast<char*>(world->getChunks()),
-					sizeof(Chunk) * edgeLength * edgeLength * edgeLength * edgeLength
+					world->getDataSize()
 				);
+
+				for (int b = 0; b < edgeLength; ++b)
+				{
+					for (int c = 0; c < edgeLength; ++c)
+					{
+						for (int d = 0; d < edgeLength; ++d)
+						{
+							for (int e = 0; e < edgeLength; ++e)
+							{
+								glm::u8vec4 chunkPos{ b, c, d, e };
+								Chunk* chunk = world->getChunk(chunkPos);
+
+								for (int i = 0; i < 4; ++i)
+								{
+									chunk->shouldUpdateRenderer[i] = true;
+								}
+							}
+						}
+					}
+				}
 
 				// the state change must not be performed here,
 				// since closing this state will destroy the lambda functor.

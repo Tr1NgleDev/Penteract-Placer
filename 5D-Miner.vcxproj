@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="packages\SoLoud.2020.2.7\build\native\SoLoud.props" Condition="Exists('packages\SoLoud.2020.2.7\build\native\SoLoud.props')" />
+  <Import Project="packages\SoLoud.redist.2020.2.7\build\native\SoLoud.redist.props" Condition="Exists('packages\SoLoud.redist.2020.2.7\build\native\SoLoud.redist.props')" />
   <Import Project="packages\GLEW-dynamic.2.2.0\build\native\GLEW-dynamic.props" Condition="Exists('packages\GLEW-dynamic.2.2.0\build\native\GLEW-dynamic.props')" />
   <Import Project="packages\GLEW-dynamic.redist.2.2.0\build\native\GLEW-dynamic.redist.props" Condition="Exists('packages\GLEW-dynamic.redist.2.2.0\build\native\GLEW-dynamic.redist.props')" />
   <ItemGroup Label="ProjectConfigurations">
@@ -86,6 +88,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="audio.cpp" />
     <ClCompile Include="Chunk.cpp" />
     <ClCompile Include="Directory.cpp" />
     <ClCompile Include="File.cpp" />
@@ -122,6 +125,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="audio.h" />
     <ClInclude Include="Chunk.h" />
     <ClInclude Include="Directory.h" />
     <ClInclude Include="File.h" />
@@ -173,5 +177,7 @@
     <Error Condition="!Exists('packages\glfw.3.4.0\build\native\glfw.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\glfw.3.4.0\build\native\glfw.targets'))" />
     <Error Condition="!Exists('packages\glm.1.0.3\build\native\glm.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\glm.1.0.3\build\native\glm.targets'))" />
     <Error Condition="!Exists('packages\boost.1.87.0\build\boost.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\boost.1.87.0\build\boost.targets'))" />
+    <Error Condition="!Exists('packages\SoLoud.redist.2020.2.7\build\native\SoLoud.redist.props')" Text="$([System.String]::Format('$(ErrorText)', 'packages\SoLoud.redist.2020.2.7\build\native\SoLoud.redist.props'))" />
+    <Error Condition="!Exists('packages\SoLoud.2020.2.7\build\native\SoLoud.props')" Text="$([System.String]::Format('$(ErrorText)', 'packages\SoLoud.2020.2.7\build\native\SoLoud.props'))" />
   </Target>
 </Project>

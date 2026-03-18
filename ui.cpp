@@ -875,7 +875,10 @@ bool ui::button::mouseButtonInput(window* win, double xpos, double ypos, int but
 	{
 		if (mouseDown)
 		{
-			this->action();
+			if (this->action)
+			{
+				this->action();
+			}
 			mouseDown = false;
 			return true;
 		}
@@ -1043,7 +1046,10 @@ bool ui::checkbox::mouseButtonInput(window* win, double xpos, double ypos, int b
 		if (mouseDown)
 		{
 			checked = !checked;
-			this->action(checked);
+			if (this->action)
+			{
+				this->action(checked);
+			}
 			mouseDown = false;
 			return true;
 		}

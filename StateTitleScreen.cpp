@@ -1,6 +1,7 @@
 #include "StateTitleScreen.h"
 #include "StateCreateWorld.h"
 #include "StateLoadWorld.h"
+#include "audio.h"
 #include <iostream>
 
 StateTitleScreen StateTitleScreen::instanceObj;
@@ -50,6 +51,10 @@ void StateTitleScreen::init(StateManager& s)
 	page.addElem(&quitButton);
 
 	s.setUiPage(&page);
+
+	audio::clearBgm();
+	audio::loadSound("music/hows this lol.mp3");
+	audio::addToBgmList("music/hows this lol.mp3");
 }
 
 void StateTitleScreen::close(StateManager& s)
@@ -69,6 +74,7 @@ void StateTitleScreen::resume(StateManager& s)
 
 void StateTitleScreen::update(StateManager& s, double dt)
 {
+	audio::updateBgm();
 }
 
 void StateTitleScreen::render(StateManager& s)

@@ -305,6 +305,7 @@ namespace m5
 	using u32vec5 = Tvec5<uint32_t>;
 	using uvec5 = u32vec5;
 	using u64vec5 = Tvec5<uint64_t>;
+	using bvec5 = Tvec5<bool>;
 	using quadvec5 = vec5;
 
 	inline float dot(const vec5& a, const vec5& b) { return a.dot(b); }
@@ -337,9 +338,133 @@ namespace m5
 			glm::max(a.e, (T)b.e),
 		};
 	}
+	template<typename T = float, typename T2 = T>
+	inline Tvec5<T> mix(const Tvec5<T>& a, const Tvec5<T2>& b, float t)
+	{
+		return Tvec5<T>
+		{
+			glm::mix(a.a, (T)b.a, t),
+			glm::mix(a.b, (T)b.b, t),
+			glm::mix(a.c, (T)b.c, t),
+			glm::mix(a.d, (T)b.d, t),
+			glm::mix(a.e, (T)b.e, t),
+		};
+	}
+	template<typename T = float, typename T2 = T>
+	inline Tvec5<T> mix(const Tvec5<T>& a, const Tvec5<T2>& b, const bvec5& t)
+	{
+		return Tvec5<T>
+		{
+			glm::mix(a.a, (T)b.a, t.a),
+			glm::mix(a.b, (T)b.b, t.b),
+			glm::mix(a.c, (T)b.c, t.c),
+			glm::mix(a.d, (T)b.d, t.d),
+			glm::mix(a.e, (T)b.e, t.e),
+		};
+	}
+	template<typename T = float, typename T2 = T>
+	inline bvec5 lessThan(const Tvec5<T>& a, const Tvec5<T2>& b)
+	{
+		return bvec5
+		{
+			a.a < (T)b.a,
+			a.b < (T)b.b,
+			a.c < (T)b.c,
+			a.d < (T)b.d,
+			a.e < (T)b.e,
+		};
+	}
+	template<typename T = float, typename T2 = T>
+	inline bvec5 lessThanEqual(const Tvec5<T>& a, const Tvec5<T2>& b)
+	{
+		return bvec5
+		{
+			a.a <= (T)b.a,
+			a.b <= (T)b.b,
+			a.c <= (T)b.c,
+			a.d <= (T)b.d,
+			a.e <= (T)b.e,
+		};
+	}
+	template<typename T = float, typename T2 = T>
+	inline bvec5 greaterThan(const Tvec5<T>& a, const Tvec5<T2>& b)
+	{
+		return bvec5
+		{
+			a.a > (T)b.a,
+			a.b > (T)b.b,
+			a.c > (T)b.c,
+			a.d > (T)b.d,
+			a.e > (T)b.e,
+		};
+	}
+	template<typename T = float, typename T2 = T>
+	inline bvec5 greaterThanEqual(const Tvec5<T>& a, const Tvec5<T2>& b)
+	{
+		return bvec5
+		{
+			a.a >= (T)b.a,
+			a.b >= (T)b.b,
+			a.c >= (T)b.c,
+			a.d >= (T)b.d,
+			a.e >= (T)b.e,
+		};
+	}
 	template<typename T = float, typename T2 = T, typename T3 = T>
 	inline Tvec5<T> clamp(const Tvec5<T>& v, const Tvec5<T2>& min, const Tvec5<T3>& max)
 	{
 		return m5::min(m5::max(v, min), max);
+	}
+	template<typename T = float, typename T2 = T>
+	inline Tvec5<T> abs(const Tvec5<T>& v)
+	{
+		return Tvec5<T>
+		{
+			glm::abs(v.a),
+			glm::abs(v.b),
+			glm::abs(v.c),
+			glm::abs(v.d),
+			glm::abs(v.e),
+		};
+	}
+	template<typename T = float, typename T2 = T>
+	inline Tvec5<T> floor(const Tvec5<T>& v)
+	{
+		return Tvec5<T>
+		{
+			glm::floor(v.a),
+			glm::floor(v.b),
+			glm::floor(v.c),
+			glm::floor(v.d),
+			glm::floor(v.e),
+		};
+	}
+	template<typename T = float, typename T2 = T>
+	inline Tvec5<T> fract(const Tvec5<T>& v)
+	{
+		return Tvec5<T>
+		{
+			glm::fract(v.a),
+			glm::fract(v.b),
+			glm::fract(v.c),
+			glm::fract(v.d),
+			glm::fract(v.e),
+		};
+	}
+	template<typename T = float, typename T2 = T>
+	inline Tvec5<T> sign(const Tvec5<T>& v)
+	{
+		return Tvec5<T>
+		{
+			glm::sign(v.a),
+			glm::sign(v.b),
+			glm::sign(v.c),
+			glm::sign(v.d),
+			glm::sign(v.e),
+		};
+	}
+	inline bool any(const bvec5& v)
+	{
+		return v.a || v.b || v.c || v.d || v.e;
 	}
 }
