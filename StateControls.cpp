@@ -11,26 +11,30 @@ void StateControls::init(StateManager& s)
 	titleText.setText("Controls:");
 	titleText.setSize(3);
 	titleText.setAlignX(ui::ALIGN_CENTER_X);
-	titleText.setOffsetY(100);
+	titleText.setOffsetY(50);
 
 	controlsText.setText(
 		"Movement (BC): WASD\n"
-		"Move Down (-A): SHIFT\n"
-		"Move Up (+A): SPACE\n"
 		"Strafe Kata (-D): Q\n"
 		"Strafe Ana (+D): E\n"
 		"Strafe -E: R\n"
 		"Strafe +E: F\n"
+		"Sprint: CTRL\n"
+		"Toggle Collision: C\n"
+		"Toggle Flight: V\n"
+		"Move Down (Flight) (-A): SHIFT\n"
+		"Move Up (Flight) (+A) / Jump: SPACE\n"
 		"Select Block: 0-9 or scroll wheel\n"
 		"Break Block: left-click\n"
 		"Place Block: right-click\n"
-		"Look ab/ac: mouse\n"
-		"Look bc/bd: middle-click + mouse\n"
+		"Look BC/AB: mouse\n"
+		"Look CD/BD: middle-click + mouse\n"
+		"Look CE/BE: ALT + middle-click + mouse\n"
 		"Open Console: \"`\" key (right next to the \"1\" key)\n"
-		"Save: CTRL+SHIFT+S\n"
+		"Save: CTRL + SHIFT + S\n"
 	);
 	controlsText.setAlignX(ui::ALIGN_CENTER_X);
-	controlsText.setOffsetY(150);
+	controlsText.setOffsetY(100);
 
 	page.clear();
 	page.addElem(&titleText);
