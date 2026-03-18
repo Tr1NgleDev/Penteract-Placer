@@ -580,6 +580,7 @@ void main()
 		{
 			lighting *= computeAO(hit.blockPos, hit.normal, hit.texCoord) * 0.5 + 0.5;
 		}
+		color = vec4(tileColor.rgb * (lighting * 0.8 + 0.2), 1.0);
 	}
 	
 	{
