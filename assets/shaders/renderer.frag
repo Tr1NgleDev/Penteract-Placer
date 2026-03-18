@@ -586,18 +586,20 @@ void main()
 		color = vec4(tileColor.rgb * (lighting * 0.8 + 0.2) * fog, 1.0);
 	}
 	
-	if (rd.abcd.x > 0)
 	{
 		float fog = ((clamp(hit.dist, fogStart, fogEnd) - fogStart) / (fogEnd - fogStart));
 		color.rgb = mix(color.rgb, color.rgb * fogColor, clamp(fog, 0.0, 1.0));
 	}
 
 	// water at maximum wave height
-	float waterHeight = 30.75f;
-	
-	vec5 intersection = add(ro, mul(rd, ((waterHeight - ro.abcd.x) / rd.abcd.x)));
+	const float waterHeight = 30.75;
+	const float waveHeight = 0.2;
+	const float waveScaleH = 7.0;
+	const float timeOffset = time * 0.25;
 
-	if (intersection.abcd.x < hit.pos.abcd.x)
+	float fA = waterHeight + waterWave(ro, timeOffset, waveScaleH, waveHeight);
+	
+	if (fA - ro.abcd.x > 0.0)
 	{
 		float waterFog = hit.pos.abcd.x < fA ? ((clamp(hit.dist, 0.0, 16.0) - 0.0) / (16.0 - 0.0)) : 0.0;
 		vec3 waterFogColor = normalize(vec3(0.07, 0.2, 0.39));
@@ -606,44 +608,39 @@ void main()
 		return;
 	}
 
-	float waveHeight = 0.3f;
-	float waveScaleH = 7.0f;
-	float timeOffset = time * 0.25f;
-
-	// higher step count results in smoother waves
-	int stepCount = 64;
-	vec5 step = mul(rd, ((-waveHeight / float(stepCount)) / rd.abcd.x));
-	for (int i = 0; i < stepCount; ++i)
+	vec5 intersection = add(ro, mul(rd, 0.001));
+	const int stepCount = 24;
+	bool hitWater = false;
+	float waterDist = 0.001;
+	for (int i = 0; i < stepCount && waterDist < fogEnd; ++i)
 	{
-		float aOffset =
-			sin((intersection.abcd.y + timeOffset) * waveScaleH) *
-			cos((intersection.abcd.z + timeOffset) * waveScaleH) *
-			sin((intersection.abcd.w + timeOffset) * waveScaleH) *
-			cos((intersection.e + timeOffset) * waveScaleH);
-		aOffset = (aOffset * 0.5f) - 0.5f;
-		aOffset *= waveHeight;
+		float f = (intersection.abcd.x - (waterHeight + waterWave(intersection, timeOffset, waveScaleH, waveHeight))) * g;
 
-		if (intersection.abcd.x - waterHeight < aOffset)
+		if (f < 0.001)
 		{
-			//intersection.abcd.x = waterHeight + aOffset;
+			hitWater = true;
 			break;
 		}
-		intersection = add(intersection, step);
+
+		float step = f / -rd.abcd.x;
+		waterDist += step;
+		intersection = add(intersection, mul(rd, step));
 	}
 
-	//if (length5(sub(intersection, ro)) > length5(sub(hit.pos, ro)))
+	if (!hitWater)
+	{
+		return;
+	}
+
 	if (intersection.abcd.x < hit.pos.abcd.x)
 	{
 		return;
 	}
 
-	// recalculate intersectLen after adjustment
-	intersectLen = length5(sub(intersect, ro));
-
 	// make the water texture move
-	intersect.abcd.y += timeOffset;
+	intersection.abcd.y += timeOffset;
 
-	vec4 waterTexCoord = computeTexCoord(intersect, vec5(vec4(1, 0, 0, 0), 0));
+	vec4 waterTexCoord = computeTexCoord(intersection, vec5(vec4(1, 0, 0, 0), 0));
 
 	float slice = floor(waterTexCoord.w * 16.0);
 	vec3 texUVW = vec3(
@@ -652,10 +649,13 @@ void main()
 		(slice + waterTexCoord.z) / 16.0
 	);
 
-	vec3 waterColor = texture(sampler3D(tiles[8]), texUVW).rgb * 0.7f;
-	float waterAlpha = 0.25f;
-
-	if (ro.abcd.x < waterHeight || hit.pos.abcd.x < waterHeight)
+	vec3 waterColor = texture(sampler3D(tiles[8]), texUVW).rgb * 0.7;
+	float waterAlpha = 0.3;
+	{
+		float fog = ((clamp(waterDist, fogStart, fogEnd) - fogStart) / (fogEnd - fogStart));
+		waterColor = mix(waterColor, fogColor, clamp(fog, 0.0, 1.0));
+	}
+	if (hit.hit)
 	{
 		float waterFog = ((clamp(hit.dist - waterDist, 0.0, 12.0) - 0.0) / (12.0 - 0.0));
 		vec3 waterFogColor = normalize(vec3(0.07, 0.2, 0.39));
