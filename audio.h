@@ -5,10 +5,6 @@
 #include <soloud.h>
 #include <soloud_wav.h>
 
-// for some reason soloud has defines for min and max which interfere with glm
-#undef max;
-#undef min;
-
 class audio
 {
 public:
