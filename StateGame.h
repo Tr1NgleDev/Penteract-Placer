@@ -150,7 +150,7 @@ private:
 	void updateConsoleInput();
 	std::optional<m5::vec5> positionArg(const std::vector<std::string>& args, int& cursor);
 	std::optional<int64_t> intArg(const std::vector<std::string>& args, int& cursor, int64_t min = INT_MIN, int64_t max = INT_MAX);
-	void print(std::string_view message);
+	void print(std::string_view message, bool includeTime = true);
 	void exec(std::string_view cmd);
 
 	void updateRendererData();

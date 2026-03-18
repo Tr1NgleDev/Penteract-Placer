@@ -885,7 +885,7 @@ std::optional<m5::vec5> StateGame::positionArg(const std::vector<std::string>& a
 				if (arg.size() > 2 && (arg[1] == '+' || arg[1] == '-'))
 				{
 					float x = std::stof(arg.substr(2));
-					result[i] += x * (arg[1] == '-' ? 1 : -1);
+					result[i] += x * (arg[1] == '-' ? -1 : 1);
 				}
 			}
 			else
@@ -969,6 +969,7 @@ void StateGame::exec(std::string_view cmd)
 				"- fill <posA> <posB> <id> - Fills a region with a block.\n"
 				"- tp <pos> - Teleports the player to a position.\n"
 				"- save - Saves the world."
+				, false
 			);
 			return true;
 		}},
@@ -1057,6 +1058,8 @@ void StateGame::exec(std::string_view cmd)
 		}},
 	};
 
+	print(std::format("{}", cmd), true);
+
 	if (commands.contains(args[0]))
 	{
 		if (!commands[args[0]]())
@@ -1069,7 +1072,7 @@ void StateGame::exec(std::string_view cmd)
 	print(std::format("Unknown command \"{}\"! Use \"help\" for a list of commands.", cmd));
 }
 
-void StateGame::print(std::string_view message)
+void StateGame::print(std::string_view message, bool includeTime)
 {
 	time_t t = time(0);
 	tm tm;
@@ -1079,7 +1082,10 @@ void StateGame::print(std::string_view message)
 	timeStr << std::put_time(&tm, "%H:%M:%S");
 
 	console.log += '\n';
-	console.log += std::format("[{}]: ", timeStr.str());
+	if (includeTime)
+	{
+		console.log += std::format("[{}]: ", timeStr.str());
+	}
 	console.log += message;
 
 	console.logText.setText(console.log);
