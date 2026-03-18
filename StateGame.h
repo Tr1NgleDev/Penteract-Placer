@@ -47,6 +47,13 @@ private:
 		uint32_t _pad6[3]{ 0 };
 	};
 
+	const float gravity = -32.0f;
+	const float playerHeight = 1.8f;
+	bool collision = true;
+	bool flight = false;
+	m5::vec5 vel{ 0 };
+	bool onGround = false;
+
 	World::Collision target;
 	glm::mat4 projection3D;
 	m5::rotor5 orientation;

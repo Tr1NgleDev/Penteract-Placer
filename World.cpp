@@ -237,7 +237,8 @@ World::Collision World::dda(const m5::vec5& pos, const m5::vec5& dir, float maxD
 				Collision res;
 				res.blockId = blockId;
 				res.dist = t + t5;
-				res.pos = (vC * CHUNK_SIZE) + v;
+				res.pos = pos + dir * res.dist;
+				res.blockPos = (vC * CHUNK_SIZE) + v;
 				res.normal = m5::vec5{ 0 };
 				res.normal[axis5] = -stepF[axis5];
 				res.side = axis5 * 2 + (res.normal[axis5] < 0.0 ? 0 : 1);
@@ -263,7 +264,7 @@ World::Collision World::dda(const m5::vec5& pos, const m5::vec5& dir, float maxD
 	Collision res;
 	res.blockId = Block::AIR;
 	res.dist = t;
-	res.pos = (vC * CHUNK_SIZE) + v;
+	res.blockPos = (vC * CHUNK_SIZE) + v;
 	res.normal = m5::vec5{ 0 };
 	res.normal[axisC] = -stepF[axisC];
 	res.side = axisC * 2 + (res.normal[axisC] < 0.0 ? 0 : 1);

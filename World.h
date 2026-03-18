@@ -42,8 +42,9 @@ public:
 	{
 		uint8_t blockId;
 		float dist;
+		m5::vec5 pos;
 		// signed in case the block is at the world edge
-		m5::ivec5 pos;
+		m5::ivec5 blockPos;
 		m5::vec5 normal;
 		int side;
 	};

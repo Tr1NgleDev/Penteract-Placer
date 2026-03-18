@@ -269,25 +269,142 @@ void StateGame::update(StateManager& s, double dt)
 
 	float speed = keys.ctrl ? 12.0f : 7.0f;
 
-	m5::vec5 moveDir{ 0 };
+	if (flight)
+	{
+		m5::vec5 moveDir{ 0 };
 
-	if (keys.w) moveDir += cam.forward;
-	if (keys.s) moveDir -= cam.forward;
-	if (keys.a) moveDir += cam.left;
-	if (keys.d) moveDir -= cam.left;
-	if (keys.q) moveDir += cam.over;
-	if (keys.e) moveDir -= cam.over;
-	if (keys.r) moveDir += cam.yonder;
-	if (keys.f) moveDir -= cam.yonder;
-	//if (keys.space) moveDir += cam.up;
-	//if (keys.shift) moveDir -= cam.up;
+		if (keys.w) moveDir += cam.forward;
+		if (keys.s) moveDir -= cam.forward;
+		if (keys.a) moveDir += cam.left;
+		if (keys.d) moveDir -= cam.left;
+		if (keys.q) moveDir += cam.over;
+		if (keys.e) moveDir -= cam.over;
+		if (keys.r) moveDir += cam.yonder;
+		if (keys.f) moveDir -= cam.yonder;
 
-	moveDir = m5::normalize(moveDir);
+		moveDir = m5::normalize(moveDir);
 
-	cam.pos += moveDir * speed * dt;
+		vel = moveDir * speed;
 
-	if (keys.space) cam.pos.a += speed * dt;
-	if (keys.shift) cam.pos.a -= speed * dt;
+		if (keys.space) vel.a += speed;
+		if (keys.shift) vel.a -= speed;
+	}
+	else
+	{
+		if (!onGround)
+		{
+			vel.a += gravity * dt;
+			if (cam.pos.a < -10.0f)
+			{
+				vel.a = 0.0f;
+				cam.pos.a = -10.0f;
+				onGround = true;
+			}
+		}
+
+		// a vector pointing outwards from the front of the player
+		m5::vec5 pd = m5::normalize(m5::cross(cam.left, m5::vec5::up(), cam.over, cam.yonder));
+
+		m5::vec5 moveDir{ 0 };
+
+		if (keys.w) moveDir += pd;
+		if (keys.s) moveDir -= pd;
+		if (keys.a) moveDir += cam.left;
+		if (keys.d) moveDir -= cam.left;
+		if (keys.q) moveDir += cam.over;
+		if (keys.e) moveDir -= cam.over;
+		if (keys.r) moveDir += cam.yonder;
+		if (keys.f) moveDir -= cam.yonder;
+
+		moveDir = m5::normalize(moveDir);
+
+		m5::vec5 targetVel = moveDir * speed;
+		targetVel.a = vel.a;
+
+		m5::vec5 velDiff = targetVel - vel;
+
+		m5::vec5 movement = velDiff * 24.0f;
+
+		vel += movement * dt;
+
+		if (onGround && keys.space)
+		{
+			onGround = false;
+			vel.a += 12.0f;
+		}
+	}
+
+	if (collision)
+	{
+		double t = dt;
+		for (int i = 0; i < 5 && t > 0.00000001; ++i)
+		{
+			float velLength = vel.length();
+			if (velLength < 0.00000001f)
+			{
+				break;
+			}
+
+			m5::vec5 velNormalized = vel / velLength;
+
+			velLength *= t;
+
+			World::Collision closestHit{};
+			closestHit.dist = 10000000.0f;
+			float closestHitHeight = 0.0f;
+			for (int j = 0; j <= 4; ++j)
+			{
+				float height = playerHeight * j / 4.0f;
+				m5::vec5 pos = cam.pos;
+				pos.a -= height;
+				auto hit = world.dda(pos, velNormalized, velLength);
+				if (hit.blockId && hit.dist < closestHit.dist)
+				{
+					closestHit = hit;
+					closestHitHeight = height;
+				}
+			}
+
+			if (closestHit.blockId)
+			{
+				//cam.pos = closestHit.pos + closestHit.normal * 0.001f;
+				//cam.pos.a += closestHitHeight;
+
+				float tHit = glm::max(closestHit.dist - 0.001f, 0.0f) / velLength * t;
+				t -= tHit;
+				cam.pos += vel * tHit;
+
+				float vn = m5::dot(vel, closestHit.normal);
+				if (vn < 0.0f)
+				{
+					vel -= closestHit.normal * vn;
+					if (closestHit.side == 1)
+					{
+						onGround = true;
+					}
+				}
+				cam.pos += closestHit.normal * 0.001f;
+			}
+			else
+			{
+				cam.pos += vel * t;
+				break;
+			}
+		}
+
+		m5::vec5 feetPos = cam.pos;
+		feetPos.a -= playerHeight;
+		feetPos.a += 0.01f;
+		auto groundCheck = world.dda(feetPos, -m5::vec5::up(), 0.1f);
+		if (!groundCheck.blockId)
+		{
+			onGround = false;
+		}
+	}
+	else
+	{
+		cam.pos += vel * dt;
+	}
 
 	coordsText.setText(std::format(
 		"Pos: A:{:+.1f} B:{:+.1f} C:{:+.1f} D:{:+.1f} E:{:+.1f}\n"
@@ -349,7 +466,7 @@ void StateGame::render(StateManager& s)
 	rendererShader->setUniform("lightDir", lightDir);
 	rendererShader->setUniform("time", (float)glfwGetTime());
 	rendererShader->setUniform("target.targeting", target.blockId != 0);
-	rendererShader->setUniform("target.blockPos", target.pos);
+	rendererShader->setUniform("target.blockPos", target.blockPos);
 	rendererShader->setUniform("target.side", target.side);
 	QuadRendererBasic::render();
 
@@ -467,7 +584,7 @@ void StateGame::mouseButtonInput(StateManager& s, int button, int action, int mo
 		keys.lmb = (action == GLFW_PRESS);
 		if (keys.lmb)
 		{
-			world.setBlock(target.pos, Block::AIR);
+			world.setBlock(target.blockPos, Block::AIR);
 			updateRendererData();
 		}
 		break;
@@ -595,18 +712,28 @@ void StateGame::keyInput(StateManager& s, int key, int scancode, int action, int
 	{
 		if (action == GLFW_PRESS)
 		{
-			world.setBlock(target.pos + target.normal, key - GLFW_KEY_0);
+			world.setBlock(target.blockPos + target.normal, key - GLFW_KEY_0);
 			updateRendererData();
+		}
+	} break;
+	case GLFW_KEY_V:
+	{
+		if (action == GLFW_PRESS)
+		{
+			flight = !flight;
+		}
+	} break;
+	case GLFW_KEY_C:
+	{
+		if (action == GLFW_PRESS)
+		{
+			collision = !collision;
 		}
 	} break;
 	case GLFW_KEY_W: keys.w = (action == GLFW_PRESS); break;
 	case GLFW_KEY_S:
 	{
 		keys.s = (action == GLFW_PRESS);
-		if (keys.s && (mods & GLFW_MOD_CONTROL))
-		{
-			save();
-		}
 		break;
 	}
 	case GLFW_KEY_A: keys.a = (action == GLFW_PRESS); break;
