@@ -1007,7 +1007,7 @@ void StateGame::exec(std::string_view cmd)
 			print(
 				"- help - Outputs this list.\n"
 				"- clear - Clears the log.\n"
-				"- setBlock <pos> <id> - Sets a block at a position, e.g. \"setBlock ~0 ~1 ~0 ~0 ~0 3\".\n"
+				"- setBlock <pos> <id> - Sets a block at a position, e.g. \"setBlock ~ ~1 ~+1 ~-1 ~ 3\".\n"
 				"- fill <posA> <posB> <id> - Fills a region with a block.\n"
 				"- tp <pos> - Teleports the player to a position, e.g. \"tp 0 32 0 0 0\".\n"
 				"- align <compA> <compB> - Aligns the player to the plane \"A<compA><compB>\", e.g. \"align BC\".\n"
@@ -1118,8 +1118,7 @@ void StateGame::exec(std::string_view cmd)
 			} while (s.length() < 2);
 
 			// to lower case
-			std::transform(s.begin(), s.end(), s.begin(),
-				[](unsigned char c) { return std::tolower(c); });
+			utils::toLower(s);
 
 			if (s[0] == s[1] ||
 				s[0] < 'b' || s[0] > 'e' ||
