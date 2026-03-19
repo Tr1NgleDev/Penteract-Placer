@@ -936,28 +936,31 @@ std::optional<m5::vec5> StateGame::posArg(const std::vector<std::string>& args, 
 			{
 				result[i] = cam.pos[i];
 
-				if (arg.size() > 2 && (arg[1] == '+' || arg[1] == '-'))
+				if (arg.size() > 1)
 				{
-					try
+					if (arg.size() > 2 && (arg[1] == '+' || arg[1] == '-'))
 					{
-						float x = std::stof(arg.substr(2));
-						result[i] += x * (arg[1] == '-' ? -1 : 1);
+						try
+						{
+							float x = std::stof(arg.substr(2));
+							result[i] += x * (arg[1] == '-' ? -1 : 1);
+						}
+						catch (const std::exception&)
+						{
+							return std::nullopt;
+						}
 					}
-					catch (const std::exception&)
+					else
 					{
-						return std::nullopt;
-					}
-				}
-				else
-				{
-					try
-					{
-						float x = std::stof(arg.substr(1));
-						result[i] += x;
-					}
-					catch (const std::exception&)
-					{
-						return std::nullopt;
+						try
+						{
+							float x = std::stof(arg.substr(1));
+							result[i] += x;
+						}
+						catch (const std::exception&)
+						{
+							return std::nullopt;
+						}
 					}
 				}
 			}
