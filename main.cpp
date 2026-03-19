@@ -21,6 +21,8 @@
 
 #include <Windows.h>
 
+#include "Directory.h"
+
 #ifdef _WIN32
 extern "C"
 {
@@ -211,6 +213,11 @@ int main()
 	ui::element::renderInit();
 
 	audio::init();
+
+	if (!Directory::exists("worlds"))
+	{
+		Directory::create("worlds");
+	}
 
 	stateManager.changeState(StateTitleScreen::instance());
 
