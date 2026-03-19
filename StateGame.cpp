@@ -340,7 +340,15 @@ void StateGame::update(StateManager& s, double dt)
 	{
 		if (!onGround)
 		{
-			vel.a += gravity * dt;
+			float g = gravity;
+
+			// in water
+			if (waterCheckbox.getChecked() && collision && cam.pos.a - playerHeight < 30.75f)
+			{
+				g *= 0.2f;
+			}
+
+			vel.a += g * dt;
 			if (cam.pos.a < -10.0f)
 			{
 				vel.a = 0.0f;
