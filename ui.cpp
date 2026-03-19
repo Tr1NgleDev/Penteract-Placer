@@ -19,7 +19,9 @@ void ui::page::getCursorPos(double* xpos, double* ypos)
 void ui::page::changeViewport(const glm::ivec4& pos, const glm::ivec2& scroll)
 {
 	int wWidth, wHeight;
-	glfwGetWindowSize(window, &wWidth, &wHeight);
+	glfwGetFramebufferSize(window, &wWidth, &wHeight);
+
+	if (wWidth == 0 || wHeight == 0) return;
 
 	glViewport(pos.x, wHeight - pos.y - pos.w, pos.z, pos.w);
 
@@ -129,7 +131,7 @@ void ui::page::init(GLFWwindow* w)
 void ui::page::render()
 {
 	int wWidth, wHeight;
-	glfwGetWindowSize(window, &wWidth, &wHeight);
+	glfwGetFramebufferSize(window, &wWidth, &wHeight);
 
 	for (auto elem : elems)
 	{

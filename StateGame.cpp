@@ -38,7 +38,6 @@ void StateGame::init(StateManager& s)
 
 	int wWidth, wHeight;
 	s.getSize(&wWidth, &wHeight);
-	windowResize(s, wWidth, wHeight);
 
 	{
 		pausedText.setText("Paused...");
@@ -284,6 +283,9 @@ void StateGame::init(StateManager& s)
 	audio::addToBgmList("music/Not spook.mp3");
 	audio::loadSound("music/Spook ambient.mp3");
 	audio::addToBgmList("music/Spook ambient.mp3");
+
+
+	windowResize(s, wWidth, wHeight);
 }
 
 void StateGame::close(StateManager& s)
@@ -955,7 +957,7 @@ std::optional<m5::vec5> StateGame::posArg(const std::vector<std::string>& args, 
 			{
 				try
 				{
-					float x = std::stof(arg.substr(1));
+					float x = std::stof(arg);
 					result[i] = x;
 				}
 				catch (const std::exception&)
@@ -1206,6 +1208,9 @@ void StateGame::windowResize(StateManager&, int width, int height)
 	projection3D = glm::perspective(cam.vFov, w * invH, 0.03f, 1000.0f);
 
 	rendererShader->setUniform("screenSize", w, h, invW, invH);
+
+
+	ui.windowResize(width, height);
 }
 
 World* StateGame::createWorld(uint8_t edgeLength)
