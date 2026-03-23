@@ -79,21 +79,21 @@ void StateGame::init(StateManager& s)
 		quitToTitleButton.setOffsetY(550);
 
 		shadowsCheckbox.setText("Shadows");
-		shadowsCheckbox.setChecked("true");
+		shadowsCheckbox.setChecked(true);
 		shadowsCheckbox.setAlignX(ui::ALIGN_LEFT);
 		shadowsCheckbox.setAlignY(ui::ALIGN_BOTTOM);
 		shadowsCheckbox.setOffsetX(10);
 		shadowsCheckbox.setOffsetY(-75);
 
 		ambientOcclusionCheckbox.setText("Ambient Occlusion");
-		ambientOcclusionCheckbox.setChecked("true");
+		ambientOcclusionCheckbox.setChecked(true);
 		ambientOcclusionCheckbox.setAlignX(ui::ALIGN_LEFT);
 		ambientOcclusionCheckbox.setAlignY(ui::ALIGN_BOTTOM);
 		ambientOcclusionCheckbox.setOffsetX(10);
 		ambientOcclusionCheckbox.setOffsetY(-50);
 
 		waterCheckbox.setText("Water");
-		waterCheckbox.setChecked("true");
+		waterCheckbox.setChecked(true);
 		waterCheckbox.setAlignX(ui::ALIGN_LEFT);
 		waterCheckbox.setAlignY(ui::ALIGN_BOTTOM);
 		waterCheckbox.setOffsetX(10);
