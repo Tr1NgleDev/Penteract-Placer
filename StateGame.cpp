@@ -8,11 +8,94 @@
 #include "Directory.h"
 #include "utils.h"
 #include "audio.h"
+#include "File.h"
 
 StateGame StateGame::instanceObj;
 StateGame* StateGame::instance()
 {
 	return &instanceObj;
+}
+
+void StateGame::saveSettings() const
+{
+	std::ofstream file{ "settings.json" };
+
+	if (!file.is_open())
+	{
+		return;
+	}
+
+	nlohmann::json j
+	{
+		{ "water", waterCheckbox.getChecked() },
+		{ "ao", ambientOcclusionCheckbox.getChecked() },
+		{ "shadows", shadowsCheckbox.getChecked() },
+		{ "scaleUIx2", scaleUIx2Checkbox.getChecked() },
+	};
+
+	file << j.dump(1, '\t');
+
+	file.close();
+}
+
+void StateGame::loadSettings()
+{
+	if (!std::filesystem::exists("settings.json"))
+	{
+		saveSettings();
+	}
+
+	std::ifstream file{ "settings.json" };
+	if (!file.is_open())
+	{
+		return;
+	}
+
+	nlohmann::json j = nlohmann::json::parse(file);
+	file.close();
+
+	try
+	{
+		if (j.contains("water") && j["water"].is_boolean())
+		{
+			waterCheckbox.setChecked(j["water"]);
+		}
+		else
+		{
+			waterCheckbox.setChecked(true);
+		}
+
+		if (j.contains("ao") && j["ao"].is_boolean())
+		{
+			ambientOcclusionCheckbox.setChecked(j["ao"]);
+		}
+		else
+		{
+			ambientOcclusionCheckbox.setChecked(true);
+		}
+
+		if (j.contains("shadows") && j["shadows"].is_boolean())
+		{
+			shadowsCheckbox.setChecked(j["shadows"]);
+		}
+		else
+		{
+			shadowsCheckbox.setChecked(true);
+		}
+
+		if (j.contains("scaleUIx2") && j["scaleUIx2"].is_boolean())
+		{
+			scaleUIx2Checkbox.setChecked(j["scaleUIx2"]);
+		}
+		else
+		{
+			scaleUIx2Checkbox.setChecked(false);
+		}
+	}
+	catch (const nlohmann::json::exception&)
+	{
+
+	}
 }
 
 void StateGame::init(StateManager& s)
@@ -83,21 +166,30 @@ void StateGame::init(StateManager& s)
 		shadowsCheckbox.setAlignX(ui::ALIGN_LEFT);
 		shadowsCheckbox.setAlignY(ui::ALIGN_BOTTOM);
 		shadowsCheckbox.setOffsetX(10);
-		shadowsCheckbox.setOffsetY(-75);
+		shadowsCheckbox.setOffsetY(-100);
 
 		ambientOcclusionCheckbox.setText("Ambient Occlusion");
 		ambientOcclusionCheckbox.setChecked(true);
 		ambientOcclusionCheckbox.setAlignX(ui::ALIGN_LEFT);
 		ambientOcclusionCheckbox.setAlignY(ui::ALIGN_BOTTOM);
 		ambientOcclusionCheckbox.setOffsetX(10);
-		ambientOcclusionCheckbox.setOffsetY(-50);
+		ambientOcclusionCheckbox.setOffsetY(-75);
 
 		waterCheckbox.setText("Water");
 		waterCheckbox.setChecked(true);
 		waterCheckbox.setAlignX(ui::ALIGN_LEFT);
 		waterCheckbox.setAlignY(ui::ALIGN_BOTTOM);
 		waterCheckbox.setOffsetX(10);
-		waterCheckbox.setOffsetY(-25);
+		waterCheckbox.setOffsetY(-50);
+
+		scaleUIx2Checkbox.setText("Scale UI x2");
+		scaleUIx2Checkbox.setChecked(false);
+		scaleUIx2Checkbox.setAlignX(ui::ALIGN_LEFT);
+		scaleUIx2Checkbox.setAlignY(ui::ALIGN_BOTTOM);
+		scaleUIx2Checkbox.setOffsetX(10);
+		scaleUIx2Checkbox.setOffsetY(-25);
+
+		loadSettings();
 
 		pauseMenu.clear();
 		pauseMenu.addElem(&pausedText);
@@ -107,6 +199,7 @@ void StateGame::init(StateManager& s)
 		pauseMenu.addElem(&shadowsCheckbox);
 		pauseMenu.addElem(&ambientOcclusionCheckbox);
 		pauseMenu.addElem(&waterCheckbox);
+		pauseMenu.addElem(&scaleUIx2Checkbox);
 
 		paused = false;
 	}
@@ -290,6 +383,8 @@ void StateGame::init(StateManager& s)
 
 void StateGame::close(StateManager& s)
 {
+	saveSettings();
+
 	save();
 	if (s.getUiPage() != nullptr)
 	{
@@ -312,6 +407,19 @@ void StateGame::resume(StateManager& s)
 
 void StateGame::update(StateManager& s, double dt)
 {
+	if (!scaleUIx2Checkbox.getChecked())
+	{
+		fpsText.setSize(2);
+		coordsText.setSize(1);
+		coordsText.setOffsetY(25);
+	}
+	else
+	{
+		fpsText.setSize(4);
+		coordsText.setSize(2);
+		coordsText.setOffsetY(45);
+	}
+
 	audio::updateBgm();
 
 	float speed = keys.ctrl ? 12.0f : 7.0f;

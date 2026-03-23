@@ -112,6 +112,7 @@ private:
 	ui::checkbox shadowsCheckbox;
 	ui::checkbox ambientOcclusionCheckbox;
 	ui::checkbox waterCheckbox;
+	ui::checkbox scaleUIx2Checkbox;
 
 	ui::page ui;
 	ui::text fpsText;
@@ -155,4 +156,7 @@ private:
 	void exec(std::string_view cmd);
 
 	void updateRendererData();
+
+	void saveSettings() const;
+	void loadSettings();
 };
