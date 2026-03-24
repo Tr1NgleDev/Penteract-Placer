@@ -422,7 +422,7 @@ void StateGame::update(StateManager& s, double dt)
 
 	audio::updateBgm();
 
-	float speed = keys.ctrl ? 12.0f : 7.0f;
+	float speed = playerSpeed * (keys.ctrl ? playerSprintMod : 1.0f);
 
 	if (flight)
 	{
@@ -486,7 +486,7 @@ void StateGame::update(StateManager& s, double dt)
 
 		m5::vec5 velDiff = targetVel - vel;
 
-		m5::vec5 movement = velDiff * 24.0f;
+		m5::vec5 movement = velDiff * (playerSpeed * 3.0f);
 
 		vel += movement * dt;
 
@@ -749,13 +749,21 @@ void StateGame::updateConsoleInput()
 
 void StateGame::scrollInput(StateManager& s, double xoff, double yoff)
 {
-	if (yoff < 0)
+	if (keys.alt)
 	{
-		selectBlock(selectedBlock < Block::COUNT - 1 ? selectedBlock + 1 : Block::AIR + 1);
+		playerSpeed += yoff * 0.2;
+		playerSpeed = glm::max(playerSpeed, 0.0f);
 	}
-	else if (yoff > 0)
+	else
 	{
-		selectBlock(selectedBlock > Block::AIR + 1 ? selectedBlock - 1 : Block::COUNT - 1);
+		if (yoff < 0)
+		{
+			selectBlock(selectedBlock < Block::COUNT - 1 ? selectedBlock + 1 : Block::AIR + 1);
+		}
+		else if (yoff > 0)
+		{
+			selectBlock(selectedBlock > Block::AIR + 1 ? selectedBlock - 1 : Block::COUNT - 1);
+		}
 	}
 }
 
@@ -1026,6 +1034,36 @@ std::optional<int64_t> StateGame::intArg(const std::vector<std::string>& args, i
 	return result;
 }
 
+std::optional<double> StateGame::floatArg(const std::vector<std::string>& args, int& cursor, double min, double max)
+{
+	if (cursor + 1 > args.size())
+	{
+		return std::nullopt;
+	}
+
+	double result;
+
+	try
+	{
+		const std::string& arg = args[cursor];
+		double x = std::stod(arg);
+		result = x;
+	}
+	catch (const std::exception&)
+	{
+		return std::nullopt;
+	}
+
+	if (result < min || result > max)
+	{
+		return std::nullopt;
+	}
+
+	cursor += 1;
+
+	return result;
+}
+
 std::optional<m5::vec5> StateGame::posArg(const std::vector<std::string>& args, int& cursor)
 {
 	if (cursor + 5 > args.size())
@@ -1130,7 +1168,8 @@ void StateGame::exec(std::string_view cmd)
 				"- fill <posA> <posB> <id> - Fills a region with a block.\n"
 				"- tp <pos> - Teleports the player to a position, e.g. \"tp 0 32 0 0 0\".\n"
 				"- align <compA> <compB> - Aligns the player to the plane \"A<compA><compB>\", e.g. \"align BC\".\n"
-				"- save - Saves the world."
+				"- save - Saves the world.\n"
+				"- speed [ups] - Gets/Sets the movement speed. Default = 7. e.g. \"speed 0.1\""
 				, false
 			);
 			return true;
@@ -1195,6 +1234,8 @@ void StateGame::exec(std::string_view cmd)
 								world.setBlock({ a,b,c,d,e }, id.value());
 							}
 			updateRendererData();
+
+			print(std::format("Filled {} blocks.", (maxA - minA + 1) * (maxB - minB + 1) * (maxC - minC + 1) * (maxD - minD + 1) * (maxE - minE + 1)));
 
 			return true;
 		}},
@@ -1282,6 +1323,24 @@ void StateGame::exec(std::string_view cmd)
 
 			return true;
 		}},
+		{ "speed", [&]()
+		{
+			int cursor = 1;
+
+			auto speed = floatArg(args, cursor, 0.0);
+			if (!speed.has_value())
+			{
+				print(std::format("The movement speed is {:.3f} u/s.", playerSpeed));
+
+				return true;
+			}
+
+			playerSpeed = speed.value();
+
+			print(std::format("Set the movement speed to {:.3f} u/s.", playerSpeed));
+
+			return true;
+		} },
 	};
 
 	print(std::format("{}", cmd), true);

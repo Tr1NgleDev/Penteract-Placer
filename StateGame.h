@@ -55,6 +55,8 @@ private:
 	bool flight = false;
 	m5::vec5 vel{ 0 };
 	bool onGround = false;
+	float playerSpeed = 7.0f;
+	float playerSprintMod = 2.0f;
 
 	World::Collision target;
 	glm::mat4 projection3D;
@@ -151,6 +153,7 @@ private:
 	void updateConsoleInput();
 	std::optional<std::string> strArg(const std::vector<std::string>& args, int& cursor);
 	std::optional<int64_t> intArg(const std::vector<std::string>& args, int& cursor, int64_t min = INT_MIN, int64_t max = INT_MAX);
+	std::optional<double> floatArg(const std::vector<std::string>& args, int& cursor, double min = -INFINITY, double max = INFINITY);
 	std::optional<m5::vec5> posArg(const std::vector<std::string>& args, int& cursor);
 	void print(std::string_view message, bool includeTime = true);
 	void exec(std::string_view cmd);
