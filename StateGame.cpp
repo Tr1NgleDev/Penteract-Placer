@@ -286,7 +286,6 @@ void StateGame::init(StateManager& s)
 	audio::addToBgmList("music/Spook ambient.mp3");
 	audio::loadSound("music/kind of like the end.mp3");
 	audio::addToBgmList("music/kind of like the end.mp3");
-	windowResize(s, wWidth, wHeight);
 }
 
 void StateGame::close(StateManager& s)
