@@ -8,11 +8,94 @@
 #include "Directory.h"
 #include "utils.h"
 #include "audio.h"
+#include "File.h"
 
 StateGame StateGame::instanceObj;
 StateGame* StateGame::instance()
 {
 	return &instanceObj;
+}
+
+void StateGame::saveSettings() const
+{
+	std::ofstream file{ "settings.json" };
+
+	if (!file.is_open())
+	{
+		return;
+	}
+
+	nlohmann::json j
+	{
+		{ "water", waterCheckbox.getChecked() },
+		{ "ao", ambientOcclusionCheckbox.getChecked() },
+		{ "shadows", shadowsCheckbox.getChecked() },
+		{ "scaleUIx2", scaleUIx2Checkbox.getChecked() },
+	};
+
+	file << j.dump(1, '\t');
+
+	file.close();
+}
+
+void StateGame::loadSettings()
+{
+	if (!std::filesystem::exists("settings.json"))
+	{
+		saveSettings();
+	}
+
+	std::ifstream file{ "settings.json" };
+	if (!file.is_open())
+	{
+		return;
+	}
+
+	nlohmann::json j = nlohmann::json::parse(file);
+	file.close();
+
+	try
+	{
+		if (j.contains("water") && j["water"].is_boolean())
+		{
+			waterCheckbox.setChecked(j["water"]);
+		}
+		else
+		{
+			waterCheckbox.setChecked(true);
+		}
+
+		if (j.contains("ao") && j["ao"].is_boolean())
+		{
+			ambientOcclusionCheckbox.setChecked(j["ao"]);
+		}
+		else
+		{
+			ambientOcclusionCheckbox.setChecked(true);
+		}
+
+		if (j.contains("shadows") && j["shadows"].is_boolean())
+		{
+			shadowsCheckbox.setChecked(j["shadows"]);
+		}
+		else
+		{
+			shadowsCheckbox.setChecked(true);
+		}
+
+		if (j.contains("scaleUIx2") && j["scaleUIx2"].is_boolean())
+		{
+			scaleUIx2Checkbox.setChecked(j["scaleUIx2"]);
+		}
+		else
+		{
+			scaleUIx2Checkbox.setChecked(false);
+		}
+	}
+	catch (const nlohmann::json::exception&)
+	{
+
+	}
 }
 
 void StateGame::init(StateManager& s)
@@ -38,7 +121,6 @@ void StateGame::init(StateManager& s)
 
 	int wWidth, wHeight;
 	s.getSize(&wWidth, &wHeight);
-	windowResize(s, wWidth, wHeight);
 
 	{
 		pausedText.setText("Paused...");
@@ -80,25 +162,34 @@ void StateGame::init(StateManager& s)
 		quitToTitleButton.setOffsetY(550);
 
 		shadowsCheckbox.setText("Shadows");
-		shadowsCheckbox.setChecked("true");
+		shadowsCheckbox.setChecked(true);
 		shadowsCheckbox.setAlignX(ui::ALIGN_LEFT);
 		shadowsCheckbox.setAlignY(ui::ALIGN_BOTTOM);
 		shadowsCheckbox.setOffsetX(10);
-		shadowsCheckbox.setOffsetY(-75);
+		shadowsCheckbox.setOffsetY(-100);
 
 		ambientOcclusionCheckbox.setText("Ambient Occlusion");
-		ambientOcclusionCheckbox.setChecked("true");
+		ambientOcclusionCheckbox.setChecked(true);
 		ambientOcclusionCheckbox.setAlignX(ui::ALIGN_LEFT);
 		ambientOcclusionCheckbox.setAlignY(ui::ALIGN_BOTTOM);
 		ambientOcclusionCheckbox.setOffsetX(10);
-		ambientOcclusionCheckbox.setOffsetY(-50);
+		ambientOcclusionCheckbox.setOffsetY(-75);
 
 		waterCheckbox.setText("Water");
-		waterCheckbox.setChecked("true");
+		waterCheckbox.setChecked(true);
 		waterCheckbox.setAlignX(ui::ALIGN_LEFT);
 		waterCheckbox.setAlignY(ui::ALIGN_BOTTOM);
 		waterCheckbox.setOffsetX(10);
-		waterCheckbox.setOffsetY(-25);
+		waterCheckbox.setOffsetY(-50);
+
+		scaleUIx2Checkbox.setText("Scale UI x2");
+		scaleUIx2Checkbox.setChecked(false);
+		scaleUIx2Checkbox.setAlignX(ui::ALIGN_LEFT);
+		scaleUIx2Checkbox.setAlignY(ui::ALIGN_BOTTOM);
+		scaleUIx2Checkbox.setOffsetX(10);
+		scaleUIx2Checkbox.setOffsetY(-25);
+
+		loadSettings();
 
 		pauseMenu.clear();
 		pauseMenu.addElem(&pausedText);
@@ -108,6 +199,7 @@ void StateGame::init(StateManager& s)
 		pauseMenu.addElem(&shadowsCheckbox);
 		pauseMenu.addElem(&ambientOcclusionCheckbox);
 		pauseMenu.addElem(&waterCheckbox);
+		pauseMenu.addElem(&scaleUIx2Checkbox);
 
 		paused = false;
 	}
@@ -286,10 +378,13 @@ void StateGame::init(StateManager& s)
 	audio::addToBgmList("music/Spook ambient.mp3");
 	audio::loadSound("music/kind of like the end.mp3");
 	audio::addToBgmList("music/kind of like the end.mp3");
+	windowResize(s, wWidth, wHeight);
 }
 
 void StateGame::close(StateManager& s)
 {
+	saveSettings();
+
 	save();
 	if (s.getUiPage() != nullptr)
 	{
@@ -312,9 +407,22 @@ void StateGame::resume(StateManager& s)
 
 void StateGame::update(StateManager& s, double dt)
 {
+	if (!scaleUIx2Checkbox.getChecked())
+	{
+		fpsText.setSize(2);
+		coordsText.setSize(1);
+		coordsText.setOffsetY(25);
+	}
+	else
+	{
+		fpsText.setSize(4);
+		coordsText.setSize(2);
+		coordsText.setOffsetY(45);
+	}
+
 	audio::updateBgm();
 
-	float speed = keys.ctrl ? 12.0f : 7.0f;
+	float speed = playerSpeed * (keys.ctrl ? playerSprintMod : 1.0f);
 
 	if (flight)
 	{
@@ -340,7 +448,15 @@ void StateGame::update(StateManager& s, double dt)
 	{
 		if (!onGround)
 		{
-			vel.a += gravity * dt;
+			float g = gravity;
+
+			// in water
+			if (waterCheckbox.getChecked() && collision && cam.pos.a - playerHeight < 30.75f)
+			{
+				g *= 0.2f;
+			}
+
+			vel.a += g * dt;
 			if (cam.pos.a < -10.0f)
 			{
 				vel.a = 0.0f;
@@ -370,7 +486,7 @@ void StateGame::update(StateManager& s, double dt)
 
 		m5::vec5 velDiff = targetVel - vel;
 
-		m5::vec5 movement = velDiff * 24.0f;
+		m5::vec5 movement = velDiff * (playerSpeed * 3.0f);
 
 		vel += movement * dt;
 
@@ -633,13 +749,21 @@ void StateGame::updateConsoleInput()
 
 void StateGame::scrollInput(StateManager& s, double xoff, double yoff)
 {
-	if (yoff < 0)
+	if (keys.alt)
 	{
-		selectBlock(selectedBlock < Block::COUNT - 1 ? selectedBlock + 1 : Block::AIR + 1);
+		playerSpeed += yoff * 0.2;
+		playerSpeed = glm::max(playerSpeed, 0.0f);
 	}
-	else if (yoff > 0)
+	else
 	{
-		selectBlock(selectedBlock > Block::AIR + 1 ? selectedBlock - 1 : Block::COUNT - 1);
+		if (yoff < 0)
+		{
+			selectBlock(selectedBlock < Block::COUNT - 1 ? selectedBlock + 1 : Block::AIR + 1);
+		}
+		else if (yoff > 0)
+		{
+			selectBlock(selectedBlock > Block::AIR + 1 ? selectedBlock - 1 : Block::COUNT - 1);
+		}
 	}
 }
 
@@ -910,6 +1034,36 @@ std::optional<int64_t> StateGame::intArg(const std::vector<std::string>& args, i
 	return result;
 }
 
+std::optional<double> StateGame::floatArg(const std::vector<std::string>& args, int& cursor, double min, double max)
+{
+	if (cursor + 1 > args.size())
+	{
+		return std::nullopt;
+	}
+
+	double result;
+
+	try
+	{
+		const std::string& arg = args[cursor];
+		double x = std::stod(arg);
+		result = x;
+	}
+	catch (const std::exception&)
+	{
+		return std::nullopt;
+	}
+
+	if (result < min || result > max)
+	{
+		return std::nullopt;
+	}
+
+	cursor += 1;
+
+	return result;
+}
+
 std::optional<m5::vec5> StateGame::posArg(const std::vector<std::string>& args, int& cursor)
 {
 	if (cursor + 5 > args.size())
@@ -928,28 +1082,31 @@ std::optional<m5::vec5> StateGame::posArg(const std::vector<std::string>& args, 
 			{
 				result[i] = cam.pos[i];
 
-				if (arg.size() > 2 && (arg[1] == '+' || arg[1] == '-'))
+				if (arg.size() > 1)
 				{
-					try
+					if (arg.size() > 2 && (arg[1] == '+' || arg[1] == '-'))
 					{
-						float x = std::stof(arg.substr(2));
-						result[i] += x * (arg[1] == '-' ? -1 : 1);
+						try
+						{
+							float x = std::stof(arg.substr(2));
+							result[i] += x * (arg[1] == '-' ? -1 : 1);
+						}
+						catch (const std::exception&)
+						{
+							return std::nullopt;
+						}
 					}
-					catch (const std::exception&)
+					else
 					{
-						return std::nullopt;
-					}
-				}
-				else
-				{
-					try
-					{
-						float x = std::stof(arg.substr(1));
-						result[i] += x;
-					}
-					catch (const std::exception&)
-					{
-						return std::nullopt;
+						try
+						{
+							float x = std::stof(arg.substr(1));
+							result[i] += x;
+						}
+						catch (const std::exception&)
+						{
+							return std::nullopt;
+						}
 					}
 				}
 			}
@@ -957,7 +1114,7 @@ std::optional<m5::vec5> StateGame::posArg(const std::vector<std::string>& args, 
 			{
 				try
 				{
-					float x = std::stof(arg.substr(1));
+					float x = std::stof(arg);
 					result[i] = x;
 				}
 				catch (const std::exception&)
@@ -1007,11 +1164,12 @@ void StateGame::exec(std::string_view cmd)
 			print(
 				"- help - Outputs this list.\n"
 				"- clear - Clears the log.\n"
-				"- setBlock <pos> <id> - Sets a block at a position, e.g. \"setBlock ~0 ~1 ~0 ~0 ~0 3\".\n"
+				"- setBlock <pos> <id> - Sets a block at a position, e.g. \"setBlock ~ ~1 ~+1 ~-1 ~ 3\".\n"
 				"- fill <posA> <posB> <id> - Fills a region with a block.\n"
 				"- tp <pos> - Teleports the player to a position, e.g. \"tp 0 32 0 0 0\".\n"
 				"- align <compA> <compB> - Aligns the player to the plane \"A<compA><compB>\", e.g. \"align BC\".\n"
-				"- save - Saves the world."
+				"- save - Saves the world.\n"
+				"- speed [ups] - Gets/Sets the movement speed. Default = 7. e.g. \"speed 0.1\""
 				, false
 			);
 			return true;
@@ -1077,6 +1235,8 @@ void StateGame::exec(std::string_view cmd)
 							}
 			updateRendererData();
 
+			print(std::format("Filled {} blocks.", (maxA - minA + 1) * (maxB - minB + 1) * (maxC - minC + 1) * (maxD - minD + 1) * (maxE - minE + 1)));
+
 			return true;
 		}},
 		{ "tp", [&]()
@@ -1118,8 +1278,7 @@ void StateGame::exec(std::string_view cmd)
 			} while (s.length() < 2);
 
 			// to lower case
-			std::transform(s.begin(), s.end(), s.begin(),
-				[](unsigned char c) { return std::tolower(c); });
+			utils::toLower(s);
 
 			if (s[0] == s[1] ||
 				s[0] < 'b' || s[0] > 'e' ||
@@ -1164,6 +1323,24 @@ void StateGame::exec(std::string_view cmd)
 
 			return true;
 		}},
+		{ "speed", [&]()
+		{
+			int cursor = 1;
+
+			auto speed = floatArg(args, cursor, 0.0);
+			if (!speed.has_value())
+			{
+				print(std::format("The movement speed is {:.3f} u/s.", playerSpeed));
+
+				return true;
+			}
+
+			playerSpeed = speed.value();
+
+			print(std::format("Set the movement speed to {:.3f} u/s.", playerSpeed));
+
+			return true;
+		} },
 	};
 
 	print(std::format("{}", cmd), true);
@@ -1208,6 +1385,9 @@ void StateGame::windowResize(StateManager&, int width, int height)
 	projection3D = glm::perspective(cam.vFov, w * invH, 0.03f, 1000.0f);
 
 	rendererShader->setUniform("screenSize", w, h, invW, invH);
+
+
+	ui.windowResize(width, height);
 }
 
 World* StateGame::createWorld(uint8_t edgeLength)
