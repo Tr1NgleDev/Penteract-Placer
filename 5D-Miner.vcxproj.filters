@@ -81,6 +81,15 @@
     <ClCompile Include="StateGeneratingWorld.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="audio.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="StateControls.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="StateLoadWorld.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -204,6 +213,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="OpenSimplexNoise.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="audio.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="StateControls.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="StateLoadWorld.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

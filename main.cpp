@@ -266,3 +266,15 @@ int main()
 
 	return 0;
 }
+
+#ifndef _DEBUG
+int CALLBACK WinMain(
+	__in  HINSTANCE hInstance,
+	__in  HINSTANCE hPrevInstance,
+	__in  LPSTR lpCmdLine,
+	__in  int nCmdShow
+)
+{
+	return main();
+}
+#endif
