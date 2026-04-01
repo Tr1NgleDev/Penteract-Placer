@@ -632,7 +632,7 @@ void main()
 	}
 
 	vec5 intersection = add(ro, mul(rd, 0.001));
-	const int stepCount = 16;
+	const int stepCount = 50;
 	bool hitWater = false;
 	float waterDist = 0.001;
 	for (int i = 0; i < stepCount && waterDist < fogEnd; ++i)
