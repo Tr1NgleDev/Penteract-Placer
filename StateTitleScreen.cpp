@@ -53,8 +53,8 @@ void StateTitleScreen::init(StateManager& s)
 	s.setUiPage(&page);
 
 	audio::clearBgm();
-	audio::loadSound("music/hows this lol.mp3");
-	audio::addToBgmList("music/hows this lol.mp3");
+	audio::loadSound("music/Extended Intro.mp3");
+	audio::addToBgmList("music/Extended Intro.mp3");
 }
 
 void StateTitleScreen::close(StateManager& s)
