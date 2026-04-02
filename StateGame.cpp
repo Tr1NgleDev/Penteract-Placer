@@ -486,7 +486,7 @@ void StateGame::update(StateManager& s, double dt)
 
 		m5::vec5 velDiff = targetVel - vel;
 
-		m5::vec5 movement = velDiff * (playerSpeed * 3.0f);
+		m5::vec5 movement = velDiff * 24.0f;
 
 		vel += movement * dt;
 
