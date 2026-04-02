@@ -1,8 +1,7 @@
 #version 450 core
 
 #extension GL_ARB_bindless_texture : require
-#extension GL_ARB_gpu_shader_int64 : enable
-precision mediump float;
+//#extension GL_ARB_gpu_shader_int64 : require
 
 const float EPS = 1e-6;
 const float INF = 1e30;
@@ -142,7 +141,7 @@ uniform vec5 lightDir;
 
 layout(std430, binding = 1) readonly buffer BlockDataHandles
 {
-	uint64_t blockData[];
+	uvec2 blockData[];
 };
 uniform usampler3D chunks;
 uniform ivec4 chunksMinBound;
@@ -155,7 +154,7 @@ layout(std430, binding = 2) readonly buffer BlockTexturesBuffer
 
 layout(std430, binding = 3) readonly buffer TileTexturesBuffer
 {
-	uint64_t tiles[];
+	uvec2 tiles[];
 };
 
 struct Target
@@ -166,15 +165,13 @@ struct Target
 };
 uniform Target target;
 
-uint getBlock(uint64_t handle, ivec5 v)
+uint getBlock(in uvec2 handle, ivec5 v)
 {
-	usampler3D tex = usampler3D(handle);
-	
 	int texX = v.abcd.y;
 	int texY = v.abcd.z;
 	int texZ = v.abcd.w + v.e * 8;
 	
-	uvec4 col = texelFetch(tex, ivec3(texX, texY, texZ), 0);
+	uvec4 col = texelFetch(usampler3D(handle), ivec3(texX, texY, texZ), 0);
 	
 	uint c = uint(v.abcd.x) >> 3u;
 	uint shift = (uint(v.abcd.x) & 7u) << 2u;
