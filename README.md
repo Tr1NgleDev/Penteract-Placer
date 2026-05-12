@@ -1,5 +1,5 @@
 # Penteract Placer
-> A game made by @Mashpoe and @Tr1NgleDev  
+> A game made by Mashpoe and Tr1NgleDev  
 > For [RAMDER's](https://www.youtube.com/@RAMDER_plus) april fools [video](https://www.youtube.com/watch?v=ITbmXBFPhvE).  
 > (codename 5D-Miner lol)  
 
