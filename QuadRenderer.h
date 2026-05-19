@@ -1,6 +1,6 @@
 #pragma once
 #include <GL/glew.h>
-#include "texture.h"
+#include "Texture.h"
 #include "Shader.h"
 
 #include <glm/mat4x4.hpp>

@@ -19,8 +19,6 @@
 
 #include "audio.h"
 
-#include <Windows.h>
-
 #include "Directory.h"
 
 #ifdef _WIN32
@@ -267,6 +265,7 @@ int main()
 	return 0;
 }
 
+#ifdef _WIN32
 #ifndef _DEBUG
 int CALLBACK WinMain(
 	__in  HINSTANCE hInstance,
@@ -277,4 +276,5 @@ int CALLBACK WinMain(
 {
 	return main();
 }
+#endif
 #endif

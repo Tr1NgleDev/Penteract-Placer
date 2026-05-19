@@ -4,10 +4,6 @@
 #include "StateManager.h"
 #include <iostream>
 #include <filesystem>
-// sorry
-#include <Windows.h>
-#undef min;
-#undef max;
 
 StateCreateWorld StateCreateWorld::instanceObj;
 StateCreateWorld* StateCreateWorld::instance()
@@ -108,12 +104,6 @@ void StateCreateWorld::init(StateManager& s)
 
 			if (worldName.empty())
 			{
-				MessageBox(
-					NULL,
-					(LPCWSTR)L"Error: you must enter a world name!!!!!",
-					(LPCWSTR)L"Error",
-					MB_ICONWARNING | MB_OK
-				);
 				return;
 			}
 
