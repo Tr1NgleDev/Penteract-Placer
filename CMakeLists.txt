@@ -96,6 +96,8 @@ if(MSVC)
 endif()
 
 if(WIN32)
+	set_target_properties(pp PROPERTIES WIN32_EXECUTABLE "$<NOT:$<CONFIG:Debug>>")
+
 	install(IMPORTED_RUNTIME_ARTIFACTS glfw DESTINATION .)
 
 	install(TARGETS pp RUNTIME DESTINATION .)
