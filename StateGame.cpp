@@ -1365,7 +1365,7 @@ void StateGame::print(std::string_view message, bool includeTime)
 	console.log += '\n';
 	if (includeTime)
 	{
-		auto time = std::chrono::system_clock::now();
+		auto time = std::chrono::floor<std::chrono::seconds>(std::chrono::system_clock::now());
 		console.log += std::format("[{:%H:%M:%S}]: ", time);
 	}
 	console.log += message;
