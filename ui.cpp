@@ -2,6 +2,8 @@
 #include <glm/gtc/random.hpp>
 #include <cassert>
 
+#include "utils.h"
+
 ui::page::page() : currentCursor{ glfwCreateStandardCursor(currentCursorType) }
 {
 }
@@ -13,7 +15,7 @@ GLFWwindow* ui::page::getGlfwWindow()
 
 void ui::page::getCursorPos(double* xpos, double* ypos)
 {
-	glfwGetCursorPos(window, xpos, ypos);
+	utils::getCursorPos(window, xpos, ypos);
 }
 
 void ui::page::changeViewport(const glm::ivec4& pos, const glm::ivec2& scroll)
@@ -191,7 +193,7 @@ bool ui::page::scrollInput(double xoff, double yoff)
 {
 	double xpos, ypos;
 	int mx, my;
-	glfwGetCursorPos(window, &xpos, &ypos);
+	utils::getCursorPos(window, &xpos, &ypos);
 	mx = xpos;
 	my = ypos;
 
@@ -222,7 +224,7 @@ bool ui::page::mouseButtonInput(int button, int action, int mods)
 {
 	double xpos, ypos;
 	int mx, my;
-	glfwGetCursorPos(window, &xpos, &ypos);
+	utils::getCursorPos(window, &xpos, &ypos);
 	mx = xpos;
 	my = ypos;
 

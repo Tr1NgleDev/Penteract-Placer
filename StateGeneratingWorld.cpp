@@ -158,7 +158,7 @@ void StateGeneratingWorld::render(StateManager& s)
 	float progress = 1.0f - ((float)taskCount / taskCountTotal);
 
 	int wWidth, wHeight;
-	glfwGetWindowSize(s.getWindow(), &wWidth, &wHeight);
+	glfwGetFramebufferSize(s.getWindow(), &wWidth, &wHeight);
 
 	int w = glm::max(100, wWidth - 100);
 	int h = 20;

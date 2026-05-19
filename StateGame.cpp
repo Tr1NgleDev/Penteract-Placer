@@ -9,6 +9,7 @@
 #include "utils.h"
 #include "audio.h"
 #include "File.h"
+#include <chrono>
 
 StateGame StateGame::instanceObj;
 StateGame* StateGame::instance()
@@ -1361,17 +1362,11 @@ void StateGame::exec(std::string_view cmd)
 
 void StateGame::print(std::string_view message, bool includeTime)
 {
-	time_t t = time(0);
-	tm tm;
-	localtime_s(&tm, &t);
-	
-	std::stringstream timeStr;
-	timeStr << std::put_time(&tm, "%H:%M:%S");
-
 	console.log += '\n';
 	if (includeTime)
 	{
-		console.log += std::format("[{}]: ", timeStr.str());
+		auto time = std::chrono::system_clock::now();
+		console.log += std::format("[{:%H:%M:%S}]: ", time);
 	}
 	console.log += message;
 
@@ -1387,7 +1382,6 @@ void StateGame::windowResize(StateManager&, int width, int height)
 	projection3D = glm::perspective(cam.vFov, w * invH, 0.03f, 1000.0f);
 
 	rendererShader->setUniform("screenSize", w, h, invW, invH);
-
 
 	ui.windowResize(width, height);
 }
@@ -1415,16 +1409,19 @@ void StateGame::updateCamDirs()
 
 void StateGame::enableCursor(GLFWwindow* window)
 {
-	glfwSetCursorPos(window, lastMousePos.x, lastMousePos.y);
+	utils::setCursorPos(window, lastMousePos.x, lastMousePos.y);
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+
+	utils::showCursor(window);
 }
 
 void StateGame::disableCursor(GLFWwindow* window)
 {
-	glfwGetCursorPos(window, &lastMousePos.x, &lastMousePos.y);
+	utils::getCursorPos(window, &lastMousePos.x, &lastMousePos.y);
 
-	//glfwSetCursorPos(window, 0.0, 0.0);
+	//utils::setCursorPos(window, 0.0, 0.0);
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	utils::hideCursor(window);
 }
 
 void StateGame::save()

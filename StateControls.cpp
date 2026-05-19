@@ -43,7 +43,7 @@ void StateControls::init(StateManager& s)
 	s.setUiPage(&page);
 
 	int wWidth, wHeight;
-	glfwGetWindowSize(s.getWindow(), &wWidth, &wHeight);
+	glfwGetFramebufferSize(s.getWindow(), &wWidth, &wHeight);
 	windowResize(s, wWidth, wHeight);
 }
 

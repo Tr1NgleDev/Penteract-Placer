@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include <GL/glew.h>
+#include <glad/gl.h>
 #include <GLFW/glfw3.h>
 
 #include <ndtf/ndtf.h>
@@ -31,8 +31,13 @@ extern "C"
 
 void handleRawMouseInput(GLFWwindow* window, double xpos, double ypos)
 {
+	int wW, wH;
+	glfwGetWindowSize(window, &wW, &wH);
+	int fW, fH;
+	glfwGetFramebufferSize(window, &fW, &fH);
+
 	StateManager* s = reinterpret_cast<StateManager*>(glfwGetWindowUserPointer(window));
-	s->mouseInput(xpos, ypos);
+	s->mouseInput(xpos * fW / wW, ypos * fH / wH);
 }
 void scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 {
@@ -102,7 +107,9 @@ void APIENTRY glDebugOutput(GLenum source, GLenum type, unsigned int id, GLenum 
 
 int main()
 {
+#ifdef _WIN32
 	SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_HIGHEST);
+#endif
 
 	if (!glfwInit())
 	{
@@ -147,16 +154,15 @@ int main()
 	glfwSwapInterval(1);
 
 	glfwMakeContextCurrent(window);
-	glewExperimental = true;
-	if (glewInit())
+	if (!gladLoadGL(glfwGetProcAddress))
 	{
-		printf("Failed to initialize GLEW!\n");
+		printf("Failed to initialize OpenGL!\n");
 		glfwDestroyWindow(window);
 		glfwTerminate();
 		return 3;
 	}
 
-	if (!GLEW_ARB_bindless_texture)
+	if (!GLAD_GL_ARB_bindless_texture)
 	{
 		printf("The ARB_bindless_texture OpenGL extension is not supported!\n");
 		glfwDestroyWindow(window);

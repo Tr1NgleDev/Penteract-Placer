@@ -2,7 +2,7 @@
 #include "State.h"
 #include "Math5D.h"
 #include "ui.h"
-#include <GL/glew.h>
+#include <glad/gl.h>
 #include <GLFW/glfw3.h>
 #include <vector>
 

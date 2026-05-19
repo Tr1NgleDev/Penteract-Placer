@@ -57,4 +57,42 @@ namespace utils
 		std::transform(s.begin(), s.end(), s.begin(),
 			[](uint8_t c) { return std::toupper(c); });
 	}
+
+	// window and framebuffer sizes may be different on mac and wayland because of hidpi.
+	// this maps the cursor pos from window coordinates to framebuffer coordinates.
+	inline void getCursorPos(GLFWwindow* window, double* x, double* y)
+	{
+		double xp, yp;
+		glfwGetCursorPos(window, &xp, &yp);
+		int wW, wH;
+		glfwGetWindowSize(window, &wW, &wH);
+		int fW, fH;
+		glfwGetFramebufferSize(window, &fW, &fH);
+
+		if (x) *x = xp * fW / wW;
+		if (y) *y = yp * fH / wH;
+	}
+	inline void setCursorPos(GLFWwindow* window, double x, double y)
+	{
+		int wW, wH;
+		glfwGetWindowSize(window, &wW, &wH);
+		int fW, fH;
+		glfwGetFramebufferSize(window, &fW, &fH);
+
+		glfwSetCursorPos(window, x * wW / fW, y * wH / fH);
+	}
+
+	// wayland doesn't hide the cursor when you disable it.
+	inline void hideCursor(GLFWwindow* window)
+	{
+		static uint8_t pixels[4] = { 0, 0, 0, 0 };
+		static GLFWimage image{ 1, 1, pixels };
+		static GLFWcursor* cursor = glfwCreateCursor(&image, 0, 0);
+
+		glfwSetCursor(window, cursor);
+	}
+	inline void showCursor(GLFWwindow* window)
+	{
+		glfwSetCursor(window, nullptr);
+	}
 }

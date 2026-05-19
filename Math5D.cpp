@@ -1197,7 +1197,7 @@ namespace m5
 	}
 
 	// yonder - at some distance in the direction indicated; over there
-	mat6 m5::createCamera5D(const vec5& eye, const vec5& left, const vec5& up, const vec5& forward, const vec5& over, const vec5& yonder)
+	mat6 createCamera5D(const vec5& eye, const vec5& left, const vec5& up, const vec5& forward, const vec5& over, const vec5& yonder)
 	{
 		mat6 cameraD{ -left, up, forward, over, yonder, {} };
 		cameraD = mat6::transpose(cameraD);
