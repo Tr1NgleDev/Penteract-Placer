@@ -67,6 +67,8 @@ set(HEADER_FILES
 
 add_executable(pp ${SRC_FILES} ${HEADER_FILES} "icon.rc")
 
+set_target_properties(pp PROPERTIES OUTPUT_NAME "Penteract Placer")
+
 find_package(OpenGL REQUIRED)
 target_link_libraries(pp PRIVATE ${OPENGL_LIBRARIES})
 
