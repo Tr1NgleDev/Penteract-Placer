@@ -16,7 +16,7 @@ public:
 	struct BlockColumn
 	{
 		// maximum 4-bit value, 15
-		inline static constexpr uint8_t BLOCK_ID_MAX = 0b00001111ui8;
+		inline static constexpr uint8_t BLOCK_ID_MAX = 0b00001111;
 
 		std::array<uint8_t, HEIGHT / 2> blockData{ 0 };
 

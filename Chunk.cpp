@@ -18,7 +18,7 @@ void Chunk::BlockColumn::setBlock(size_t index, uint8_t value)
 
 	uint8_t& dst = blockData[index >> 1];
 	// clear the destination bits
-	dst &= 0b11110000ui8 >> shift;
+	dst &= (uint8_t)0b11110000 >> shift;
 	// apply the block-value bits
 	dst |= value << shift;
 }

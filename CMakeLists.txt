@@ -75,21 +75,21 @@ target_link_libraries(pp PRIVATE ${OPENGL_LIBRARIES})
 find_package(glfw3 CONFIG REQUIRED)
 target_link_libraries(pp PRIVATE glfw)
 
-find_package(GLEW REQUIRED)
-target_link_libraries(pp PRIVATE GLEW::GLEW)
-
 find_package(glm CONFIG REQUIRED)
 target_link_libraries(pp PRIVATE glm::glm-header-only)
 target_compile_definitions(pp PRIVATE GLM_EXPERIMENTAL)
 
-find_package(Boost REQUIRED COMPONENTS uuid lexical_cast)
-target_link_libraries(pp PRIVATE Boost::uuid Boost::lexical_cast)
+find_package(Boost REQUIRED)
+target_link_libraries(pp PRIVATE Boost::headers)
 
 add_subdirectory("libs/ndtf")
 target_link_libraries(pp PRIVATE ndtf)
 
 add_subdirectory("libs/soloud/contrib")
 target_link_libraries(pp PRIVATE SoLoud)
+
+add_subdirectory("libs/glad")
+target_link_libraries(pp PRIVATE glad)
 
 if(MSVC)
 	add_definitions(-D_CRT_SECURE_NO_WARNINGS -DNOMINMAX)

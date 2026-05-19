@@ -130,8 +130,8 @@ private:
 
 	struct
 	{
-		inline static constexpr int height = 300;
-		inline static constexpr int maxLines = height / 8 - 1;
+		const int height = 300;
+		const int maxLines = height / 8 - 1;
 		QuadRenderer qr;
 		bool open = true;
 		bool blockCharInput = true;
