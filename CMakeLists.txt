@@ -4,68 +4,11 @@ project(pp)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(SRC_FILES 
-	"main.cpp"
-	"audio.cpp"
-	"Chunk.cpp"
-	"Directory.cpp"
-	"File.cpp"
-	"Framebuffer.cpp"
-	"GPUBuffer.cpp"
-	"Math5D.cpp"
-	"QuadRenderer.cpp"
-	"QuadRendererBasic.cpp"
-	"Shader.cpp"
-	"StateManager.cpp"
-	"StateControls.cpp"
-	"StateCreateWorld.cpp"
-	"StateGame.cpp"
-	"StateGeneratingWorld.cpp"
-	"StateLoadWorld.cpp"
-	"StateTitleScreen.cpp"
-	"TexRenderer.cpp"
-	"TextRenderer.cpp"
-	"Texture.cpp"
-	"TextureBuffer.cpp"
-	"World.cpp"
-	"ui.cpp"
-)
-set(HEADER_FILES 
-	"audio.h"
-	"Block.h"
-	"Chunk.h"
-	"Directory.h"
-	"File.h"
-	"Framebuffer.h"
-	"GPUBuffer.h"
-	"MashPool.h"
-	"Math5D.h"
-	"OpenSimplexNoise.hpp"
-	"QuadRenderer.h"
-	"QuadRendererBasic.h"
-	"Shader.h"
-	"State.h"
-	"StateManager.h"
-	"StateControls.h"
-	"StateCreateWorld.h"
-	"StateGame.h"
-	"StateGeneratingWorld.h"
-	"StateLoadWorld.h"
-	"StateTitleScreen.h"
-	"stb_image.h"
-	"TexRenderer.h"
-	"TextRenderer.h"
-	"Texture.h"
-	"TextureBuffer.h"
-	"World.h"
-	"tuple_hash.h"
-	"ui.h"
-	"utils.h"
-	"vec5.h"
-	"vec6.h"
-)
+include_directories(include)
 
-add_executable(pp ${SRC_FILES} ${HEADER_FILES} "icon.rc")
+file(GLOB SRC_FILES src/*.c src/*.cpp)
+
+add_executable(pp ${SRC_FILES} "icon.rc")
 
 set_target_properties(pp PROPERTIES OUTPUT_NAME "Penteract Placer")
 
