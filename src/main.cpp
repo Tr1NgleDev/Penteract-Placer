@@ -21,6 +21,8 @@
 
 #include "Directory.h"
 
+#include "stb_image.h"
+
 #ifdef _WIN32
 extern "C"
 {
@@ -130,6 +132,22 @@ int main()
 	{
 		printf("Failed to initialize the window!\n");
 		return 2;
+	}
+
+	// load the window icon
+	{
+		GLFWimage icons[4];
+		for (int i = 0; i < 4; ++i)
+		{
+			int size = 16 * (i + 1);
+			int c;
+			icons[i].pixels = stbi_load(std::format("assets/textures/icon{}.png", size).c_str(), &icons[i].width, &icons[i].height, &c, 4);
+		}
+		glfwSetWindowIcon(window, 4, icons);
+		for (int i = 0; i < 4; ++i)
+		{
+			stbi_image_free(icons[i].pixels);
+		}
 	}
 
 	StateManager stateManager{ window };
