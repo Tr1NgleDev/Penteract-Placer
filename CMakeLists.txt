@@ -108,5 +108,21 @@ if(WIN32)
 	install(DIRECTORY ${CMAKE_SOURCE_DIR}/assets DESTINATION .)
 
 elseif(LINUX)
-	# idk man
+	install(TARGETS pp RUNTIME DESTINATION lib/pp RENAME "Penteract Placer")
+	install(DIRECTORY ${CMAKE_SOURCE_DIR}/assets DESTINATION lib/pp)
+
+	configure_file(
+			${CMAKE_CURRENT_SOURCE_DIR}/cmake/dev.tr1ngle.pp.desktop
+			${CMAKE_CURRENT_BINARY_DIR}/dev.tr1ngle.pp.desktop
+			@ONLY
+	)
+	install(FILES ${CMAKE_CURRENT_BINARY_DIR}/dev.tr1ngle.pp.desktop
+			DESTINATION share/applications
+	)
+
+	install(FILES ${CMAKE_SOURCE_DIR}/LICENSE.txt DESTINATION share/licenses/pp)
+	install(FILES ${CMAKE_SOURCE_DIR}/assets/textures/icon16.png DESTINATION share/icons/hicolor/16x16/apps RENAME dev.tr1ngle.pp.png)
+	install(FILES ${CMAKE_SOURCE_DIR}/assets/textures/icon32.png DESTINATION share/icons/hicolor/32x32/apps RENAME dev.tr1ngle.pp.png)
+	install(FILES ${CMAKE_SOURCE_DIR}/assets/textures/icon48.png DESTINATION share/icons/hicolor/48x48/apps RENAME dev.tr1ngle.pp.png)
+	install(FILES ${CMAKE_SOURCE_DIR}/assets/textures/icon64.png DESTINATION share/icons/hicolor/64x64/apps RENAME dev.tr1ngle.pp.png)
 endif()
