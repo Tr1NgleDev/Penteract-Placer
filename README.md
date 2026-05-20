@@ -12,7 +12,7 @@ Most of the "core"/"initial setup" code was taken from [tetraxis](https://github
 Rendering is based on a "ray-traced" graphics experiment 4D Miner mod I made a while ago (which is currently private).  
 
 # Texture Format
-The 4D block textures are stored in the [NDTF (N-Dimensional Texture Format)](https://github.com/Tr1NgleDev/ndtf) format. (btw the ND part of it is a lie it supports only up to 6D in the current version lol)  
+The 4D block textures are stored in the [NDTF (N-Dimensional Texture Format)](https://github.com/Tr1NgleDev/ndtf) format. (btw the ND part of it is a lie it supports only up to 5D in the current version lol)  
 While a viewer app is being developed, you can use these CLIs to convert to and from a standard image format (like .png):
 - [ndtf2img](https://github.com/Tr1NgleDev/ndtf2img)
 - [img2ndtf](https://github.com/Tr1NgleDev/img2ndtf)
