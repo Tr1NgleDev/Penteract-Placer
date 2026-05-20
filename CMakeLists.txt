@@ -68,7 +68,7 @@ set(HEADER_FILES
 
 include_directories(include)
 
-add_executable(pp ${SRC_FILES} ${HEADER_FILES} "icon.rc")
+add_executable(pp ${SRC_FILES} ${HEADER_FILES} "src/icon.rc")
 
 set_target_properties(pp PROPERTIES OUTPUT_NAME "Penteract Placer")
 
